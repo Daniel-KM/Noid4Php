@@ -1110,7 +1110,7 @@ EOD;
         $info = array();
         $info['bind/brief'] = <<<'EOD'
 
-   noid bind How Id Element Value	# to bind an Id's Element, where
+   noid bind How Id Element Value # to bind an Id's Element, where
       How is set|add|insert|new|replace|mint|append|prepend|delete|purge.
       Use an Id of :idmap/Idpattern, Value=PerlReplacementPattern so that
       fetch returns variable values.  Use ":" as Element to read Elements
@@ -1153,7 +1153,7 @@ is not globally registered.
 EOD;
         $info['fetch/brief'] = <<<'EOD'
 
-   noid fetch Id Element …		# fetch/map one or more Elements
+   noid fetch Id Element …  # fetch/map one or more Elements
 
 EOD;
         $info['fetch'] = <<<'EOD'
@@ -1167,7 +1167,7 @@ sets "myGoto" element of identifier "fk0wqkb" to a string (here a URL).
 EOD;
         $info['get/brief'] = <<<'EOD'
 
-   noid get Id Element …		# fetch/map Elements without labels
+   noid get Id Element …  # fetch/map Elements without labels
 
 EOD;
         $info['get'] = '';
@@ -1175,13 +1175,13 @@ EOD;
         $info['hello'] = '';
         $info['hold/brief'] = <<<'EOD'
 
-   noid hold (set|release) Id …	# place or remove a "hold" on Id(s)
+   noid hold (set|release) Id … # place or remove a "hold" on Id(s)
 
 EOD;
         $info['hold'] = '';
         $info['mint/brief'] = <<<'EOD'
 
-   noid mint N [ Elem Value ]	# to mint N identifiers (optionally binding)
+   noid mint N [ Elem Value ] # to mint N identifiers (optionally binding)
 
 EOD;
         $info['mint'] = '';
@@ -1191,7 +1191,7 @@ EOD;
         $info['peppermint'] = '';
         $info['queue/brief'] = <<<'EOD'
 
-   noid queue (now|first|lvf|Time) Id …	# queue (eg, recycle) Id(s)
+   noid queue (now|first|lvf|Time) Id … # queue (eg, recycle) Id(s)
       Time is NU, meaning N units, where U= d(ays) | s(econds).
       With "lvf" (Lowest Value First) lowest value of id will mint first.
 
@@ -1199,7 +1199,7 @@ EOD;
         $info['queue'] = '';
         $info['validate/brief'] = <<<'EOD'
 
-   noid validate Template Id …	# to check if Ids are valid
+   noid validate Template Id … # to check if Ids are valid
       Use Template of "-" to use the minter's native template.
 
 EOD;
