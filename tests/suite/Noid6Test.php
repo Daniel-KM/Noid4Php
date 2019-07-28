@@ -53,20 +53,20 @@ class Noid6Test extends NoidTestCase
 
         # Check that the "NOID" subdirectory was created.
         $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
-        # echo 'NOID was created';
+        # echo 'NOID was created';
 
         # That "NOID" is a directory.
         $this->assertTrue(is_dir($this->noid_dir), 'NOID is not a directory, stopped');
-        # echo 'NOID is a directory';
+        # echo 'NOID is a directory';
 
         # Check for the presence of the "README" file, then "log" file, then the
         # "logbdb" file within "NOID".
         $this->assertFileExists($this->noid_dir . 'README');
         # echo 'NOID/README was created';
         $this->assertFileExists($this->noid_dir . 'log');
-        # echo 'NOID/log was created';
+        # echo 'NOID/log was created';
         $this->assertFileExists($this->noid_dir . 'logbdb');
-        # echo 'NOID/logbdb was created';
+        # echo 'NOID/logbdb was created';
 
         # Check for the presence of the BerkeleyDB file within "NOID".
         $this->assertFileExists($this->noid_dir . 'noid.bdb', 'minter initialization failed, stopped');
@@ -83,7 +83,7 @@ class Noid6Test extends NoidTestCase
 
         $bound_noid = preg_replace('/^id:\s+/', '', $noid_output[0]);
         $this->assertNotEmpty($bound_noid);
-        # echo '"id: " preceded minted noid';
+        # echo '"id: " preceded minted noid';
         unset($noid_output);
 
         # Set up the elements and values that we'll bind to this noid.
@@ -139,7 +139,7 @@ class Noid6Test extends NoidTestCase
         # Check seocnd line.
         $regex = '/^Circ:\s+/';
         $this->assertNotEmpty(preg_match($regex, $noid_output[1]));
-        # echo 'line 2 of "fetch" output';
+        # echo 'line 2 of "fetch" output';
 
         # Remove the first two lines from the array.
         array_shift($noid_output);
@@ -167,6 +167,6 @@ class Noid6Test extends NoidTestCase
         # Everything that was bound and has been verified has been deleted from
         # the hash.  So the hash should now be empty.
         $this->assertEmpty($bind_stuff);
-        # echo 'everything that was bound was returned by the "fetch" command';
+        # echo 'everything that was bound was returned by the "fetch" command';
     }
 }

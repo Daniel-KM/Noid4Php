@@ -45,20 +45,20 @@ class Noid2Test extends NoidTestCase
 
         # Check that the "NOID" subdirectory was created.
         $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
-        # echo 'NOID was created';
+        # echo 'NOID was created';
 
         # That "NOID" is a directory.
         $this->assertTrue(is_dir($this->noid_dir), 'NOID is not a directory, stopped');
-        # echo 'NOID is a directory';
+        # echo 'NOID is a directory';
 
         # Check for the presence of the "README" file, then "log" file, then the
         # "logbdb" file within "NOID".
         $this->assertFileExists($this->noid_dir . 'README');
         # echo 'NOID/README was created';
         $this->assertFileExists($this->noid_dir . 'log');
-        # echo 'NOID/log was created';
+        # echo 'NOID/log was created';
         $this->assertFileExists($this->noid_dir . 'logbdb');
-        # echo 'NOID/logbdb was created';
+        # echo 'NOID/logbdb was created';
 
         # Check for the presence of the BerkeleyDB file within "NOID".
         $this->assertFileExists($this->noid_dir . 'noid.bdb', 'minter initialization failed, stopped');
@@ -72,7 +72,7 @@ class Noid2Test extends NoidTestCase
         # Examine the contents of the log.
         $fh = fopen($this->noid_dir . 'log', 'r');
         $this->assertNotEmpty($fh, 'failed to open log file, stopped');
-        # echo 'successfully opened "' . $this->noid_dir . 'log"';
+        # echo 'successfully opened "' . $this->noid_dir . 'log"';
 
         # Read in the log.
         fclose($fh);
@@ -81,7 +81,7 @@ class Noid2Test extends NoidTestCase
         $this->assertEquals(4, count($log_lines),
             # If we don't have exactly 4 lines, something is probably very wrong.
             'log_lines: ' . implode(', ', $log_lines));
-        # echo 'number of lines in "' . $this->noid_dir . 'log"';
+        # echo 'number of lines in "' . $this->noid_dir . 'log"';
 
         # Remove trailing newlines.
         $log_lines = array_map('trim', $log_lines);

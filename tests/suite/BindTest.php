@@ -28,19 +28,19 @@ class NoidBindTest extends NoidTestCase
         $id = Noid::mint($noid, $contact, '');
         $id = Noid::mint($noid, $contact, '');
         $this->assertEquals('01', $id);
-        # echo 'sequential mint verify';
+        # echo 'sequential mint verify';
 
         $result = Noid::bind($noid, $contact, 1, 'set', $id, 'myelem', 'myvalue');
         $this->assertNotEmpty(preg_match('/Status:  ok, 7/', $result));
-        # echo 'simple bind';
+        # echo 'simple bind';
 
         $result = Noid::fetch($noid, 1, $id, 'myelem');
         $this->assertNotEmpty(preg_match('/myelem: myvalue/', $result));
-        # echo 'simple fetch';
+        # echo 'simple fetch';
 
         $result = Noid::fetch($noid, 0, $id, 'myelem');
         $this->assertNotEmpty(preg_match('/^myvalue$/', $result));
-        # echo 'simple non-verbose (get) fetch';
+        # echo 'simple non-verbose (get) fetch';
 
         Noid::dbclose($noid);
     }
@@ -60,29 +60,29 @@ class NoidBindTest extends NoidTestCase
 
         $id = Noid::mint($noid, $contact, '');
         $this->assertEquals('00', $id);
-        # echo 'mint first';
+        # echo 'mint first';
 
         $result = Noid::hold($noid, $contact, 'set', '01');
         $this->assertEquals(1, $result);
-        # echo 'hold next';
+        # echo 'hold next';
 
         $id = Noid::mint($noid, $contact, '');
         $this->assertEquals('02', $id);
-        # echo 'mint next skips id held';
+        # echo 'mint next skips id held';
 
         # Shouldn't have to release hold to queue it
         $result = Noid::queue($noid, $contact, 'now', $id);
         $regex = "/id: " . preg_quote($id, '/') . '/';
         $this->assertNotEmpty(preg_match($regex, $result[0]));
-        # echo 'queue previously held';
+        # echo 'queue previously held';
 
         $id = Noid::mint($noid, $contact, '');
         $this->assertEquals('02', $id);
-        # echo 'mint next gets from queue';
+        # echo 'mint next gets from queue';
 
         $id = Noid::mint($noid, $contact, '');
         $this->assertEquals('03', $id);
-        # echo 'mint next back to normal';
+        # echo 'mint next back to normal';
 
         Noid::dbclose($noid);
     }
@@ -107,12 +107,12 @@ class NoidBindTest extends NoidTestCase
 
         $id = Noid::mint($noid, $contact, '');
         $this->assertEquals('fk491f', $id);
-        # echo 'mint first';
+        # echo 'mint first';
 
         $result = Noid::validate($noid, '-', 'fk491f');
         $regex = '/error: /';
         $this->assertEquals(0, preg_match($regex, $result[0]));
-        # echo 'validate just minted';
+        # echo 'validate just minted';
 
         $result = Noid::validate($noid, '-', 'fk492f');
         $regex = '/iderr: /';
@@ -142,17 +142,17 @@ class NoidBindTest extends NoidTestCase
 
         $id = Noid::mint($noid, $contact, '');
         $this->assertEquals('fk00', $id);
-        # echo 'mint first';
+        # echo 'mint first';
 
         $result = Noid::validate($noid, '-', 'fk9w');
         $regex = '/error: /';
         $this->assertEquals(0, preg_match($regex, $result[0]));
-        # echo 'validate just minted';
+        # echo 'validate just minted';
 
         $result = Noid::validate($noid, '-', 'fkw9');
         $regex = '/iderr: /';
         $this->assertEquals(1, preg_match($regex, $result[0]));
-        # echo 'validate just minted';
+        # echo 'validate just minted';
 
         $result = Noid::validate($noid, '-', 'fk9w5');
         $regex = '/iderr: /';
@@ -219,7 +219,7 @@ class NoidBindTest extends NoidTestCase
 
             $id = Noid::mint($noid, $contact, '');
             $this->assertEquals($first, $id, sprintf('First is not "%s" for template "%s".', $first, $template));
-            # echo 'mint first';
+            # echo 'mint first';
 
             Noid::dbclose($noid);
         }

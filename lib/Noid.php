@@ -2228,13 +2228,13 @@ NAAN:      $naan
 
         self::_dbunlock();
 
-        # print 'saclist: ' . dba_fetch("$R/saclist", $db) . PHP_EOL
-        #     . 'final top: ' . dba_fetch("$R/c$n/top", $db) . PHP_EOL
-        #     . "percounter=$pctr" . PHP_EOL;
-        # foreach ($saclist as $c) {
-        #     print "$c, ";
-        # }
-        # print PHP_EOL;
+        # print 'saclist: ' . dba_fetch("$R/saclist", $db) . PHP_EOL
+        #     . 'final top: ' . dba_fetch("$R/c$n/top", $db) . PHP_EOL
+        #     . "percounter=$pctr" . PHP_EOL;
+        # foreach ($saclist as $c) {
+        #     print "$c, ";
+        # }
+        # print PHP_EOL;
     }
 
     /**

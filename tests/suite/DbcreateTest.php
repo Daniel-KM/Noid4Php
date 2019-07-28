@@ -60,7 +60,7 @@ class NoidDbCreateTest extends NoidTestCase
         $result = $this->_short('ab.rdddk', 'stdout');
         $regex = '/' . preg_quote('a mask of type "[de]+" may contain only characters from', '/') . '/';
         $this->assertNotEmpty(preg_match($regex, $result));
-        # echo 'prefix vowels not ok with check char';
+        # echo 'prefix vowels not ok with check char';
     }
 
     /**
@@ -95,7 +95,7 @@ class NoidDbCreateTest extends NoidTestCase
             $id = Noid::mint($noid, $contact, '');
         };
         $this->assertEquals('8r900', $id);
-        # echo 'sequential mint test wrap to first';
+        # echo 'sequential mint test wrap to first';
 
         Noid::dbclose($noid);
     }

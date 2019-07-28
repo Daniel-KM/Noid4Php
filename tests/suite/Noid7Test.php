@@ -57,20 +57,20 @@ class Noid7Test extends NoidTestCase
 
         # Check that the "NOID" subdirectory was created.
         $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
-        # echo 'NOID was created';
+        # echo 'NOID was created';
 
         # That "NOID" is a directory.
         $this->assertTrue(is_dir($this->noid_dir), 'NOID is not a directory, stopped');
-        # echo 'NOID is a directory';
+        # echo 'NOID is a directory';
 
         # Check for the presence of the "README" file, then "log" file, then the
         # "logbdb" file within "NOID".
         $this->assertFileExists($this->noid_dir . 'README');
         # echo 'NOID/README was created';
         $this->assertFileExists($this->noid_dir . 'log');
-        # echo 'NOID/log was created';
+        # echo 'NOID/log was created';
         $this->assertFileExists($this->noid_dir . 'logbdb');
-        # echo 'NOID/logbdb was created';
+        # echo 'NOID/logbdb was created';
 
         # Check for the presence of the BerkeleyDB file within "NOID".
         $this->assertFileExists($this->noid_dir . 'noid.bdb', 'minter initialization failed, stopped');
@@ -151,7 +151,7 @@ class Noid7Test extends NoidTestCase
         $this->assertEquals(0, $status);
         $noid_output = explode(PHP_EOL, $output);
         $this->assertGreaterThan(0, count($noid_output));
-        # echo '"fetch" command on noid 1 generated some output';
+        # echo '"fetch" command on noid 1 generated some output';
 
         # Remove all newlines.
         $noid_output = array_map('trim', $noid_output);
@@ -180,7 +180,7 @@ class Noid7Test extends NoidTestCase
 
         $this->assertEquals($element1, $matches[1]);
         $this->assertEquals($value1, $matches[2]);
-        # echo 'line 3 of "fetch" output for noid 1';
+        # echo 'line 3 of "fetch" output for noid 1';
 
         $cmd = "{$this->noid_cmd} fetch $bound_noid2";
         $this->_executeCommand($cmd, $status, $output, $errors);
@@ -188,7 +188,7 @@ class Noid7Test extends NoidTestCase
 
         $noid_output = explode(PHP_EOL, $output);
         $this->assertGreaterThan(0, count($noid_output));
-        # echo '"fetch" command on noid 2 generated some output';
+        # echo '"fetch" command on noid 2 generated some output';
 
         # Remove all newlines.
         $noid_output = array_map('trim', $noid_output);
@@ -217,7 +217,7 @@ class Noid7Test extends NoidTestCase
 
         $this->assertEquals($element2, $matches[1]);
         $this->assertEquals($value2[0], $matches[2]);
-        # echo 'line 3 of "fetch" output for noid 2';
+        # echo 'line 3 of "fetch" output for noid 2';
 
         for ($i = 1; $i <= 9; $i++) {
             $this->assertEquals($value2[$i], $noid_output[$i + 2]);

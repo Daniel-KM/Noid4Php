@@ -45,20 +45,20 @@ class Noid5Test extends NoidTestCase
 
         # Check that the "NOID" subdirectory was created.
         $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
-        # echo 'NOID was created';
+        # echo 'NOID was created';
 
         # That "NOID" is a directory.
         $this->assertTrue(is_dir($this->noid_dir), 'NOID is not a directory, stopped');
-        # echo 'NOID is a directory';
+        # echo 'NOID is a directory';
 
         # Check for the presence of the "README" file, then "log" file, then the
         # "logbdb" file within "NOID".
         $this->assertFileExists($this->noid_dir . 'README');
         # echo 'NOID/README was created';
         $this->assertFileExists($this->noid_dir . 'log');
-        # echo 'NOID/log was created';
+        # echo 'NOID/log was created';
         $this->assertFileExists($this->noid_dir . 'logbdb');
-        # echo 'NOID/logbdb was created';
+        # echo 'NOID/logbdb was created';
 
         # Check for the presence of the BerkeleyDB file within "NOID".
         $this->assertFileExists($this->noid_dir . 'noid.bdb', 'minter initialization failed, stopped');
@@ -73,11 +73,11 @@ class Noid5Test extends NoidTestCase
         $noid_output = array_map('trim', $noid_output);
         $noid_output = array_filter($noid_output, 'strlen');
         $this->assertGreaterThanOrEqual(1, count($noid_output));
-        # echo 'at least one line of output from attempt to bind to an unminted id';
+        # echo 'at least one line of output from attempt to bind to an unminted id';
 
         $msg = 'error: 13030/tst594: "long" term disallows binding ' .
             'an unissued identifier unless a hold is first placed on it.';
         $this->assertEquals($msg, $noid_output[0]);
-        # echo 'disallowed binding to unminted id';
+        # echo 'disallowed binding to unminted id';
     }
 }

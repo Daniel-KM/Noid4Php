@@ -51,20 +51,20 @@ class Noid1Test extends NoidTestCase
 
         # Check that the "NOID" subdirectory was created.
         $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
-        # echo 'NOID was created';
+        # echo 'NOID was created';
 
         # That "NOID" is a directory.
         $this->assertTrue(is_dir($this->noid_dir), 'NOID is not a directory, stopped');
-        # echo 'NOID is a directory';
+        # echo 'NOID is a directory';
 
         # Check for the presence of the "README" file, then "log" file, then the
         # "logbdb" file within "NOID".
         $this->assertFileExists($this->noid_dir . 'README');
         # echo 'NOID/README was created';
         $this->assertFileExists($this->noid_dir . 'log');
-        # echo 'NOID/log was created';
+        # echo 'NOID/log was created';
         $this->assertFileExists($this->noid_dir . 'logbdb');
-        # echo 'NOID/logbdb was created';
+        # echo 'NOID/logbdb was created';
 
         # Check for the presence of the BerkeleyDB file within "NOID".
         $this->assertFileExists($this->noid_dir . 'noid.bdb', 'minter initialization failed, stopped');
@@ -120,7 +120,7 @@ class Noid1Test extends NoidTestCase
         $noidOutput0 = trim($output);
         $noidOutput0 = preg_match('/^error: a hold has been set for .* and must be released before the identifier can be queued for minting/', $noidOutput0);
         $this->assertNotEmpty($noidOutput0);
-        # echo 'correctly disallowed queue before hold release';
+        # echo 'correctly disallowed queue before hold release';
 
         # Release the hold on the 3 minted noids.
         $cmd = "{$this->noid_cmd} hold release $save_noid[0] $save_noid[1] $save_noid[2] > /dev/null";
@@ -155,7 +155,7 @@ class Noid1Test extends NoidTestCase
         $this->assertEquals($save_noid[1], $noid_output[1]);
         # echo 'second of three queued & reminted noids';
         $this->assertEquals($save_noid[2], $noid_output[2]);
-        # echo 'third of three queued & reminted noids';
+        # echo 'third of three queued & reminted noids';
         unset($save_noid);
         unset($noid_output);
 
@@ -185,6 +185,6 @@ class Noid1Test extends NoidTestCase
         $noidOutput0 = trim($output);
         $noidOutput0 = preg_match('/^error: identifiers exhausted/', $noidOutput0);
         $this->assertNotEmpty($noidOutput0);
-        # echo 'correctly disallowed minting after identifiers were exhausted';
+        # echo 'correctly disallowed minting after identifiers were exhausted';
     }
 }

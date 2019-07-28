@@ -47,20 +47,20 @@ class Noid4Test extends NoidTestCase
 
         # Check that the "NOID" subdirectory was created.
         $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
-        # echo 'NOID was created';
+        # echo 'NOID was created';
 
         # That "NOID" is a directory.
         $this->assertTrue(is_dir($this->noid_dir), 'NOID is not a directory, stopped');
-        # echo 'NOID is a directory';
+        # echo 'NOID is a directory';
 
         # Check for the presence of the "README" file, then "log" file, then the
         # "logbdb" file within "NOID".
         $this->assertFileExists($this->noid_dir . 'README');
         # echo 'NOID/README was created';
         $this->assertFileExists($this->noid_dir . 'log');
-        # echo 'NOID/log was created';
+        # echo 'NOID/log was created';
         $this->assertFileExists($this->noid_dir . 'logbdb');
-        # echo 'NOID/logbdb was created';
+        # echo 'NOID/logbdb was created';
 
         # Check for the presence of the BerkeleyDB file within "NOID".
         $this->assertFileExists($this->noid_dir . 'noid.bdb', 'minter initialization failed, stopped');
@@ -94,7 +94,7 @@ class Noid4Test extends NoidTestCase
         $this->assertEquals(20, count($noid_output),
         # If we don't have exactly 20, something is probably very wrong.
             'wrong number of ids minted, stopped');
-        # echo 'number of minted noids';
+        # echo 'number of minted noids';
 
         $this->assertEquals('id: 13030/tst43m', $noid_output[0], 'Error in 1st minted noid');
         $this->assertEquals('id: 13030/tst47h', $noid_output[1], 'Error in 2nd minted noid');
