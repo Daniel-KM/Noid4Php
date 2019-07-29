@@ -1,0 +1,15 @@
+/build
+/datafiles
+/node_modules
+/vendor
+/.idea
+/.sass-cache
+/.settings
+.buildpath
+.bundle
+.DS_Store
+.php_cs.cache
+.php-cs-fixer.cache
+.project
+composer.phar
+phpunit.phar
