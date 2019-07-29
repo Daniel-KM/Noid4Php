@@ -810,7 +810,7 @@ class Noid
 
         if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
             $error = error_get_last();
-            self::addmsg(null, sprintf("error: couldn't create database directory %s: %s", $dir, $error['message']));
+            self::addmsg(null, sprintf('error: couldn’t create database directory %s: %s', $dir, isset($error) ? $error['message'] : '[no message]'));
             return;
         }
 
@@ -869,19 +869,19 @@ class Noid
         #
         if (!self::_storefile("$dir/log", '') || !chmod("$dir/log", 0666)) {
             $error = error_get_last();
-            self::addmsg(null, sprintf("Couldn't chmod log file: %s", $error['message']));
+            self::addmsg(null, sprintf('Couldn’t chmod log file: %s', isset($error) ? $error['message'] : '[no message]'));
             return;
         }
         if (!self::_storefile("$dir/logbdb", '') || !chmod("$dir/logbdb", 0666)) {
             $error = error_get_last();
-            self::addmsg(null, sprintf("Couldn't chmod logbdb file: %s", $error['message']));
+            self::addmsg(null, sprintf('Couldn’t chmod logbdb file: %s', isset($error) ? $error['message'] : '[no message]'));
             return;
         }
 
         $noid = self::dbopen($dbname, self::DB_CREATE);
         if (! $noid) {
             $error = error_get_last();
-            self::addmsg(null, sprintf("can't create database file: %s", $error['message']));
+            self::addmsg(null, sprintf('Can’t create database file: %s', isset($error) ? $error['message'] : '[no message]'));
             return;
         }
 
@@ -1002,7 +1002,7 @@ class Noid
         #   $child_process_id = null;
         #   if (!isset($child_process_id = open(CHILD, '-|'))) {
         #       $error = error_get_last();
-        #       die "unable to start child process, $error['message'], stopped";
+        #       die "unable to start child process, isset($error) ? $error['message'] : '[no message]', stopped";
         #   }
         #   if ($child_process_id == 0) {
         #       # We are in the child.  Set the PATH environment variable.
@@ -1011,7 +1011,7 @@ class Noid
         #       # to the pipe that goes back to the parent.
         #       exec "/bin/hostname";
         #       $error = error_get_last();
-        #       die "unable to execute \"/bin/hostname\", $error['message'], stopped";
+        #       die "unable to execute \"/bin/hostname\", isset($error) ? $error['message'] : '[no message]', stopped";
         #   }
         #   else {
         #       # We are in the parent, and the CHILD file handle is
@@ -1323,7 +1323,7 @@ NAAN:      $naan
 
         if (! sysopen(NOIDLOCK, $lockfile, O_RDWR | O_CREAT)) {
             $error = error_get_last();
-            self::addmsg(null, sprintf('cannot open "%s": %s', $lockfile, $error['getmessage']));
+            self::addmsg(null, sprintf('cannot open "%s": %s', $lockfile, isset($error) ? $error['message'] : '[no message]'));
             return;
         }
 
@@ -1362,7 +1362,7 @@ NAAN:      $naan
         $db = @dba_open($dbname, $mode, 'db4');
         if ($db === false) {
             $error = error_get_last();
-            self::addmsg(null, sprintf('Failed to open database %s: %s', $dbname, $error['message']));
+            self::addmsg(null, sprintf('Failed to open database %s: %s', $dbname, isset($error) ? $error['message'] : '[no message]'));
             return;
         }
 
@@ -3081,7 +3081,7 @@ NAAN:      $naan
      */
     protected static function _temper($time = null)
     {
-        return strftime('%Y%m%d%H%M%S', $time ?: time());
+        return date('YmdHis', $time ?: time());
     }
 
     /**

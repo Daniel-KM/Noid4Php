@@ -21,11 +21,19 @@ class NoidTestCase extends TestCase
         $this->dir = getcwd();
         $this->rm_cmd = "/bin/rm -rf {$this->dir}/NOID > /dev/null 2>&1 ";
         $noid_bin = 'blib/script/noid';
-        $cmd = is_executable($noid_bin) ? $noid_bin : $this->dir . DIRECTORY_SEPARATOR . 'noid';
+        $cmd = null;
+        if (is_executable($noid_bin)) {
+            $cmd = $noid_bin;
+        } else {
+            $cmd = $this->dir . DIRECTORY_SEPARATOR . 'noid';
+            if (!is_executable($cmd)) {
+                $cmd = 'php ' . $cmd;
+            }
+        }
         $this->noid_cmd = $cmd . ' -f ' . $this->dir . ' ';
         $this->noid_dir = $this->dir . DIRECTORY_SEPARATOR . 'NOID' . DIRECTORY_SEPARATOR;
 
-        require_once dirname($cmd) . DIRECTORY_SEPARATOR . 'lib'. DIRECTORY_SEPARATOR . 'Noid.php';
+        require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib'. DIRECTORY_SEPARATOR . 'Noid.php';
     }
 
     public function tearDown()
@@ -38,6 +46,8 @@ class NoidTestCase extends TestCase
 
     public function testReady()
     {
+        // TODO Add a test for readiness.
+        $this->assertTrue(true);
     }
 
     protected function _executeCommand($cmd, &$status, &$output, &$errors)
@@ -73,7 +83,7 @@ class NoidTestCase extends TestCase
         $fh = fopen($file_name, 'r');
         $error = error_get_last();
         $this->assertTrue(is_resource($fh),
-            sprintf('open of "%s" failed, %s', $file_name, $error['message']));
+            sprintf('open of "%s" failed, %s', $file_name, isset($error) ? $error['message'] : '[no message]'));
         if ($fh === false) {
             return;
         }
@@ -144,7 +154,7 @@ class NoidTestCase extends TestCase
         $report = Noid::dbcreate('.', 'jak', $template, 'short');
         $errmsg = Noid::errmsg(null, 1);
         if ($return == 'stdout' || $return == 'stderr') {
-            $this->assertEmpty($report, 'should output an error: ' . $errmsg);
+            $this->assertEmpty($report, sprintf('should output an error: %s', $errmsg));
             return $errmsg;
         }
 
@@ -155,7 +165,7 @@ class NoidTestCase extends TestCase
         // Return the erc.
         $isReadable = is_readable($this->noid_dir . 'README');
         $error = error_get_last();
-        $this->assertTrue($isReadable, "can't open README: " . $error['message']);
+        $this->assertTrue($isReadable, sprintf('can’t open README: %s', isset($error) ? $error['message'] : '[no message]'));
 
         $erc = file_get_contents($this->noid_dir . 'README');
         return $erc;

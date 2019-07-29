@@ -91,7 +91,8 @@ class Noid2Test extends NoidTestCase
         # echo 'line 1 of "' . $this->noid_dir . 'log" correct';
         $this->assertEquals('note: id 13030/tst27h being queued before first minting (to be pre-cycled)', $log_lines[1]);
         # echo 'line 2 of "' . $this->noid_dir . 'log" correct';
-        $regex = preg_quote('m: q|', '@') . '\d\d\d\d\d\d\d\d\d\d\d\d\d\d' . preg_quote('|', '@') .'[a-zA-Z0-9_-]*/[a-zA-Z0-9_-]*' . preg_quote('|0', '@');
+        # The "()" are allowed for posix name.
+        $regex = preg_quote('m: q|', '@') . '\d\d\d\d\d\d\d\d\d\d\d\d\d\d' . preg_quote('|', '@') . '[a-zA-Z0-9_-]*/[a-zA-Z0-9_-]*(?: \([a-zA-Z0-9_-]*/[a-zA-Z0-9_-]*\))?' . preg_quote('|0', '@');
         $this->assertTrue((bool) preg_match('@' . $regex . '@', $log_lines[2]));
         # echo 'line 3 of "' . $this->noid_dir . 'log" correct';
         $this->assertTrue((bool) preg_match('/^id: 13030\/tst27h added to queue under :\/q\//', $log_lines[3]));

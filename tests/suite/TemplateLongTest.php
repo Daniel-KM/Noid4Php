@@ -52,13 +52,17 @@ class TemplateLongTest extends NoidTestCase
         for ($i = 1; $i <= $total; $i++) {
             $id = Noid::mint($noid, $contact, '');
             // The assertion is called separately to process it quickly.
-            if (isset($ids[$id])) {
+            if ($id === null) {
+                $this->assertIsNotNull($id,
+                    sprintf('No noid output (current %d).',
+                        $i));
+            } elseif (isset($ids[$id])) {
                 $this->assertArrayHasKey($id, $ids,
                     sprintf('The noid "%s" is already set (order %d, current %d).',
                         $id, $ids[$id], $i));
+            } else {
+                $ids[$id] = $i;
             }
-
-            $ids[$id] = $i;
 
             if (($i % 100) == 0) {
                 fwrite(STDERR, "Processed $i / $total (last: $id)" . PHP_EOL);

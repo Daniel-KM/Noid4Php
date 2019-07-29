@@ -11,6 +11,10 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for Perl_Random.
+ *
+ * WARNING: It’s normal that the test fails for testRand() and testStringRand():
+ * perl and php are not compatible with seed above 8192. It means you should not
+ * use such a seed when you need the same series for perl and php.
  */
 class Perl_RandomTest extends TestCase
 {
@@ -63,7 +67,7 @@ class Perl_RandomTest extends TestCase
      */
     public function testRand1()
     {
-        $this->_rand(1);
+        $this->_rand(1, 'testRand1');
     }
 
     /**
@@ -71,14 +75,14 @@ class Perl_RandomTest extends TestCase
      */
     public function testRand8192()
     {
-        $this->_rand(8192);
+        $this->_rand(8192, 'testRand8192');
     }
 
     /**
      * @internal The representation of the value may be different for the last
      * digital, but the php internal value remains the same.
      */
-    protected function _rand($length)
+    protected function _rand($length, $functionName)
     {
         $perlRandom = Perl_Random::init();
         $maxLength = pow(2, 32);
@@ -93,7 +97,7 @@ class Perl_RandomTest extends TestCase
                     $perl, $php, $seed, $length, $loop));
             ++$seed;
             if ((++$loop % 1000) == 0) {
-                fwrite(STDERR, sprintf('%s: Seed: %d - Length: %d - Loop: %d / 136000' . PHP_EOL, __FUNCTION__, $seed, $length, $loop));
+                fwrite(STDERR, sprintf('%s: Seed: %d - Length: %d - Loop: %d / 136000' . PHP_EOL, $functionName, $seed, $length, $loop));
                 $seed = intval($seed * 1.1);
             }
         }

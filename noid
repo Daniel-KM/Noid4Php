@@ -124,7 +124,7 @@ if (preg_match('|noidu[^/]*$|', $argv[0])) {
     // Seems not possible directly in php.
     // if (fopen(STDERR, ">&STDOUT") === false) {
     //     $error = error_get_last();
-    //     die("Can't combine stderr and stdout: " . $error['message'] . PHP_EOL);
+    //     die("Can't combine stderr and stdout: " . (isset($error) ? $error['message'] : '[no message]') . PHP_EOL);
     // }
     $stderr = STDOUT;
     if (empty($_REQUEST)) {
@@ -150,7 +150,7 @@ else {
 $contact = $do->who_are_you($web);
 if (empty($contact)) {
     $error = error_get_last();
-    fwrite($stderr, "Can't tell who you are: " . $error['message'] . PHP_EOL);
+    fwrite($stderr, "Can't tell who you are: " . (isset($error) ? $error['message'] : '[no message]') . PHP_EOL);
     exit(1);
 }
 
