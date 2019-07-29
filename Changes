@@ -1,5 +1,11 @@
 Revision history for noid script and Noid module.
 
+1.1.2-0.424-php	Fixes.
+	Cleaned code.
+	Checked compatibility from with phpunit 5.7 for php 5.6 to php 7.4.
+	Checked compatibility from with phpunit 6.5 for php 7.0 to php 7.4.
+	Checked compatibility from with phpunit 7.4 for php 7.1 to php 7.4.
+
 1.1.1-0.424-php	Fixes.
 	Fixed rarely used features.
 

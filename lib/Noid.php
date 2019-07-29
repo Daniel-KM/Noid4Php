@@ -10,7 +10,7 @@
  * @link http://search.cpan.org/~jak/Noid/
  * @link https://gitlab.com/Daniel-KM/Noid4Php
  * @package Noid
- * @version 1.1.1-0.424-php
+ * @version 1.1.2-0.424-php
  */
 
 /**
@@ -64,7 +64,7 @@
  */
 class Noid
 {
-    const VERSION = '1.1.1-0.424-php';
+    const VERSION = '1.1.2-0.424-php';
 
     const NOLIMIT = -1;
     const SEQNUM_MIN = 1;
