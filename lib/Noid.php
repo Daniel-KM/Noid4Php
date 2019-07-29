@@ -102,7 +102,7 @@ class Noid
      * @internal This is a constant unavailable from outside.
      * @var string
      */
-    static protected $_R = ':';
+    protected static $_R = ':';
 
     /**
      * For full compatibility with the perl script, the sequence must use the
@@ -123,14 +123,14 @@ class Noid
      * or "php mt_rand()" (recommended but incompatible with the default Perl
      * script).
      */
-    static public $random_generator = 'Perl_Random';
+    public static $random_generator = 'Perl_Random';
 
     /**
      * Contains the randomizer when the id generator is "Perl_Random".
      *
      * @var Perl_Random
      */
-    static private $_perlRandom;
+    private static $_perlRandom;
 
     /**
      * References to opened resources and global messages.
@@ -144,7 +144,7 @@ class Noid
      *
      * @var array
      */
-    static protected $_opendbtab = array(
+    protected static $_opendbtab = array(
         // Reference to opened databases.
         'bdb' => array(
             '' => null,
@@ -170,9 +170,9 @@ class Noid
     /**
      * Allows to test the locking mechanism.
      *
-     * @var integer
+     * @var int
      */
-    static public $locktest = 0;
+    public static $locktest = 0;
 
     /**
      * Locking can be "l" (a .lck file is created) or "d" (the db file itself is
@@ -180,14 +180,14 @@ class Noid
      *
      * @var string
      */
-    static protected $_dbaLock = 'd';
+    protected static $_dbaLock = 'd';
 
     /**
      * Legal values of $how for the bind() function.
      *
      * @var array
      */
-    static protected $_valid_hows = array(
+    protected static $_valid_hows = array(
         'new', 'replace', 'set',
         'append', 'prepend', 'add', 'insert',
         'delete', 'purge', 'mint', 'peppermint',
@@ -236,7 +236,7 @@ class Noid
      *
      * @var array
      */
-    static public $alphabets = array(
+    public static $alphabets = array(
         // Standard character repertoires.
         'd' => '0123456789',
         'e' => '0123456789bcdfghjkmnpqrstvwxz',
@@ -262,7 +262,7 @@ class Noid
      *
      * @var array
      */
-    static protected $_alphabetChecks = array(
+    protected static $_alphabetChecks = array(
         // For compatibility purpose with Perl script, the check character is
         // "e" for masks with "d" or "e", whatever the prefix (so vowels and "l"
         // are not allowed in the prefix when there is a check character).
@@ -282,14 +282,14 @@ class Noid
      *
      * @var string
      */
-    static protected $_repertoires = 'dixevElwc';
+    protected static $_repertoires = 'dixevElwc';
 
     public function __construct()
     {
         self::init();
     }
 
-    static public function init()
+    public static function init()
     {
         static $init = false;
 
@@ -360,15 +360,14 @@ class Noid
      * @param string $message
      * @return int 1
      */
-    static public function addmsg($noid, $message)
+    public static function addmsg($noid, $message)
     {
         self::init();
 
         $noid = $noid ?: ''; # act like a global in case $noid undefined
         if (isset(self::$_opendbtab['msg'][$noid])) {
             self::$_opendbtab['msg'][$noid] .= $message . PHP_EOL;
-        }
-        else {
+        } else {
             self::$_opendbtab['msg'][$noid] = $message . PHP_EOL;
         }
         return 1;
@@ -382,7 +381,7 @@ class Noid
      * @param string $reset
      * @return string
      */
-    static public function errmsg($noid = null, $reset = 0)
+    public static function errmsg($noid = null, $reset = 0)
     {
         self::init();
 
@@ -403,7 +402,7 @@ class Noid
      * @param string $message
      * @return int 1
      */
-    static public function logmsg($noid, $message)
+    public static function logmsg($noid, $message)
     {
         self::init();
 
@@ -425,7 +424,7 @@ class Noid
      * @param string $contents
      * @return int 0 (error) or 1 (success)
      */
-    static protected function _storefile($filename, $contents)
+    protected static function _storefile($filename, $contents)
     {
         $result = file_put_contents($filename, $contents);
         return $result === false ? 0 : 1;
@@ -437,7 +436,7 @@ class Noid
      * @param string $noid Full path to the database file.
      * @return resource|null Handle to the database resource, else null.
      */
-    static protected function _getDb($noid)
+    protected static function _getDb($noid)
     {
         if (!isset(self::$_opendbtab['bdb'][$noid])) {
             self::addmsg($noid, sprintf('error: Database "%s" is not opened.', $noid));
@@ -458,9 +457,8 @@ class Noid
      * @param int $status
      * @param string $output
      * @param string $errors
-     * @return void
      */
-    static protected function _executeCommand($cmd, &$status, &$output, &$errors)
+    protected static function _executeCommand($cmd, &$status, &$output, &$errors)
     {
         // Using proc_open() instead of exec() avoids an issue: current working
         // directory cannot be set properly via exec().  Note that exec() works
@@ -498,8 +496,8 @@ class Noid
      * @param string $value
      * @return array|null
      */
-     static public function bind($noid, $contact, $validate, $how, $id, $elem, $value)
-     {
+    public static function bind($noid, $contact, $validate, $how, $id, $elem, $value)
+    {
         self::init();
 
         $R = &self::$_R;
@@ -522,8 +520,7 @@ class Noid
                 && !self::validate($noid, '-', $id)
             ) {
             return;
-        }
-        elseif (strlen($id) == 0) {
+        } elseif (strlen($id) == 0) {
             self::addmsg($noid, 'error: bind needs an identifier specified.');
             return;
         }
@@ -568,8 +565,7 @@ class Noid
                 return;
             }
             self::logmsg($noid, sprintf('warning: %s: binding an unissued identifier that has no hold placed on it.', $oid));
-        }
-        elseif (!in_array($how, self::$_valid_hows)) {
+        } elseif (!in_array($how, self::$_valid_hows)) {
             self::addmsg($noid, sprintf('error: bind how?  What does %s mean?', $how));
             return;
         }
@@ -600,8 +596,7 @@ class Noid
                 return;
             }
             $value = '';
-        }
-        elseif (empty($value)) {
+        } elseif (empty($value)) {
             self::addmsg($noid,
                 sprintf('error: "bind %s %s" requires a value to bind.', $how, $elem));
             return;
@@ -616,8 +611,7 @@ class Noid
                 return;
             }
             dba_replace("$id\t$elem", '', $db);  # can concatenate with impunity
-        }
-        else {                      # currently bound
+        } else {                      # currently bound
             if (in_array($how, array('new', 'mint', 'peppermint'))) {
                 self::addmsg($noid, sprintf('error: for "bind %s", "%s %s" cannot already be bound.', $how, $oid, $oelem));
                 self::_dbunlock();
@@ -633,12 +627,10 @@ class Noid
         if ($how === 'delete' || $how === 'purge') {
             dba_delete("$id\t$elem", $db);
             $statmsg = "$oldlen bytes removed";
-        }
-        elseif ($how === 'add' || $how === 'append') {
+        } elseif ($how === 'add' || $how === 'append') {
             dba_replace("$id\t$elem", dba_fetch("$id\t$elem", $db) . $value, $db);
             $statmsg .= " to the end of $oldlen bytes";
-        }
-        elseif ($how === 'insert' || $how === 'prepend') {
+        } elseif ($how === 'insert' || $how === 'prepend') {
             dba_replace("$id\t$elem", $value . dba_fetch("$id\t$elem", $db), $db);
             $statmsg .= " to the beginning of $oldlen bytes";
         }
@@ -687,7 +679,7 @@ class Noid
      * uses only the mask "[de]+".
      * @return string|null
      */
-    static public function checkchar($id, $alphabet = 'e')
+    public static function checkchar($id, $alphabet = 'e')
     {
         self::init();
 
@@ -752,7 +744,7 @@ class Noid
      * @param string $verbose
      * @return array
      */
-    static protected function _clear_bindings($noid, $id, $verbose)
+    protected static function _clear_bindings($noid, $id, $verbose)
     {
         $R = &self::$_R;
 
@@ -795,7 +787,7 @@ class Noid
      * @param string $subnaa
      * @return string|null
      */
-    static public function dbcreate($dbdir, $contact, $template = null, $term = '-', $naan = '', $naa = '', $subnaa = '')
+    public static function dbcreate($dbdir, $contact, $template = null, $term = '-', $naan = '', $naa = '', $subnaa = '')
     {
         self::init();
 
@@ -830,8 +822,7 @@ class Noid
         if (is_null($template)) {
             $genonly = 0;
             $template = '.zd';
-        }
-        else {
+        } else {
             $genonly = 1;           # not generated ids only
         }
 
@@ -935,7 +926,7 @@ class Noid
 
         dba_replace("$R/total", $total, $db);
         dba_replace("$R/padwidth", ($total == self::NOLIMIT ? 16 : 2) + strlen($mask), $db);
-            # yyy kludge -- padwidth of 16 enough for most lvf sorting
+        # yyy kludge -- padwidth of 16 enough for most lvf sorting
 
         # Some variables:
         #   oacounter   overall counter's current value (last value minted)
@@ -1046,7 +1037,9 @@ class Noid
         #
         $p = str_split($properties);         # split into letters
         $p = array_map(
-            function ($v) { return $v == '-' ? '_ not' : '_____'; },
+            function ($v) {
+                return $v == '-' ? '_ not' : '_____';
+            },
             $p);
         $random_sample = null;          # null on purpose
         if ($total == self::NOLIMIT) {
@@ -1133,7 +1126,7 @@ NAAN:      $naan
      * - "dump": all vals, including all identifier bindings
      * @return int 0 (error) or 1 (success)
      */
-    static public function dbinfo($noid, $level = 'brief')
+    public static function dbinfo($noid, $level = 'brief')
     {
         self::init();
 
@@ -1191,7 +1184,7 @@ NAAN:      $naan
      * @todo eventually we would like to do fancy fine-grained locking with
      * @return int 1.
      */
-    static protected function _dblock()
+    protected static function _dblock()
     {
         // Placeholder.
         return 1;
@@ -1203,7 +1196,7 @@ NAAN:      $naan
      * @todo eventually we would like to do fancy fine-grained locking with
      * @return int 1.
      */
-    static protected function _dbunlock()
+    protected static function _dbunlock()
     {
         // Placeholder.
         return 1;
@@ -1222,7 +1215,7 @@ NAAN:      $naan
      * checking. Other flags are not managed.
      * @return string|null
      */
-    static public function dbopen($dbname, $flags = self::DB_WRITE)
+    public static function dbopen($dbname, $flags = self::DB_WRITE)
     {
         self::init();
 
@@ -1397,7 +1390,7 @@ NAAN:      $naan
      * @param string $sleepvalue
      * @return int 1
      */
-    static public function locktest($sleepvalue)
+    public static function locktest($sleepvalue)
     {
         self::init();
 
@@ -1410,9 +1403,8 @@ NAAN:      $naan
      * Close database.
      *
      * @param string $noid
-     * @return void
      */
-    static public function dbclose($noid)
+    public static function dbclose($noid)
     {
         self::init();
 
@@ -1445,7 +1437,7 @@ NAAN:      $naan
      * @param string $value
      * @return int 0 (error) or 1 (success)
      */
-    static protected function _eachnoid($noid, &$key, &$value)
+    protected static function _eachnoid($noid, &$key, &$value)
     {
         # yyy check that $db is tied?  this is assumed for now
         # yyy need to get next non-admin key/value pair
@@ -1476,7 +1468,7 @@ NAAN:      $naan
      * @param array|string $elems
      * @return string List of elements separated by an end of line.
      */
-    static public function fetch($noid, $verbose, $id, $elems)
+    public static function fetch($noid, $verbose, $id, $elems)
     {
         self::init();
 
@@ -1539,16 +1531,14 @@ NAAN:      $naan
                     $retval .= "$elem: ";
                 }
                 $retval .= dba_fetch("$id\t$elem", $db) . PHP_EOL;
-            }
-            else {
+            } else {
                 $idmapped = self::_id2elemval($noid, $verbose, $id, $elem);
                 if ($verbose) {
                     $retval .= $idmapped
                             ? $idmapped . PHP_EOL . 'note: previous result produced by :idmap'
                             : sprintf('error: "%s %s" is not bound.', $id, $elem);
                     $retval .= PHP_EOL;
-                }
-                else {
+                } else {
                     $retval .= $idmapped . PHP_EOL;
                 }
             }
@@ -1567,7 +1557,7 @@ NAAN:      $naan
      * @param string $noid
      * @return string
      */
-    static protected function _genid($noid)
+    protected static function _genid($noid)
     {
         $R = &self::$_R;
 
@@ -1611,8 +1601,7 @@ NAAN:      $naan
             self::logmsg($noid, sprintf('%s: Resetting counter to zero; previously issued identifiers will be re-issued', self::_temper()));
             if (dba_fetch("$R/generator_type", $db) === 'sequential') {
                 dba_replace("$R/oacounter", 0, $db);
-            }
-            else {
+            } else {
                 self::_init_counters($noid);   # yyy calls dblock -- problem?
             }
             $oacounter = 0;
@@ -1681,7 +1670,7 @@ NAAN:      $naan
         # deal with an exhausted subcounter
         if ($sctr >= dba_fetch("$R/$sctrn/top", $db)) {
             $c = '';
-            $modsaclist ='';
+            $modsaclist = '';
             # remove from active counters list
             foreach ($saclist as $c) {     # drop $sctrn, but add it to
                 if ($c === $sctrn) {     # inactive subcounters
@@ -1719,7 +1708,7 @@ NAAN:      $naan
      * Returns a single letter circulation status, which must be one
      * of 'i', 'q', or 'u'.  Returns the empty string on error.
      */
-    static protected function _get_circ_svec($noid, $id)
+    protected static function _get_circ_svec($noid, $id)
     {
         $R = &self::$_R;
 
@@ -1771,7 +1760,7 @@ NAAN:      $naan
      * @param string $contact
      * @return string|null
      */
-    static protected function _set_circ_rec($noid, $id, $circ_svec, $date, $contact)
+    protected static function _set_circ_rec($noid, $id, $circ_svec, $date, $contact)
     {
         $R = &self::$_R;
 
@@ -1831,7 +1820,7 @@ NAAN:      $naan
      * @return string|bool The label of the alphabet, or true if the template
      * doesn't require a check character, or false if error.
      */
-    static public function get_alphabet($template)
+    public static function get_alphabet($template)
     {
         # Confirm well-formedness of $mask before proceeding.
         if (!preg_match('/^([^\.]*)\.([rsz][' . self::$_repertoires . ']+k?)$/', $template, $matches)) {
@@ -1876,7 +1865,7 @@ NAAN:      $naan
      * @param string $varname
      * @return string
      */
-    static public function getnoid($noid, $varname)
+    public static function getnoid($noid, $varname)
     {
         self::init();
 
@@ -1897,7 +1886,7 @@ NAAN:      $naan
      * @param string $key
      * @return string The note.
      */
-    static public function get_note($noid, $key)
+    public static function get_note($noid, $key)
     {
         self::init();
 
@@ -1957,7 +1946,7 @@ NAAN:      $naan
      * @return int 0 (error) or 1 (success)
      * Sets errmsg() in either case.
      */
-    static public function hold($noid, $contact, $on_off, $ids)
+    public static function hold($noid, $contact, $on_off, $ids)
     {
         self::init();
 
@@ -2000,7 +1989,9 @@ NAAN:      $naan
         $iderrors = array();
         if (dba_fetch("$R/genonly", $db)) {
             $iderrors = self::validate($noid, '-', $ids);
-            if (array_filter($iderrors, function ($v) { return strpos($v, 'error:') !== 0; })) {
+            if (array_filter($iderrors, function ($v) {
+                return strpos($v, 'error:') !== 0;
+            })) {
                 $iderrors = array();
             }
         }
@@ -2019,8 +2010,7 @@ NAAN:      $naan
                 }
                 self::_dblock();
                 $status = self::hold_release($noid, $id);
-            }
-            else {          # "hold" means key exists
+            } else {          # "hold" means key exists
                 if (dba_fetch("$R/longterm", $db)) {
                     self::logmsg($noid, sprintf('%s %s: placing hold', self::_temper(), $id));
                 }
@@ -2055,7 +2045,7 @@ NAAN:      $naan
      * @param string $id
      * @return int 0 (error) or 1 (success)
      */
-    static public function hold_set($noid, $id)
+    public static function hold_set($noid, $id)
     {
         self::init();
 
@@ -2089,7 +2079,7 @@ NAAN:      $naan
      * @param string $id
      * @return int 0 (error) or 1 (success)
      */
-    static public function hold_release($noid, $id)
+    public static function hold_release($noid, $id)
     {
         self::init();
 
@@ -2118,7 +2108,7 @@ NAAN:      $naan
      * @param int $num
      * @return string
      */
-    static protected function _human_num($num)
+    protected static function _human_num($num)
     {
         return number_format($num);
     }
@@ -2132,7 +2122,7 @@ NAAN:      $naan
      * @param string $elem
      * @return string
      */
-    static protected function _id2elemval($noid, $verbose, $id, $elem)
+    protected static function _id2elemval($noid, $verbose, $id, $elem)
     {
         $R = &self::$_R;
 
@@ -2174,9 +2164,8 @@ NAAN:      $naan
      * Initialize counters.
      *
      * @param string $noid
-     * @return void
      */
-    static protected function _init_counters($noid)
+    protected static function _init_counters($noid)
     {
         $R = &self::$_R;
 
@@ -2252,7 +2241,7 @@ NAAN:      $naan
      * @param string $pepper
      * @return string|null
      */
-    static public function mint($noid, $contact, $pepper = 0)
+    public static function mint($noid, $contact, $pepper = 0)
     {
         self::init();
 
@@ -2507,7 +2496,7 @@ NAAN:      $naan
      * @param string $value
      * @return int 0 (error) or 1 (success)
      */
-    static public function note($noid, $contact, $key, $value)
+    public static function note($noid, $contact, $key, $value)
     {
         self::init();
 
@@ -2542,7 +2531,7 @@ NAAN:      $naan
      * @param string $mask
      * @return string
      */
-    static public function n2xdig($num, $mask)
+    public static function n2xdig($num, $mask)
     {
         self::init();
 
@@ -2572,12 +2561,10 @@ NAAN:      $naan
                 if (isset(self::$alphabets[$c])) {
                     $alphabet = self::$alphabets[$c];
                     $div = strlen($alphabet);
-                }
-                elseif ($c === 'z') {
+                } elseif ($c === 'z') {
                     $varwidth = 1;   # re-uses last $div value
                     continue;
-                }
-                elseif ($c === 'k') {
+                } elseif ($c === 'k') {
                     continue;
                 }
             }
@@ -2609,7 +2596,7 @@ NAAN:      $naan
      * @param string $message
      * @return int -1 for no limit, 0 for error, else the total.
      */
-    static public function parse_template($template, &$prefix, &$mask, &$gen_type, &$message)
+    public static function parse_template($template, &$prefix, &$mask, &$gen_type, &$message)
     {
         self::init();
 
@@ -2712,8 +2699,7 @@ NAAN:      $naan
             # Mask chars it could be are: repertoires or k
             if (isset(self::$alphabets[$c])) {
                 $total *= strlen(self::$alphabets[$c]);
-            }
-            elseif (preg_match('/[krsz]/', $c)) {
+            } elseif (preg_match('/[krsz]/', $c)) {
                 continue;
             }
         }
@@ -2778,7 +2764,7 @@ NAAN:      $naan
      * @param array|string $ids
      * @return array
      */
-    static public function queue($noid, $contact, $when, $ids)
+    public static function queue($noid, $contact, $when, $ids)
     {
         self::init();
 
@@ -2822,11 +2808,9 @@ NAAN:      $naan
             # The number of seconds in one day is 86400.
             $multiplier = isset($matches[2]) && $matches[2] === 'd' ? 86400 : 1;
             $qdate = self::_temper(time() + $matches[1] * $multiplier);
-        }
-        elseif ($when === 'now') {    # a synonym for current time
+        } elseif ($when === 'now') {    # a synonym for current time
             $qdate = self::_temper(time());
-        }
-        elseif ($when === 'first') {
+        } elseif ($when === 'first') {
             # Lowest value first (lvf) requires $qdate of all zeroes.
             # To achieve "first" semantics, we use a $qdate of all
             # zeroes (default above), which means this key will be
@@ -2835,16 +2819,14 @@ NAAN:      $naan
             # minted anything in the last 85 days.
             #
             $seqnum = dba_fetch("$R/fseqnum", $db);
-            #
+        #
             # NOTE: fseqnum is reset only when queue is empty; see mint().
             # If queue never empties fseqnum will simply keep growing,
             # so we effectively truncate on the left to 6 digits with mod
             # arithmetic when we convert it to $fixsqn via sprintf().
-        }
-        elseif ($when=== 'delete') {
+        } elseif ($when === 'delete') {
             $delete = 1;
-        }
-        elseif ($when !== 'lvf') {
+        } elseif ($when !== 'lvf') {
             self::addmsg($noid, sprintf('error: unrecognized queue time: %s', $when));
             return array();
         }
@@ -2854,19 +2836,19 @@ NAAN:      $naan
                 $seqnum = self::SEQNUM_MIN;
                 dba_replace("$R/gseqnum", $seqnum, $db);
                 dba_replace("$R/gseqnum_date", $qdate, $db);
-            }
-            else {
+            } else {
                 $seqnum = dba_fetch("$R/gseqnum", $db);
             }
-        }
-        else {
+        } else {
             $qdate = '00000000000000';  # this needs to be 14 zeroes
         }
 
         $iderrors = array();
         if (dba_fetch("$R/genonly", $db)) {
             $iderrors = self::validate($noid, '-', $ids);
-            if (array_filter($iderrors, function ($v) { return strpos($v, 'error:') !== 0; })) {
+            if (array_filter($iderrors, function ($v) {
+                return strpos($v, 'error:') !== 0;
+            })) {
                 $iderrors = array();
             }
         }
@@ -2925,8 +2907,7 @@ NAAN:      $naan
                     self::logmsg($noid,
                         sprintf('note: id %s being queued before first minting (to be pre-cycled)', $id));
                 }
-            }
-            elseif (substr($circ_svec, 0, 1) === 'i') {
+            } elseif (substr($circ_svec, 0, 1) === 'i') {
                 if (dba_fetch("$R/longterm", $db)) {
                     self::logmsg($noid, sprintf('note: longterm id %s being queued for re-issue', $id));
                 }
@@ -2947,7 +2928,6 @@ NAAN:      $naan
             if (dba_fetch("$R/total", $db) != self::NOLIMIT   # if total is non-zero
                     && dba_fetch("$R/queued", $db) > dba_fetch("$R/oatop", $db)
                 ) {
-
                 self::_dbunlock();
 
                 $m = sprintf('error: queue count (%s) exceeding total possible on id %s.  Queue operation aborted.',
@@ -2973,8 +2953,7 @@ NAAN:      $naan
         self::_dblock();
         if ($when === 'first') {
             dba_replace("$R/fseqnum", $seqnum, $db);
-        }
-        elseif ($qdate > 0) {
+        } elseif ($qdate > 0) {
             dba_replace("$R/gseqnum", $seqnum, $db);
         }
         self::_dbunlock();
@@ -2989,7 +2968,7 @@ NAAN:      $naan
      * @param int $num
      * @return string
      */
-    static public function sample($noid, $num = null)
+    public static function sample($noid, $num = null)
     {
         self::init();
 
@@ -3027,7 +3006,7 @@ NAAN:      $naan
      * @param string $noid
      * @return int 1
      */
-    static public function scope($noid)
+    public static function scope($noid)
     {
         self::init();
 
@@ -3101,7 +3080,7 @@ NAAN:      $naan
      * @param int $time
      * @return string
      */
-    static protected function _temper($time = null)
+    protected static function _temper($time = null)
     {
         return strftime('%Y%m%d%H%M%S', $time ?: time());
     }
@@ -3121,7 +3100,7 @@ NAAN:      $naan
      * @param array|string $ids
      * @return array
      */
-    static public function validate($noid, $template, $ids)
+    public static function validate($noid, $template, $ids)
     {
         self::init();
 
@@ -3172,8 +3151,7 @@ NAAN:      $naan
             $repertoire = dba_fetch("$R/addcheckchar", $db)
                 ? (dba_fetch("$R/checkrepertoire", $db) ?: self::get_alphabet($template))
                 : '';
-        }
-        elseif (! self::parse_template($template, $prefix, $mask, $gen_type, $msg)) {
+        } elseif (! self::parse_template($template, $prefix, $mask, $gen_type, $msg)) {
             self::addmsg($noid, sprintf('error: template %s bad: %s', $template, $msg));
             return array();
         }
@@ -3210,7 +3188,7 @@ NAAN:      $naan
             $first .= $prefix;          # … if any
             $varpart = preg_replace('/^' . preg_quote($first, '/') . '/', '', $id);
             if (strlen($first) > 0 && strpos($id, $first) !== 0) {
-            # yyy            ($varpart = $id) !~ s/^$prefix// and
+                # yyy            ($varpart = $id) !~ s/^$prefix// and
                 $retvals[] = sprintf('iderr: %s should begin with %s.', $id, $first);
                 continue;
             }

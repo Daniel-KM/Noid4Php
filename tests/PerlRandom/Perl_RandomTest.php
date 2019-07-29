@@ -154,9 +154,9 @@ class Perl_RandomTest extends TestCase
      *
      * This process uses perl via an external command.
      *
-     * @param integer $length The max value returned, exclusive.
-     * @param integer $seed
-     * @return integer|null Null in case of error.
+     * @param int $length The max value returned, exclusive.
+     * @param int $seed
+     * @return int|null Null in case of error.
      */
     protected function _perlRandSeed($length, $seed)
     {
@@ -170,9 +170,9 @@ class Perl_RandomTest extends TestCase
      *
      * This process uses perl via an external command.
      *
-     * @param integer $length The max value returned, exclusive.
-     * @param integer $seed
-     * @return integer|null Null in case of error.
+     * @param int $length The max value returned, exclusive.
+     * @param int $seed
+     * @return int|null Null in case of error.
      */
     protected function _perlIntRandSeed($length, $seed)
     {

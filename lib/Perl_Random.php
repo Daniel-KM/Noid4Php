@@ -65,7 +65,7 @@ class Perl_Random
      * Store the seed as a 48-bit integer.
      *
      * @see Perl_Random::srand48()
-     * @var integer
+     * @var int
      */
     private $_random_state_48 = null;
 
@@ -84,7 +84,7 @@ class Perl_Random
     /**
      * This class is a singleton.
      */
-    static public function init()
+    public static function init()
     {
         if (is_null(self::$_instance)) {
             self::$_instance = new Perl_Random();
@@ -98,7 +98,6 @@ class Perl_Random
      *
      * @param int $seed A 32-bit integer. If more than 32 bits, only
      * the high-order 32 bits are kept internally.
-     * @return void
      */
     public function srand48($seed = null)
     {
