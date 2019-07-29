@@ -14,21 +14,21 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
  *
  * Project: Noid
  *
- * Name:        noid8.t
+ * Name: noid8.t
  *
- * Function:    To test the noid command.
+ * Function: To test the noid command.
  *
  * What Is Tested:
- *      Do a "dbcreate" using a variety of options to
- *      test that the various options in the policy can
- *      be turned on and off.
+ * - Do a "dbcreate" using a variety of options to
+ * - test that the various options in the policy can
+ * - be turned on and off.
  *
  * Command line parameters:  none.
  *
- * Author:  Michael A. Russell
+ * Author: Michael A. Russell
  *
  * Revision History:
- *      7/21/2004 - MAR - Initial writing
+ * 07/21/2004 - MAR - Initial writing
  *
  * ------------------------------------
  */

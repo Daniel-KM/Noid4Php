@@ -16,7 +16,7 @@
 /**
  * Noid - Nice opaque identifiers (Perl module)
  *
- * Author:  John A. Kunze, jak@ucop.edu, California Digital Library
+ * Author: John A. Kunze, jak@ucop.edu, California Digital Library
  *  Originally created, UCSF/CKM, November 2002
  *
  * ---------
@@ -1459,8 +1459,7 @@ NAAN:      $naan
     /**
      * Fetch elements from the base.
      *
-     * @todo do we need to be able to "get/fetch" with a discriminant,
-     *       eg, for smart multiple resolution??
+     * @todo do we need to be able to "get/fetch" with a discriminant, eg, for smart multiple resolution?
      *
      * @param string $noid
      * @param int $verbose is 1 if we want labels, 0 if we don't
@@ -1694,13 +1693,13 @@ NAAN:      $naan
     /**
      * Identifier admin info is stored in three places:
      *
-     *    id\t:/h    hold status: if exists = hold, else no hold
-     *    id\t:/c    circulation record, if it exists, is
-     *           circ_status_history_vector|when|contact(who)|oacounter
-     *           where circ_status_history_vector is a string of [iqu]
-     *           and oacounter is current overall counter value, FWIW;
-     *           circ status goes first to make record easy to update
-     *    id\t:/p    pepper
+     * id\t:/h hold status: if exists = hold, else no hold
+     * id\t:/c circulation record, if it exists, is
+     *   circ_status_history_vector|when|contact(who)|oacounter
+     *   - where circ_status_history_vector is a string of [iqu]
+     *   - and oacounter is current overall counter value, FWIW;
+     *   - circ status goes first to make record easy to update
+     * id\t:/p pepper
      *
      * @param string $noid
      * @param string $id

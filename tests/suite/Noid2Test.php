@@ -14,21 +14,21 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
  *
  * Project: Noid
  *
- * Name:        noid2.t
+ * Name: noid2.t
  *
- * Function:    To test the noid command.
+ * Function: To test the noid command.
  *
  * What Is Tested:
- *      Create a minter.
- *      Queue something.
- *      Check that it was logged properly.
+ * - Create a minter.
+ * - Queue something.
+ * - Check that it was logged properly.
  *
  * Command line parameters:  none.
  *
- * Author:  Michael A. Russell
+ * Author: Michael A. Russell
  *
  * Revision History:
- *      7/19/2004 - MAR - Initial writing
+ * 07/19/2004 - MAR - Initial writing
  *
  * ------------------------------------
  */

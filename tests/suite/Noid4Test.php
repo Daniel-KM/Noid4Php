@@ -14,23 +14,22 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
  *
  * Project: Noid
  *
- * Name:        noid4.t
+ * Name: noid4.t
  *
- * Function:    To test the noid command.
+ * Function: To test the noid command.
  *
  * What Is Tested:
- *      Create minter with template de, for 290 identifiers.
- *      Mint 10.
- *      Queue 3, hold 2, that would have been minted in the
- *          next 20.
- *      Mint 20 and check that they come out in the correct order.
+ * - Create minter with template de, for 290 identifiers.
+ * - Mint 10.
+ * - Queue 3, hold 2, that would have been minted in the next 20.
+ * - Mint 20 and check that they come out in the correct order.
  *
  * Command line parameters:  none.
  *
- * Author:  Michael A. Russell
+ * Author: Michael A. Russell
  *
  * Revision History:
- *      7/19/2004 - MAR - Initial writing
+ * 07/19/2004 - MAR - Initial writing
  *
  * ------------------------------------
  */
