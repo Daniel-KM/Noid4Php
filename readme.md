@@ -88,12 +88,18 @@ php methods and  perl ones for many seeds.
 
 If you don’t have phpunit, you can do:
 
-```
+```sh
+wget https://phar.phpunit.de/phpunit-5.7.phar
 wget https://phar.phpunit.de/phpunit-6.5.phar
-// Quick tests.
+wget https://phar.phpunit.de/phpunit-7.4.phar
+# Quick tests with php 5.6 to php 7.4.
+php phpunit-5.7.phar
+# Quick tests with php 7.0 to php 7.4.
 php phpunit-6.5.phar
-// Full tests.
-php phpunit-6.5.phar tests
+# Quick tests with php 7.1 to php 7.4.
+php phpunit-7.4.phar
+# Full tests (fail for float numbers above 8192).
+php phpunit-7.4.phar tests
 ```
 
 
@@ -165,10 +171,10 @@ Noid. Anyway, the result will be the same.
 
 ### To do
 
-  - Optimize structure and process, but keep inputs, calls, and outputs.
-  - Seperate creation of noids and management of bindings.
-  - Use other standard or flat db engines (mysql and simple file).
-  - See other todo in the perl or php scripts.
+  - [ ] Optimize structure and process, but keep inputs, calls, and outputs.
+  - [ ] Seperate creation of noids and management of bindings.
+  - [ ] Use other standard or flat db engines (mysql and simple file).
+  - [ ] See other todo in the perl or php scripts.
 
 
 Warning
@@ -185,18 +191,7 @@ For long term noids, all events are saved in a log too.
 Troubleshooting
 ---------------
 
-See online issues on the [issues] page on GitHub.
-
-
-Copyright
----------
-
-- Author:  John A. Kunze, jak@ucop.edu, California Digital Library
-- Originally created Nov. 2002 at UCSF Center for Knowledge Management
-- Ported to php by Daniel Berthereau for Mines ParisTech
-
-* Copyright (c) 2002-2006 UC Regents
-* Copyright (c) 2016-2018 Daniel Berthereau
+See online issues on the [issues] page.
 
 
 License
@@ -250,20 +245,24 @@ altered, and that no provisions are either added or removed herefrom.
 * Contains Perl_Random, published under the [CeCILL-C v1.0].
 
 
-Contact
--------
+Copyright
+---------
 
-Current maintainers:
- * Daniel Berthereau (see [Daniel-KM] on GitHub)
+- Author:  John A. Kunze, jak@ucop.edu, California Digital Library
+- Originally created Nov. 2002 at UCSF Center for Knowledge Management
+- Ported to php by Daniel Berthereau for Mines ParisTech
+
+- Copyright (c) 2002-2006 UC Regents
+- Copyright (c) 2016-2019 Daniel Berthereau (see [Daniel-KM] on GitLab)
 
 
-[Noid for Php]: https://github.com/Daniel-KM/Noid4Php
+[Noid for Php]: https://gitlab.com/Daniel-KM/Noid4Php
 [noid]: https://wiki.ucop.edu/display/Curation/NOID
 [perl tool]: http://search.cpan.org/~jak/Noid-0.424/
 [Omeka]: https://www.omeka.org
 [Omeka S]: https://www.omeka.org/s
-[Ark & Noid for Omeka]: https://github.com/Daniel-KM/Omeka-plugin-ArkAndNoid
-[Ark for Omeka S]: https://github.com/Daniel-KM/Omeka-S-module-Ark
+[Ark & Noid for Omeka]: https://gitlab.com/Daniel-KM/Omeka-plugin-ArkAndNoid
+[Ark for Omeka S]: https://gitlab.com/Daniel-KM/Omeka-S-module-Ark
 [Java]: https://confluence.ucop.edu/download/attachments/16744482/noid-java.tar.gz
 [Ruby]: https://github.com/microservices/noid
 [metacpan]: https://metacpan.org/pod/distribution/Noid/noid
@@ -271,7 +270,7 @@ Current maintainers:
 [fixed]: https://secure.php.net/manual/en/migration71.incompatible.php#migration71.incompatible.fixes-to-mt_rand-algorithm
 [PhpUnit]: https://phpunit.de
 [rosettacode.org]: https://rosettacode.org/wiki/Random_number_generator_%28included%29#Perl
-[issues]: https://github.com/Daniel-KM/Noid4Php/issues
+[issues]: https://gitlab.com/Daniel-KM/Noid4Php/issues
 [CeCILL-B v1.0]: https://www.cecill.info/licences/Licence_CeCILL-B_V1-en.txt
 [CeCILL-C v1.0]: https://www.cecill.info/licences/Licence_CeCILL-C_V1-en.txt
-[Daniel-KM]: https://github.com/Daniel-KM "Daniel Berthereau"
+[Daniel-KM]: https://gitlab.com/Daniel-KM "Daniel Berthereau"

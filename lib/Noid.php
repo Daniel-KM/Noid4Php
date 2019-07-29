@@ -8,7 +8,7 @@
  * @license CeCILL-B v1.0 http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.txt
  * @link https://metacpan.org/pod/distribution/Noid/noid
  * @link http://search.cpan.org/~jak/Noid/
- * @link https://github.com/Daniel-KM/Noid4Php
+ * @link https://gitlab.com/Daniel-KM/Noid4Php
  * @package Noid
  * @version 1.1.1-0.424-php
  */
