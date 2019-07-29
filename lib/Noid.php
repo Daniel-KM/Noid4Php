@@ -2388,7 +2388,7 @@ NAAN:      $naan
             # over.  This step has no effect when $generator_type ==
             # "sequential".
             #
-            srand(dba_fetch("$R/oacounter", $db));
+            srand((int) dba_fetch("$R/oacounter", $db));
 
             # The id returned in this next step may have a "+" character
             # that n2xdig() appended to it.  The checkchar() routine
@@ -2507,7 +2507,7 @@ NAAN:      $naan
         $R = &self::$_R;
 
         self::_dblock();
-        $status = dba_replace("$R/$R/$key", $value, $db);
+        $status = dba_replace("$R/$R/$key", (string) $value, $db);
         self::_dbunlock();
         if (dba_fetch("$R/longterm", $db)) {
             self::logmsg($noid, sprintf('note: note attempt under %s by %s', $key, $contact)

@@ -137,7 +137,7 @@ class Perl_Random
             $this->srand48();
         }
         $this->_random_state_48 = (int)
-            bcmod(bcadd(bcmul('25214903917', $this->_random_state_48, 0), '11', 0), '281474976710656');
+            bcmod(bcadd(bcmul('25214903917', (string) $this->_random_state_48, 0), '11', 0), '281474976710656');
         return $this->_random_state_48;
     }
 
@@ -152,7 +152,7 @@ class Perl_Random
      */
     public function drand48()
     {
-        return (float) bcdiv($this->rand48(), '281474976710656', 32);
+        return (float) bcdiv((string) $this->rand48(), '281474976710656', 32);
     }
 
     /**
@@ -213,7 +213,7 @@ class Perl_Random
     {
         $length = (int) $len;
         // Don't use drand48() in order to avoid a conversion to float.
-        return bcdiv(bcmul($length ?: '1', $this->rand48(), 0), '281474976710656', 32);
+        return bcdiv(bcmul($length ? (string) $length : '1', (string) $this->rand48(), 0), '281474976710656', 32);
     }
 
     /**
