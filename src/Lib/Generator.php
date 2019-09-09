@@ -114,13 +114,19 @@ class Generator
             #
             if (Db::$engine->get(Globals::_RR."/longterm") || !Db::$engine->get(Globals::_RR."/wrap")) {
                 Db::_dbunlock();
-                $m = sprintf('error: identifiers exhausted (stopped at %s).', Db::$engine->get(Globals::_RR."/oatop"));
+                $m = sprintf(
+                    'Error: identifiers exhausted (stopped at %1$s).',
+                    Db::$engine->get(Globals::_RR."/oatop")
+                );
                 Log::addmsg($noid, $m);
                 Log::logmsg($noid, $m);
                 return null;
             }
             # If we get here, term is not "long".
-            Log::logmsg($noid, sprintf('%s: Resetting counter to zero; previously issued identifiers will be re-issued', Helper::getTemper()));
+            Log::logmsg($noid, sprintf(
+                '%s: Resetting counter to zero; previously issued identifiers will be re-issued',
+                Helper::getTemper()
+            ));
             if (Db::$engine->get(Globals::_RR."/generator_type") === 'sequential') {
                 Db::$engine->set(Globals::_RR."/oacounter", 0);
             } else {
@@ -147,7 +153,10 @@ class Generator
         $len = count($saclist);
         if ($len < 1) {
             Db::_dbunlock();
-            Log::addmsg($noid, sprintf('error: no active counters panic, but %s identifiers left?', $oacounter));
+            Log::addmsg($noid, sprintf(
+                'Error: no active counters panic, but %s identifiers left?',
+                $oacounter
+            ));
             return null;
         }
 
@@ -163,7 +172,10 @@ class Generator
             Helper::executeCommand($cmd, $status, $output, $errors);
             if ($status != 0) {
                 Db::_dbunlock();
-                Log::addmsg($noid, sprintf('error: perl rand() is not available: %s.', $errors));
+                Log::addmsg($noid, sprintf(
+                    'Error: perl rand() is not available: %s.',
+                    $errors
+                ));
                 return null;
             }
             $randn = $output;

@@ -318,7 +318,10 @@ class Helper
             }
             $status = proc_close($proc);
         } else {
-            throw new Exception("Failed to execute command: $cmd.");
+            throw new Exception(sprintf(
+                'Failed to execute command: %s',
+                $cmd
+            ));
         }
     }
 }

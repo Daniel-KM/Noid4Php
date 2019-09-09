@@ -58,7 +58,7 @@ class NoidMysqlTest extends NoidTestCase
         $this->assertEquals(0, $status);
 
         # Check that the "NOID" subdirectory was created.
-        $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
+        $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
         # echo 'NOID was created';
 
         # That "NOID" is a directory.
@@ -81,7 +81,7 @@ class NoidMysqlTest extends NoidTestCase
         $noid_output = explode(PHP_EOL, $output);
         foreach ($noid_output as &$no) {
             $no = trim($no);
-            $no = preg_replace('/^\s*id:\s+/', '', $no);
+            $no = preg_replace('/^\s*Id:\s+/', '', $no);
         }
         # If the last one is the null string, delete it.
         $noid_output = array_filter($noid_output, 'strlen');
@@ -99,10 +99,10 @@ class NoidMysqlTest extends NoidTestCase
         $cmd = "{$noid_cmd} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
-        # Remove leading "id: ".
-        $noid = preg_replace('/^id:\s+/', '', $output);
+        # Remove leading "Id: ".
+        $noid = preg_replace('/^Id:\s+/', '', $output);
         $this->assertNotEmpty($noid);
-        # echo '"id: " precedes output of mint command for next to last noid';
+        # echo '"Id: " precedes output of mint command for next to last noid';
         # Remove trailing white space.
         $noid = preg_replace('/\s+$/', '', $noid);
         $this->assertNotEmpty($noid);
@@ -120,7 +120,7 @@ class NoidMysqlTest extends NoidTestCase
 
         # Verify that it won't let me.
         $noidOutput0 = trim($output);
-        $noidOutput0 = preg_match('/^error: a hold has been set for .* and must be released before the identifier can be queued for minting/', $noidOutput0);
+        $noidOutput0 = preg_match('/^Error: a hold has been set for .* and must be released before the identifier can be queued for minting/', $noidOutput0);
         $this->assertNotEmpty($noidOutput0);
         # echo 'correctly disallowed queue before hold release';
 
@@ -143,7 +143,7 @@ class NoidMysqlTest extends NoidTestCase
         $noid_output = explode(PHP_EOL, $output);
         foreach ($noid_output as &$no) {
             $no = trim($no);
-            $no = preg_replace('/^\s*id:\s+/', '', $no);
+            $no = preg_replace('/^\s*Id:\s+/', '', $no);
         }
         # If the last one is the null string, delete it.
         $noid_output = array_filter($noid_output, 'strlen');
@@ -165,10 +165,10 @@ class NoidMysqlTest extends NoidTestCase
         $cmd = "{$noid_cmd} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
-        # Remove leading "id: ".
-        $noid = preg_replace('/^id:\s+/', '', $output);
+        # Remove leading "Id: ".
+        $noid = preg_replace('/^Id:\s+/', '', $output);
         $this->assertNotEmpty($noid);
-        # echo '"id: " precedes output of mint command for last noid';
+        # echo '"Id: " precedes output of mint command for last noid';
         # Remove trailing white space.
         $noid = preg_replace('/\s+$/', '', $noid);
         $this->assertNotEmpty($noid);
@@ -185,7 +185,7 @@ class NoidMysqlTest extends NoidTestCase
 
         # Clean up each line.
         $noidOutput0 = trim($output);
-        $noidOutput0 = preg_match('/^error: identifiers exhausted/', $noidOutput0);
+        $noidOutput0 = preg_match('/^Error: identifiers exhausted/', $noidOutput0);
         $this->assertNotEmpty($noidOutput0);
         # echo 'correctly disallowed minting after identifiers were exhausted';
     }
@@ -227,7 +227,7 @@ class NoidMysqlTest extends NoidTestCase
         $this->assertEquals(0, $status);
 
         # Check that the "NOID" subdirectory was created.
-        $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
+        $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
         # echo 'NOID was created';
 
         # That "NOID" is a directory.
@@ -248,7 +248,7 @@ class NoidMysqlTest extends NoidTestCase
 
         # Examine the contents of the log.
         $fh = fopen($this->noid_dir . 'log', 'r');
-        $this->assertNotEmpty($fh, 'failed to open log file, stopped');
+        $this->assertNotEmpty($fh, 'Failed to open log file, stopped');
         # echo 'successfully opened "' . $this->noid_dir . 'log"';
 
         # Read in the log.
@@ -266,12 +266,12 @@ class NoidMysqlTest extends NoidTestCase
         # Check the contents of the lines.
         $this->assertEquals('Creating database for template "tst2.rde".', $log_lines[0]);
         # echo 'line 1 of "' . $this->noid_dir . 'log" correct';
-        $this->assertEquals('note: id 13030/tst27h being queued before first minting (to be pre-cycled)', $log_lines[1]);
+        $this->assertEquals('Note: id 13030/tst27h being queued before first minting (to be pre-cycled)', $log_lines[1]);
         # echo 'line 2 of "' . $this->noid_dir . 'log" correct';
         $regex = preg_quote('m: q|', '@') . '\d\d\d\d\d\d\d\d\d\d\d\d\d\d' . preg_quote('|', '@') . '[a-zA-Z0-9_-]*/[a-zA-Z0-9_-]*(?: \([a-zA-Z0-9_-]*/[a-zA-Z0-9_-]*\))?' . preg_quote('|0', '@');
         $this->assertTrue((bool) preg_match('@' . $regex . '@', $log_lines[2]));
         # echo 'line 3 of "' . $this->noid_dir . 'log" correct';
-        $this->assertTrue((bool) preg_match('/^id: 13030\/tst27h added to queue under :\/q\//', $log_lines[3]));
+        $this->assertTrue((bool) preg_match('/^Id: 13030\/tst27h added to queue under :\/q\//', $log_lines[3]));
         # echo 'line 4 of "' . $this->noid_dir . 'log" correct';
     }
 
@@ -312,7 +312,7 @@ class NoidMysqlTest extends NoidTestCase
         $this->assertEquals(0, $status);
 
         # Check that the "NOID" subdirectory was created.
-        $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
+        $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
         # echo 'NOID was created';
 
         # That "NOID" is a directory.
@@ -338,7 +338,7 @@ class NoidMysqlTest extends NoidTestCase
 
         # Verify that it's the third one.
         $noid_output = trim($output);
-        $this->assertEquals('id: 13030/tst394', $noid_output);
+        $this->assertEquals('Id: 13030/tst394', $noid_output);
         # echo 'held two, minted one, got the third one';
     }
 
@@ -381,7 +381,7 @@ class NoidMysqlTest extends NoidTestCase
         $this->assertEquals(0, $status);
 
         # Check that the "NOID" subdirectory was created.
-        $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
+        $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
         # echo 'NOID was created';
 
         # That "NOID" is a directory.
@@ -422,29 +422,29 @@ class NoidMysqlTest extends NoidTestCase
         $noid_output = array_filter($noid_output, 'strlen');
         $this->assertEquals(20, count($noid_output),
             # If we don't have exactly 20, something is probably very wrong.
-            'wrong number of ids minted, stopped');
+            'Wrong number of ids minted, stopped');
         # echo 'number of minted noids';
 
-        $this->assertEquals('id: 13030/tst43m', $noid_output[0], 'Error in 1st minted noid');
-        $this->assertEquals('id: 13030/tst47h', $noid_output[1], 'Error in 2nd minted noid');
-        $this->assertEquals('id: 13030/tst44k', $noid_output[2], 'Error in 3rd minted noid');
-        $this->assertEquals('id: 13030/tst48t', $noid_output[3], 'Error in 4th minted noid');
-        $this->assertEquals('id: 13030/tst466', $noid_output[4], 'Error in 5th minted noid');
-        $this->assertEquals('id: 13030/tst44x', $noid_output[5], 'Error in 6th minted noid');
-        $this->assertEquals('id: 13030/tst42c', $noid_output[6], 'Error in 7th minted noid');
-        $this->assertEquals('id: 13030/tst49s', $noid_output[7], 'Error in 8th minted noid');
-        $this->assertEquals('id: 13030/tst48f', $noid_output[8], 'Error in 9th minted noid');
-        $this->assertEquals('id: 13030/tst475', $noid_output[9], 'Error in 10th minted noid');
-        $this->assertEquals('id: 13030/tst45v', $noid_output[10], 'Error in 11th minted noid');
-        $this->assertEquals('id: 13030/tst439', $noid_output[11], 'Error in 12th minted noid');
-        $this->assertEquals('id: 13030/tst40q', $noid_output[12], 'Error in 13th minted noid');
-        $this->assertEquals('id: 13030/tst49f', $noid_output[13], 'Error in 14th minted noid');
-        $this->assertEquals('id: 13030/tst484', $noid_output[14], 'Error in 15th minted noid');
-        $this->assertEquals('id: 13030/tst46t', $noid_output[15], 'Error in 16th minted noid');
-        $this->assertEquals('id: 13030/tst45h', $noid_output[16], 'Error in 17th minted noid');
-        $this->assertEquals('id: 13030/tst447', $noid_output[17], 'Error in 18th minted noid');
-        $this->assertEquals('id: 13030/tst42z', $noid_output[18], 'Error in 19th minted noid');
-        $this->assertEquals('id: 13030/tst41n', $noid_output[19], 'Error in 20th minted noid');
+        $this->assertEquals('Id: 13030/tst43m', $noid_output[0], 'Error in 1st minted noid');
+        $this->assertEquals('Id: 13030/tst47h', $noid_output[1], 'Error in 2nd minted noid');
+        $this->assertEquals('Id: 13030/tst44k', $noid_output[2], 'Error in 3rd minted noid');
+        $this->assertEquals('Id: 13030/tst48t', $noid_output[3], 'Error in 4th minted noid');
+        $this->assertEquals('Id: 13030/tst466', $noid_output[4], 'Error in 5th minted noid');
+        $this->assertEquals('Id: 13030/tst44x', $noid_output[5], 'Error in 6th minted noid');
+        $this->assertEquals('Id: 13030/tst42c', $noid_output[6], 'Error in 7th minted noid');
+        $this->assertEquals('Id: 13030/tst49s', $noid_output[7], 'Error in 8th minted noid');
+        $this->assertEquals('Id: 13030/tst48f', $noid_output[8], 'Error in 9th minted noid');
+        $this->assertEquals('Id: 13030/tst475', $noid_output[9], 'Error in 10th minted noid');
+        $this->assertEquals('Id: 13030/tst45v', $noid_output[10], 'Error in 11th minted noid');
+        $this->assertEquals('Id: 13030/tst439', $noid_output[11], 'Error in 12th minted noid');
+        $this->assertEquals('Id: 13030/tst40q', $noid_output[12], 'Error in 13th minted noid');
+        $this->assertEquals('Id: 13030/tst49f', $noid_output[13], 'Error in 14th minted noid');
+        $this->assertEquals('Id: 13030/tst484', $noid_output[14], 'Error in 15th minted noid');
+        $this->assertEquals('Id: 13030/tst46t', $noid_output[15], 'Error in 16th minted noid');
+        $this->assertEquals('Id: 13030/tst45h', $noid_output[16], 'Error in 17th minted noid');
+        $this->assertEquals('Id: 13030/tst447', $noid_output[17], 'Error in 18th minted noid');
+        $this->assertEquals('Id: 13030/tst42z', $noid_output[18], 'Error in 19th minted noid');
+        $this->assertEquals('Id: 13030/tst41n', $noid_output[19], 'Error in 20th minted noid');
     }
 
     /**
@@ -484,7 +484,7 @@ class NoidMysqlTest extends NoidTestCase
         $this->assertEquals(0, $status);
 
         # Check that the "NOID" subdirectory was created.
-        $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
+        $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
         # echo 'NOID was created';
 
         # That "NOID" is a directory.
@@ -509,8 +509,7 @@ class NoidMysqlTest extends NoidTestCase
         $this->assertGreaterThanOrEqual(1, count($noid_output));
         # echo 'at least one line of output from attempt to bind to an unminted id';
 
-        $msg = 'error: 13030/tst594: "long" term disallows binding ' .
-            'an unissued identifier unless a hold is first placed on it.';
+        $msg = 'Error: 13030/tst594: "long" term disallows binding an unissued identifier unless a hold is first placed on it.';
         $this->assertEquals($msg, $noid_output[0]);
         # echo 'disallowed binding to unminted id';
     }

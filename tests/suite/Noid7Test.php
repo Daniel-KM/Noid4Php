@@ -65,7 +65,7 @@ class Noid7Test extends NoidTestCase
         $this->assertEquals(0, $status);
 
         # Check that the "NOID" subdirectory was created.
-        $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
+        $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
         # echo 'NOID was created';
 
         # That "NOID" is a directory.
@@ -82,7 +82,7 @@ class Noid7Test extends NoidTestCase
         # echo 'NOID/logbdb was created';
 
         # Check for the presence of the BerkeleyDB file within "NOID".
-        $this->assertFileExists($this->noid_dir . 'noid.bdb', 'minter initialization failed, stopped');
+        $this->assertFileExists($this->noid_dir . 'noid.bdb', 'Minter initialization failed, stopped');
         # echo 'NOID/noid.bdb was created';
 
         # Mint two.
@@ -96,12 +96,12 @@ class Noid7Test extends NoidTestCase
         # If the last line is empty, delete it.
         $noid_output = array_filter($noid_output, 'strlen');
 
-        $noid_output[0] = preg_replace('/^id:\s+/', '', $noid_output[0]);
+        $noid_output[0] = preg_replace('/^Id:\s+/', '', $noid_output[0]);
         $this->assertNotEmpty($noid_output[0]);
-        # echo 'first line:  "id: " preceded minted noid';
-        $noid_output[1] = preg_replace('/^id:\s+/', '', $noid_output[1]);
+        # echo 'first line:  "Id: " preceded minted noid';
+        $noid_output[1] = preg_replace('/^Id:\s+/', '', $noid_output[1]);
         $this->assertNotEmpty($noid_output[1]);
-        # echo 'second line:  "id: " preceded minted noid';
+        # echo 'second line:  "Id: " preceded minted noid';
         $bound_noid1 = $noid_output[0];
         $bound_noid2 = $noid_output[1];
         unset($noid_output);
@@ -122,7 +122,7 @@ class Noid7Test extends NoidTestCase
         $cmd .= ' < ' . escapeshellarg($stdinFilename);
         $this->_executeCommand($cmd, $status, $output, $errors);
         //unlink($stdinFilename);
-        $this->assertEquals(0, $status, sprintf('open of "%s" failed, %s, stopped', $cmd, $errors));
+        $this->assertEquals(0, $status, sprintf('Open of "%1$s" failed, %2$s, stopped', $cmd, $errors));
 
         # Generate the stuff for noid number 2.
         $element2 = '';
@@ -152,7 +152,7 @@ class Noid7Test extends NoidTestCase
         $cmd .= ' < ' . escapeshellarg($stdinFilename);
         $this->_executeCommand($cmd, $status, $output, $errors);
         //unlink($stdinFilename);
-        $this->assertEquals(0, $status, sprintf('open of "%s" failed, %s, stopped', $cmd, $errors));
+        $this->assertEquals(0, $status, sprintf('Open of "%1$s" failed, %2$s, stopped', $cmd, $errors));
 
         # Now, run the "fetch" command on the noid number 1.
         $cmd = "{$noid_cmd} fetch $bound_noid1";
@@ -168,11 +168,11 @@ class Noid7Test extends NoidTestCase
         $noid_output = array_filter($noid_output, 'strlen');
 
         # If there aren't 3 lines of output, somethings is wrong.
-        $this->assertEquals(3, count($noid_output), 'something wrong with fetch output, stopped');
+        $this->assertEquals(3, count($noid_output), 'Something wrong with fetch output, stopped');
         #echo 'there are 3 lines of output from the "fetch" command on noid 1';
 
         # Check first line.
-        $regex = '/^id:\s+' . preg_quote($bound_noid1, '/') . '\s+hold\s*$/';
+        $regex = '/^Id:\s+' . preg_quote($bound_noid1, '/') . '\s+hold\s*$/';
         $this->assertNotEmpty(preg_match($regex, $noid_output[0]));
         # echo 'line 1 of "fetch" output for noid 1';
 
@@ -184,7 +184,7 @@ class Noid7Test extends NoidTestCase
         # Check third line.
         $regex = '/^\s*(\S+)\s*:\s*(\S+)\s*$/';
         $this->assertNotEmpty(preg_match($regex, $noid_output[2], $matches),
-            'something wrong with bound value, stopped');
+            'Something wrong with bound value, stopped');
         # echo 'line 3 of "fetch" output for noid 1';
 
         $this->assertEquals($element1, $matches[1]);
@@ -205,11 +205,11 @@ class Noid7Test extends NoidTestCase
         $noid_output = array_filter($noid_output, 'strlen');
 
         # If there aren't 12 lines of output, somethings is wrong.
-        $this->assertEquals(12, count($noid_output), 'not enough lines of output, stopped');
+        $this->assertEquals(12, count($noid_output), 'Not enough lines of output, stopped');
         #echo 'there are 12 lines of output from the "fetch" command on noid 1';
 
         # Check first line.
-        $regex = '/^id:\s+' . preg_quote($bound_noid2, '/') . '\s+hold\s*$/';
+        $regex = '/^Id:\s+' . preg_quote($bound_noid2, '/') . '\s+hold\s*$/';
         $this->assertNotEmpty(preg_match($regex, $noid_output[0]));
         # echo 'line 1 of "fetch" output for noid 2';
 
@@ -221,7 +221,7 @@ class Noid7Test extends NoidTestCase
         # Check third line.
         $regex = '/^\s*(\S+)\s*:\s*(\S+)\s*$/';
         $this->assertNotEmpty(preg_match($regex, $noid_output[2], $matches),
-            'something wrong with bound value, stopped');
+            'Something wrong with bound value, stopped');
         # echo 'line 3 of "fetch" output for noid 2';
 
         $this->assertEquals($element2, $matches[1]);

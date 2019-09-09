@@ -56,7 +56,10 @@ class MysqlDB implements DatabaseInterface
 
         // Oops! I can't see her (Maria).
         if ($this->handle->connect_errno) {
-            throw new Exception('Mysql connection error: ' . $this->handle->connect_errno);
+            throw new Exception(sprintf(
+                'Mysql connection error: %s',
+                $this->handle->connect_errno
+            ));
         }
     }
 

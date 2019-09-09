@@ -60,7 +60,7 @@ class Noid1Test extends NoidTestCase
         $this->assertEquals(0, $status);
 
         # Check that the "NOID" subdirectory was created.
-        $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
+        $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
         # echo 'NOID was created';
 
         # That "NOID" is a directory.
@@ -77,7 +77,7 @@ class Noid1Test extends NoidTestCase
         # echo 'NOID/logbdb was created';
 
         # Check for the presence of the BerkeleyDB file within "NOID".
-        $this->assertFileExists($this->noid_dir . 'noid.bdb', 'minter initialization failed, stopped');
+        $this->assertFileExists($this->noid_dir . 'noid.bdb', 'Minter initialization failed, stopped');
         # echo 'NOID/noid.bdb was created';
 
         # Mint all but the last two of 290.
@@ -89,7 +89,7 @@ class Noid1Test extends NoidTestCase
         $noid_output = explode(PHP_EOL, $output);
         foreach ($noid_output as &$no) {
             $no = trim($no);
-            $no = preg_replace('/^\s*id:\s+/', '', $no);
+            $no = preg_replace('/^\s*Id:\s+/', '', $no);
         }
         # If the last one is the null string, delete it.
         $noid_output = array_filter($noid_output, 'strlen');
@@ -107,10 +107,10 @@ class Noid1Test extends NoidTestCase
         $cmd = "{$noid_cmd} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
-        # Remove leading "id: ".
-        $noid = preg_replace('/^id:\s+/', '', $output);
+        # Remove leading "Id: ".
+        $noid = preg_replace('/^Id:\s+/', '', $output);
         $this->assertNotEmpty($noid);
-        # echo '"id: " precedes output of mint command for next to last noid';
+        # echo '"Id: " precedes output of mint command for next to last noid';
         # Remove trailing white space.
         $noid = preg_replace('/\s+$/', '', $noid);
         $this->assertNotEmpty($noid);
@@ -128,7 +128,7 @@ class Noid1Test extends NoidTestCase
 
         # Verify that it won't let me.
         $noidOutput0 = trim($output);
-        $noidOutput0 = preg_match('/^error: a hold has been set for .* and must be released before the identifier can be queued for minting/', $noidOutput0);
+        $noidOutput0 = preg_match('/^Error: a hold has been set for .* and must be released before the identifier can be queued for minting/', $noidOutput0);
         $this->assertNotEmpty($noidOutput0);
         # echo 'correctly disallowed queue before hold release';
 
@@ -151,7 +151,7 @@ class Noid1Test extends NoidTestCase
         $noid_output = explode(PHP_EOL, $output);
         foreach ($noid_output as &$no) {
             $no = trim($no);
-            $no = preg_replace('/^\s*id:\s+/', '', $no);
+            $no = preg_replace('/^\s*Id:\s+/', '', $no);
         }
         # If the last one is the null string, delete it.
         $noid_output = array_filter($noid_output, 'strlen');
@@ -173,10 +173,10 @@ class Noid1Test extends NoidTestCase
         $cmd = "{$noid_cmd} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
-        # Remove leading "id: ".
-        $noid = preg_replace('/^id:\s+/', '', $output);
+        # Remove leading "Id: ".
+        $noid = preg_replace('/^Id:\s+/', '', $output);
         $this->assertNotEmpty($noid);
-        # echo '"id: " precedes output of mint command for last noid';
+        # echo '"Id: " precedes output of mint command for last noid';
         # Remove trailing white space.
         $noid = preg_replace('/\s+$/', '', $noid);
         $this->assertNotEmpty($noid);
@@ -193,7 +193,7 @@ class Noid1Test extends NoidTestCase
 
         # Clean up each line.
         $noidOutput0 = trim($output);
-        $noidOutput0 = preg_match('/^error: identifiers exhausted/', $noidOutput0);
+        $noidOutput0 = preg_match('/^Error: identifiers exhausted/', $noidOutput0);
         $this->assertNotEmpty($noidOutput0);
         # echo 'correctly disallowed minting after identifiers were exhausted';
     }

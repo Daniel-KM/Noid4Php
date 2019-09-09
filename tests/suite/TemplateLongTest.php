@@ -37,7 +37,7 @@ class TemplateLongTest extends NoidTestCase
         $this->assertEquals(0, $status);
 
         # Check that the "NOID" subdirectory was created.
-        $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
+        $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
         # echo 'NOID was created';
 
         # That "NOID" is a directory.
@@ -54,7 +54,7 @@ class TemplateLongTest extends NoidTestCase
         # echo 'NOID/logbdb was created';
 
         # Check for the presence of the BerkeleyDB file within "NOID".
-        $this->assertFileExists($this->noid_dir . 'noid.bdb', 'minter initialization failed, stopped');
+        $this->assertFileExists($this->noid_dir . 'noid.bdb', 'Minter initialization failed, stopped');
         # echo 'NOID/noid.bdb was created';
 
         $noid = Db::dbopen($this->dir, DatabaseInterface::DB_WRITE);

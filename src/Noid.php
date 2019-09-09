@@ -181,11 +181,14 @@ class Noid
         ) {
             return null;
         } elseif (strlen($id) == 0) {
-            Log::addmsg($noid, 'error: bind needs an identifier specified.');
+            Log::addmsg($noid, 'Error: bind needs an identifier specified.');
             return null;
         }
         if (empty($elem)) {
-            Log::addmsg($noid, sprintf('error: "bind %s" requires an element name.', $how));
+            Log::addmsg($noid, sprintf(
+                'Error: "bind %s" requires an element name.',
+                $how
+            ));
             return null;
         }
 
@@ -203,7 +206,10 @@ class Noid
         $hold = 0;
         if (substr($id, 0, 1) === ':') {
             if (!preg_match('|^:idmap/(.+)|', $id, $matches)) {
-                Log::addmsg($noid, sprintf('error: %s: id cannot begin with ":" unless of the form ":idmap/Idpattern".', $oid));
+                Log::addmsg($noid, sprintf(
+                    'Error: %s: id cannot begin with ":" unless of the form ":idmap/Idpattern".',
+                    $oid
+                ));
                 return null;
             }
             $id = Globals::_RR . "/idmap/$oelem";
@@ -221,19 +227,28 @@ class Noid
         $ret_val = Db::$engine->get("$id\t" . Globals::_RR . "/c");
         if (empty($ret_val) && !Db::$engine->exists("$id\t" . Globals::_RR . "/h")) {
             if (Db::$engine->get(Globals::_RR . "/longterm")) {
-                Log::addmsg($noid, sprintf('error: %s: "long" term disallows binding an unissued identifier unless a hold is first placed on it.', $oid));
+                Log::addmsg($noid, sprintf(
+                    'Error: %s: "long" term disallows binding an unissued identifier unless a hold is first placed on it.',
+                    $oid
+                ));
                 return null;
             }
-            Log::logmsg($noid, sprintf('warning: %s: binding an unissued identifier that has no hold placed on it.', $oid));
+            Log::logmsg($noid, sprintf(
+                'Warning: %s: binding an unissued identifier that has no hold placed on it.',
+                $oid
+            ));
         } elseif (!in_array($how, Globals::$valid_hows)) {
-            Log::addmsg($noid, sprintf('error: bind how?  What does %s mean?', $how));
+            Log::addmsg($noid, sprintf(
+                'Error: bind how?  What does %s mean?',
+                $how
+            ));
             return null;
         }
 
         $peppermint = ($how === 'peppermint');
         if ($peppermint) {
             # yyy to do
-            Log::addmsg($noid, 'error: bind "peppermint" not implemented.');
+            Log::addmsg($noid, 'Error: bind "peppermint" not implemented.');
             return null;
         }
 
@@ -241,7 +256,7 @@ class Noid
         # YYY bind mint stuff_into_big_file Elem Value -- cat into file
         if ($how === 'mint' || $how === 'peppermint') {
             if ($id !== 'new') {
-                Log::addmsg($noid, 'error: bind "mint" requires id to be given as "new".');
+                Log::addmsg($noid, 'Error: bind "mint" requires id to be given as "new".');
                 return null;
             }
             $id = $oid = self::mint($noid, $contact, $peppermint);
@@ -252,13 +267,18 @@ class Noid
 
         if ($how === 'delete' || $how === 'purge') {
             if (!empty($value)) {
-                Log::addmsg($noid, sprintf('error: why does "bind %s" have a supplied value (%s)?"', $how, $value));
+                Log::addmsg($noid, sprintf(
+                    'Error: why does "bind %1$s" have a supplied value (%2$s)?"',
+                    $how, $value
+                ));
                 return null;
             }
             $value = '';
         } elseif (empty($value)) {
-            Log::addmsg($noid,
-                sprintf('error: "bind %s %s" requires a value to bind.', $how, $elem));
+            Log::addmsg($noid, sprintf(
+                'Error: "bind %1$s %2$s" requires a value to bind.',
+                $how, $elem
+            ));
             return null;
         }
         # If we get here, $value is defined and we can use with impunity.
@@ -267,14 +287,20 @@ class Noid
         $ret_val = Db::$engine->get("$id\t$elem");
         if (empty($ret_val)) {      # currently unbound
             if (in_array($how, array('replace', 'append', 'prepend', 'delete'))) {
-                Log::addmsg($noid, sprintf('error: for "bind %s", "%s %s" must already be bound.', $how, $oid, $oelem));
+                Log::addmsg($noid, sprintf(
+                    'Error: for "bind %1$s", "%2$s %3$s" must already be bound.',
+                    $how, $oid, $oelem
+                ));
                 Db::_dbunlock();
                 return null;
             }
             Db::$engine->set("$id\t$elem", '');  # can concatenate with impunity
         } else {                      # currently bound
             if (in_array($how, array('new', 'mint', 'peppermint'))) {
-                Log::addmsg($noid, sprintf('error: for "bind %s", "%s %s" cannot already be bound.', $how, $oid, $oelem));
+                Log::addmsg($noid, sprintf(
+                    'Error: for "bind %1$s", "%2$s %3$s" cannot already be bound.',
+                    $how, $oid, $oelem
+                ));
                 Db::_dbunlock();
                 return null;
             }
@@ -336,7 +362,10 @@ class Noid
         self::init();
 
         if (strlen($id) == 0) {
-            Log::addmsg($noid, sprintf('error: %s requires that an identifier be specified.', $verbose ? 'fetch' : 'get'));
+            Log::addmsg($noid, sprintf(
+                'Error: %s requires that an identifier be specified.',
+                $verbose ? 'fetch' : 'get'
+            ));
             return null;
         }
 
@@ -352,7 +381,7 @@ class Noid
         $hdr = '';
         $retval = '';
         if ($verbose) {
-            $hdr = "id:    $id"
+            $hdr = "Id:    $id"
                 . (Db::$engine->exists("$id\t" . Globals::_RR . "/h") ? ' hold ' : '') . PHP_EOL
                 . (self::validate($noid, '-', $id) ? '' : Log::errmsg($noid) . PHP_EOL)
                 . 'Circ:  ' . (Db::$engine->get("$id\t" . Globals::_RR . "/c") ? : 'uncirculated') . PHP_EOL;
@@ -376,8 +405,10 @@ class Noid
             }
 
             if (empty($retval)) {
-                Log::addmsg($noid, $hdr
-                    . "note: no elements bound under $id.");
+                Log::addmsg($noid, sprintf(
+                    '%1$snote: no elements bound under %2$s.',
+                    $hdr, $id
+                ));
                 return null;
             }
             return $hdr . $retval;
@@ -396,8 +427,8 @@ class Noid
                 $idmapped = self::_id2elemval($noid, $verbose, $id, $elem);
                 if ($verbose) {
                     $retval .= $idmapped
-                        ? $idmapped . PHP_EOL . 'note: previous result produced by :idmap'
-                        : sprintf('error: "%s %s" is not bound.', $id, $elem);
+                        ? $idmapped . PHP_EOL . 'Note: previous result produced by :idmap'
+                        : sprintf('Error: "%1$s %2$s" is not bound.', $id, $elem);
                     $retval .= PHP_EOL;
                 } else {
                     $retval .= $idmapped . PHP_EOL;
@@ -435,13 +466,13 @@ class Noid
         }
 
         if (empty($contact)) {
-            Log::addmsg($noid, 'contact undefined');
+            Log::addmsg($noid, 'Contact undefined');
             return null;
         }
 
         $template = Db::$engine->get(Globals::_RR . "/template");
         if (!$template) {
-            Log::addmsg($noid, 'error: this minter does not generate identifiers (it does accept user-defined identifier and element bindings).');
+            Log::addmsg($noid, 'Error: this minter does not generate identifiers (it does accept user-defined identifier and element bindings).');
             return null;
         }
 
@@ -483,7 +514,7 @@ class Noid
             Db::$engine->delete($key);
             Db::$engine->set(Globals::_RR . "/queued", Db::$engine->get(Globals::_RR . "/queued") - 1);
             if (Db::$engine->get(Globals::_RR . "/queued") < 0) {
-                $m = sprintf('error: queued count (%s) going negative on id %s', Db::$engine->get(Globals::_RR . "/queued"), $id);
+                $m = sprintf('Error: queued count (%1$s) going negative on id %2$s', Db::$engine->get(Globals::_RR . "/queued"), $id);
                 Log::addmsg($noid, $m);
                 Log::logmsg($noid, $m);
                 return null;
@@ -495,8 +526,10 @@ class Noid
             #
             if (Db::$engine->exists("$id\t" . Globals::_RR . "/h")) {     # if there's a hold
                 if (Db::$engine->get(Globals::_RR . "/longterm")) {
-                    Log::logmsg($noid,
-                        sprintf('warning: id %s found in queue with a hold placed on it -- removed from queue.', $id));
+                    Log::logmsg($noid, sprintf(
+                        'Warning: id %s found in queue with a hold placed on it -- removed from queue.',
+                        $id
+                    ));
                 }
                 continue;
             }
@@ -505,19 +538,24 @@ class Noid
             $circ_svec = self::_get_circ_svec($noid, $id);
 
             if (substr($circ_svec, 0, 1) === 'i') {
-                Log::logmsg($noid,
-                    sprintf('error: id %s appears to have been issued while still in the queue -- circ record is %s',
-                        $id, Db::$engine->get("$id\t" . Globals::_RR . "/c")));
+                Log::logmsg($noid, sprintf(
+                    'Error: id %1$s appears to have been issued while still in the queue -- circ record is %2$s',
+                    $id, Db::$engine->get("$id\t" . Globals::_RR . "/c")
+                ));
                 continue;
             }
             if (substr($circ_svec, 0, 1) === 'u') {
-                Log::logmsg($noid, sprintf('note: id %s, marked as unqueued, is now being removed/skipped in the queue -- circ record is %s',
-                    $id, Db::$engine->get("$id\t" . Globals::_RR . "/c")));
+                Log::logmsg($noid, sprintf(
+                    'Note: id %1$s, marked as unqueued, is now being removed/skipped in the queue -- circ record is %2$s',
+                    $id, Db::$engine->get("$id\t" . Globals::_RR . "/c")
+                ));
                 continue;
             }
             if (preg_match('/^([^q])/', $circ_svec, $matches)) {
-                Log::logmsg($noid, sprintf('error: id %s found in queue has an unknown circ status (%s) -- circ record is %s',
-                    $id, $matches[1], Db::$engine->get("$id\t" . Globals::_RR . "/c")));
+                Log::logmsg($noid, sprintf(
+                    'Error: id %1$s found in queue has an unknown circ status (%s) -- circ record is %2$s',
+                    $id, $matches[1], Db::$engine->get("$id\t" . Globals::_RR . "/c")
+                ));
                 continue;
             }
 
@@ -527,8 +565,10 @@ class Noid
             #
             if ($circ_svec === '') {
                 if (Db::$engine->get(Globals::_RR . "/longterm")) {
-                    Log::logmsg($noid,
-                        sprintf('note: queued id %s coming out of queue on first minting (pre-cycled)', $id));
+                    Log::logmsg($noid, sprintf(
+                        'Note: queued id %s coming out of queue on first minting (pre-cycled)',
+                        $id
+                    ));
                 }
             }
 
@@ -617,9 +657,10 @@ class Noid
             #
             if (substr($circ_svec, 0, 1) === 'q') {
                 if (Db::$engine->get(Globals::_RR . "/longterm")) {
-                    Log::logmsg($noid,
-                        sprintf("note: will not issue genid()'d %s as its status is 'q', circ_rec is %s",
-                            $id, Db::$engine->get("$id\t" . Globals::_RR . "/c")));
+                    Log::logmsg($noid, sprintf(
+                        'Note: will not issue genid()’d %1$s as its status is "q", circ_rec is %2$s',
+                        $id, Db::$engine->get("$id\t" . Globals::_RR . "/c")
+                    ));
                 }
                 continue;
             }
@@ -633,18 +674,24 @@ class Noid
             if (substr($circ_svec, 0, 1) === 'i'
                 && (Db::$engine->get(Globals::_RR . "/longterm") || !Db::$engine->get(Globals::_RR . "/wrap"))
             ) {
-                Log::logmsg($noid, sprintf('error: id %s cannot be re-issued except by going through the queue, circ_rec %s',
-                    $id, Db::$engine->get("$id\t" . Globals::_RR . "/c")));
+                Log::logmsg($noid, sprintf(
+                    'Error: id %1$s cannot be re-issued except by going through the queue, circ_rec %2$s',
+                    $id, Db::$engine->get("$id\t" . Globals::_RR . "/c")
+                ));
                 continue;
             }
             if (substr($circ_svec, 0, 1) === 'u') {
-                Log::logmsg($noid, sprintf('note: generating id %s, currently marked as unqueued, circ record is %s',
-                    $id, Db::$engine->get("$id\t" . Globals::_RR . "/c")));
+                Log::logmsg($noid, sprintf(
+                    'Note: generating id %1$s, currently marked as unqueued, circ record is %2$s',
+                    $id, Db::$engine->get("$id\t" . Globals::_RR . "/c")
+                ));
                 continue;
             }
             if (preg_match('/^([^iqu])/', $circ_svec, $matches)) {
-                Log::logmsg($noid, sprintf('error: id %s has unknown circulation status (%s), circ_rec %s',
-                    $id, $matches[1], Db::$engine->get("$id\\t" . Globals::_RR . "/c")));
+                Log::logmsg($noid, sprintf(
+                    'Error: id %1$s has unknown circulation status (%2$s), circ_rec %3$s',
+                    $id, $matches[1], Db::$engine->get("$id\\t" . Globals::_RR . "/c")
+                ));
                 continue;
             }
             #
@@ -713,7 +760,7 @@ class Noid
      * that is 16 digits wider than the Template mask [yyy kludge that doesn't
      * take any overflow into account, or bigints for that matter].
      *
-     * Returns the array of corresponding strings (errors and "id:" strings)
+     * Returns the array of corresponding strings (errors and "Id:" strings)
      * or an empty array on error.
      *
      * @param string       $noid
@@ -738,20 +785,20 @@ class Noid
         }
 
         if (!Db::$engine->get(Globals::_RR . "/template")) {
-            Log::addmsg($noid, 'error: queuing makes no sense in a bind-only minter.');
+            Log::addmsg($noid, 'Error: queuing makes no sense in a bind-only minter.');
             return array();
         }
         if (empty($contact)) {
-            Log::addmsg($noid, 'error: contact undefined');
+            Log::addmsg($noid, 'Error: contact undefined');
             return array();
         }
         if (empty($when) || trim($when) === '') {
-            Log::addmsg($noid, 'error: queue when? (eg, first, lvf, 30d, now)');
+            Log::addmsg($noid, 'Error: queue when? (eg, first, lvf, 30d, now)');
             return array();
         }
         # yyy what is sensible thing to do if no ids are present?
         if (empty($ids)) {
-            Log::addmsg($noid, 'error: must specify at least one id to queue.');
+            Log::addmsg($noid, 'Error: must specify at least one id to queue.');
             return array();
         }
         $seqnum = 0;
@@ -785,7 +832,10 @@ class Noid
         } elseif ($when === 'delete') {
             $delete = 1;
         } elseif ($when !== 'lvf') {
-            Log::addmsg($noid, sprintf('error: unrecognized queue time: %s', $when));
+            Log::addmsg($noid, sprintf(
+                'Error: unrecognized queue time: %s',
+                $when
+            ));
             return array();
         }
 
@@ -805,14 +855,16 @@ class Noid
         if (Db::$engine->get(Globals::_RR . "/genonly")) {
             $iderrors = self::validate($noid, '-', $ids);
             if (array_filter($iderrors, function ($v) {
-                return strpos($v, 'error:') !== 0;
+                return stripos($v, 'error:') !== 0;
             })) {
                 $iderrors = array();
             }
         }
         if ($iderrors) {
-            Log::addmsg($noid, sprintf('error: queue operation not started -- one or more ids did not validate: %s',
-                PHP_EOL . implode(PHP_EOL, $iderrors)));
+            Log::addmsg($noid, sprintf(
+                'Error: queue operation not started -- one or more ids did not validate: %s',
+                PHP_EOL . implode(PHP_EOL, $iderrors)
+            ));
             return array();
         }
 
@@ -825,7 +877,10 @@ class Noid
         $circ_svec = null;
         foreach ($ids as $id) {
             if (Db::$engine->exists("$id\t" . Globals::_RR . "/h")) {     # if there's a hold
-                $m = sprintf('error: a hold has been set for "%s" and must be released before the identifier can be queued for minting.', $id);
+                $m = sprintf(
+                    'Error: a hold has been set for "%s" and must be released before the identifier can be queued for minting.',
+                    $id
+                );
                 Log::logmsg($noid, $m);
                 $retvals[] = $m;
                 continue;
@@ -838,22 +893,28 @@ class Noid
             $circ_svec = self::_get_circ_svec($noid, $id);
 
             if (substr($circ_svec, 0, 1) === 'q' && !$delete) {
-                $m = sprintf('error: id %s cannot be queued since it appears to be in the queue already -- circ record is %s',
-                    $id, Db::$engine->get("$id\t" . Globals::_RR . "/c"));
+                $m = sprintf(
+                    'Error: id %1$s cannot be queued since it appears to be in the queue already -- circ record is %2$s',
+                    $id, Db::$engine->get("$id\t" . Globals::_RR . "/c")
+                );
                 Log::logmsg($noid, $m);
                 $retvals[] = $m;
                 continue;
             }
             if (substr($circ_svec, 0, 1) === 'u' && $delete) {
-                $m = sprintf('error: id %s has been unqueued already -- circ record is %s',
-                    $id, Db::$engine->get("$id\t" . Globals::_RR . "/c"));
+                $m = sprintf(
+                    'Error: id %1$s has been unqueued already -- circ record is %2$s',
+                    $id, Db::$engine->get("$id\t" . Globals::_RR . "/c")
+                );
                 Log::logmsg($noid, $m);
                 $retvals[] = $m;
                 continue;
             }
             if (substr($circ_svec, 0, 1) !== 'q' && $delete) {
-                $m = sprintf('error: id %s cannot be unqueued since its circ record does not indicate its being queued, circ record is %s',
-                    $id, Db::$engine->get("$id\t" . Globals::_RR . "/c"));
+                $m = sprintf(
+                    'Error: id %1$s cannot be unqueued since its circ record does not indicate its being queued, circ record is %2$s',
+                    $id, Db::$engine->get("$id\t" . Globals::_RR . "/c")
+                );
                 Log::logmsg($noid, $m);
                 $retvals[] = $m;
                 continue;
@@ -862,12 +923,17 @@ class Noid
 
             if ($circ_svec === '') {
                 if (Db::$engine->get(Globals::_RR . "/longterm")) {
-                    Log::logmsg($noid,
-                        sprintf('note: id %s being queued before first minting (to be pre-cycled)', $id));
+                    Log::logmsg($noid, sprintf(
+                        'Note: id %s being queued before first minting (to be pre-cycled)',
+                        $id
+                    ));
                 }
             } elseif (substr($circ_svec, 0, 1) === 'i') {
                 if (Db::$engine->get(Globals::_RR . "/longterm")) {
-                    Log::logmsg($noid, sprintf('note: longterm id %s being queued for re-issue', $id));
+                    Log::logmsg($noid, sprintf(
+                        'Note: longterm id %s being queued for re-issue',
+                        $id
+                    ));
                 }
             }
 
@@ -886,8 +952,10 @@ class Noid
             ) {
                 Db::_dbunlock();
 
-                $m = sprintf('error: queue count (%s) exceeding total possible on id %s.  Queue operation aborted.',
-                    Db::$engine->get(Globals::_RR . "/queued"), $id);
+                $m = sprintf(
+                    'Error: queue count (%1$s) exceeding total possible on id %2$s.  Queue operation aborted.',
+                    Db::$engine->get(Globals::_RR . "/queued"), $id
+                );
                 Log::logmsg($noid, $m);
                 $retvals[] = $m;
                 break;
@@ -897,10 +965,12 @@ class Noid
             Db::_dbunlock();
 
             if (Db::$engine->get(Globals::_RR . "/longterm")) {
-                Log::logmsg($noid, sprintf('id: %s added to queue under %s',
-                    Db::$engine->get(Globals::_RR . "/q/$qdate/$fixsqn/$paddedid"), Globals::_RR . "/q/$qdate/$seqnum/$paddedid"));
+                Log::logmsg($noid, sprintf(
+                    'Id: %1$s added to queue under %2$s',
+                    Db::$engine->get(Globals::_RR . "/q/$qdate/$fixsqn/$paddedid"), Globals::_RR . "/q/$qdate/$seqnum/$paddedid"
+                ));
             }
-            $retvals[] = sprintf('id: %s', $id);
+            $retvals[] = sprintf('Id: %s', $id);
             if ($seqnum) {     # it's zero for "lvf" and "delete"
                 $seqnum++;
             }
@@ -956,12 +1026,12 @@ class Noid
         $retvals = array();
 
         if (empty($ids)) {
-            Log::addmsg($noid, 'error: must specify a template and at least one identifier.');
+            Log::addmsg($noid, 'Error: must specify a template and at least one identifier.');
             return array();
         }
         if (empty($template)) {
             # If $noid is null, the caller looks in Log::errmsg(null).
-            Log::addmsg($noid, 'error: no template given to validate against.');
+            Log::addmsg($noid, 'Error: no template given to validate against.');
             return array();
         }
 
@@ -970,7 +1040,7 @@ class Noid
         if (!strcmp($template, '-')) {
             # $retvals[] = sprintf('template: %s', Globals::$db_engine->get(Globals::_RR."/template")));
             if (!Db::$engine->get(Globals::_RR . "/template")) {  # do blanket validation
-                $nonulls = array_filter(preg_replace('/^(.)/', 'id: $1', $ids));
+                $nonulls = array_filter(preg_replace('/^(.)/', 'Id: $1', $ids));
                 if (empty($nonulls)) {
                     return array();
                 }
@@ -984,7 +1054,10 @@ class Noid
                 ? (Db::$engine->get(Globals::_RR . "/checkrepertoire") ? : Helper::getAlphabet($template))
                 : '';
         } elseif (!Helper::parseTemplate($template, $prefix, $mask, $gen_type, $msg)) {
-            Log::addmsg($noid, sprintf('error: template %s bad: %s', $template, $msg));
+            Log::addmsg($noid, sprintf(
+                'Error: template %1$s bad: %2$s',
+                $template, $msg
+            ));
             return array();
         }
 
@@ -1008,7 +1081,7 @@ class Noid
             #
             if (strpos(Globals::_RR . "/", $id) === 0) {
                 $retvals[] = preg_match('|^' . preg_quote(Globals::_RR . "/idmap/", '|') . '.+|', $id)
-                    ? sprintf('id: %s', $id)
+                    ? sprintf('Id: %s', $id)
                     : sprintf('iderr: identifiers must not start with "%s".', Globals::_RR . "/");
                 continue;
             }
@@ -1033,8 +1106,10 @@ class Noid
 
             # yyy needed?
             # if (strlen($first) + strlen($mask) - 1 != strlen($id)) {
-            #     $retvals[] = sprintf('error: %s has should have length %s',
-            #         $id, (strlen($first) + strlen($mask) - 1));
+            #     $retvals[] = sprintf(
+            #         'Error: %1$s has should have length %2$s',
+            #         $id, (strlen($first) + strlen($mask) - 1)
+            #     );
             #     continue;
             # }
 
@@ -1052,14 +1127,14 @@ class Noid
                 $m = array_shift($maskchars);
                 if (is_null($m)) {
                     if ($mode != 'z') {
-                        $retvals[] = sprintf('iderr: %s longer than specified template (%s)', $id, $template);
+                        $retvals[] = sprintf('iderr: %1$s longer than specified template (%2$s)', $id, $template);
                         $flagBreakContinue = true;
                         break;
                     }
                     $m = $suppl;
                 }
                 if (isset(Globals::$alphabets[$m]) && strpos(Globals::$alphabets[$m], $c) === false) {
-                    $retvals[] = sprintf('iderr: %s char "%s" conflicts with template (%s) char "%s"%s',
+                    $retvals[] = sprintf('iderr: %1$s char "%2$s" conflicts with template (%3$s) char "%4$s"%5$s',
                         $id, $c, $template, $m, $m == 'e' ? ' (extended digit)' : ($m == 'd' ? ' (digit)' : ''));
                     $flagBreakContinue = true;
                     break;
@@ -1071,12 +1146,12 @@ class Noid
 
             $m = array_shift($maskchars);
             if (!is_null($m)) {
-                $retvals[] = sprintf('iderr: %s shorter than specified template (%s)', $id, $template);
+                $retvals[] = sprintf('iderr: %1$s shorter than specified template (%2$s)', $id, $template);
                 continue;
             }
 
             # If we get here, the identifier checks out.
-            $retvals[] = sprintf('id: %s', $id);
+            $retvals[] = sprintf('Id: %s', $id);
         }
         return $retvals;
     }
@@ -1109,23 +1184,24 @@ class Noid
         # yyy what makes sense in this case?
         # if (! Globals::$db_engine->get(Globals::_RR."/template")) {
         #   Log::addmsg($noid,
-        #       'error: holding makes no sense in a bind-only minter.');
+        #       'Error: holding makes no sense in a bind-only minter.'
+        #   );
         #   return 0;
         # }
         if (empty($contact)) {
-            Log::addmsg($noid, "error: contact undefined");
+            Log::addmsg($noid, 'Error: contact undefined');
             return 0;
         }
         if (empty($on_off)) {
-            Log::addmsg($noid, 'error: hold "set" or "release"?');
+            Log::addmsg($noid, 'Error: hold "set" or "release"?');
             return 0;
         }
         if (empty($ids)) {
-            Log::addmsg($noid, 'error: no Id(s) specified');
+            Log::addmsg($noid, 'Error: no Id(s) specified');
             return 0;
         }
         if ($on_off !== 'set' && $on_off !== 'release') {
-            Log::addmsg($noid, sprintf('error: unrecognized hold directive (%s)', $on_off));
+            Log::addmsg($noid, sprintf('Error: unrecognized hold directive (%s)', $on_off));
             return 0;
         }
 
@@ -1135,14 +1211,16 @@ class Noid
         if (Db::$engine->get(Globals::_RR . "/genonly")) {
             $iderrors = self::validate($noid, '-', $ids);
             if (array_filter($iderrors, function ($v) {
-                return strpos($v, 'error:') !== 0;
+                return stripos($v, 'error:') !== 0;
             })) {
                 $iderrors = array();
             }
         }
         if ($iderrors) {
-            Log::addmsg($noid, sprintf('error: hold operation not started -- one or more ids did not validate: %s',
-                PHP_EOL . implode(PHP_EOL, $iderrors)));
+            Log::addmsg($noid, sprintf(
+                'Error: hold operation not started -- one or more ids did not validate: %s',
+                PHP_EOL . implode(PHP_EOL, $iderrors)
+            ));
             return 0;
         }
 
@@ -1151,13 +1229,13 @@ class Noid
         foreach ($ids as $id) {
             if ($release) {     # no hold means key doesn't exist
                 if (Db::$engine->get(Globals::_RR . "/longterm")) {
-                    Log::logmsg($noid, sprintf('%s %s: releasing hold', Helper::getTemper(), $id));
+                    Log::logmsg($noid, sprintf('%1$s %2$s: releasing hold', Helper::getTemper(), $id));
                 }
                 Db::_dblock();
                 $status = self::hold_release($noid, $id);
             } else {          # "hold" means key exists
                 if (Db::$engine->get(Globals::_RR . "/longterm")) {
-                    Log::logmsg($noid, sprintf('%s %s: placing hold', Helper::getTemper(), $id));
+                    Log::logmsg($noid, sprintf('%1$s %2$s: placing hold', Helper::getTemper(), $id));
                 }
                 Db::_dblock();
                 $status = self::hold_set($noid, $id);
@@ -1176,7 +1254,9 @@ class Noid
             #     "reserved for future use" or "reserved, never issued"
             #
         }
-        Log::addmsg($noid, $n == 1 ? sprintf('ok: 1 hold placed') : sprintf('ok: %s holds placed', $n));
+        Log::addmsg($noid, $n == 1
+            ? sprintf('Ok: 1 hold placed')
+            : sprintf('Ok: %s holds placed', $n));
         return 1;
     }
 
@@ -1206,7 +1286,10 @@ class Noid
         if (Db::$engine->get(Globals::_RR . "/total") != Globals::NOLIMIT   # ie, if total is non-zero
             && Db::$engine->get(Globals::_RR . "/held") > Db::$engine->get(Globals::_RR . "/oatop")
         ) {
-            $m = sprintf('error: hold count (%s) exceeding total possible on id %s', Db::$engine->get(Globals::_RR . "/held"), $id);
+            $m = sprintf(
+                'Error: hold count (%1$s) exceeding total possible on id %2£s',
+                Db::$engine->get(Globals::_RR . "/held"), $id
+            );
             Log::addmsg($noid, $m);
             Log::logmsg($noid, $m);
             return 0;
@@ -1238,7 +1321,10 @@ class Noid
         Db::$engine->delete("$id\t" . Globals::_RR . "/h");
         Db::$engine->set(Globals::_RR . "/held", Db::$engine->get(Globals::_RR . "/held") - 1);
         if (Db::$engine->get(Globals::_RR . "/held") < 0) {
-            $m = sprintf('error: hold count (%s) going negative on id %s', Db::$engine->get(Globals::_RR . "/held"), $id);
+            $m = sprintf(
+                'Error: hold count (%1$s) going negative on id %2$s',
+                Db::$engine->get(Globals::_RR . "/held"), $id
+            );
             Log::addmsg($noid, $m);
             Log::logmsg($noid, $m);
             return 0;
@@ -1287,11 +1373,17 @@ class Noid
         $circ_svec = reset($circ_svec);
 
         if (empty($circ_svec)) {
-            Log::logmsg($noid, sprintf('error: id %s has no circ status vector -- circ record is %s', $id, $circ_rec));
+            Log::logmsg($noid, sprintf(
+                'Error: id %1$s has no circ status vector -- circ record is %2$s',
+                $id, $circ_rec
+            ));
             return '';
         }
         if (!preg_match('/^([iqu])[iqu]*$/', $circ_svec, $matches)) {
-            Log::logmsg($noid, sprintf('error: id %s has a circ status vector containing letters other than "i", "q", or "u" -- circ record is %s', $id, $circ_rec));
+            Log::logmsg($noid, sprintf(
+                'Error: id %1$s has a circ status vector containing letters other than "i", "q", or "u" -- circ record is %2$s',
+                $id, $circ_rec
+            ));
             return '';
         }
         return $matches[1];
@@ -1353,7 +1445,7 @@ class Noid
         # longterm identifiers are in effect.
         #
         if (Db::$engine->get(Globals::_RR . "/longterm")) {
-            Log::logmsg($noid, sprintf('m: %s%s', $circ_rec, $status ? '' : ' -- hold failed'));
+            Log::logmsg($noid, sprintf('m: %1$s%2$s', $circ_rec, $status ? '' : ' -- hold failed'));
         }
 
         if (empty($status)) {           # must be an error in hold_set()
@@ -1429,7 +1521,7 @@ class Noid
         $first = Globals::_RR . "/idmap/$elem\t";
         $values = Db::$engine->get_range($first);
         if (is_null($values)) {
-            return sprintf('error: id2elemval: access to database failed.');
+            return sprintf('Error: id2elemval: access to database failed.');
         }
         if (empty($values)) {
             return '';
@@ -1446,7 +1538,7 @@ class Noid
                     # yyy kludgy use of unlikely delimiters (ascii 05: Enquiry)
                     $newval = preg_replace(chr(5) . preg_quote($pattern, chr(5)) . chr(5), $value, $newval);
                 } catch (Exception $e) {
-                    return sprintf('error: id2elemval eval: %s', $e->getMessage());
+                    return sprintf('Error: id2elemval eval: %s', $e->getMessage());
                 }
                 # replaced, so return
                 return ($verbose ? $elem . ': ' : '') . $newval;

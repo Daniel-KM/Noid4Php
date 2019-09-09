@@ -90,10 +90,10 @@ class DbConvertTest extends NoidTestCase
         $cmd = "{$this->cmd} -f {$this->dir} -t {$dst_type} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
-        # Remove leading "id: ".
-        $noid = preg_replace('/^id:\s+/', '', $output);
+        # Remove leading "Id: ".
+        $noid = preg_replace('/^Id:\s+/', '', $output);
         $this->assertNotEmpty($noid);
-        # echo '"id: " precedes output of mint command for last noid';
+        # echo '"Id: " precedes output of mint command for last noid';
         # Remove trailing white space.
         $noid = preg_replace('/\s+$/', '', $noid);
         $this->assertNotEmpty($noid);

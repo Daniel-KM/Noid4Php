@@ -91,7 +91,10 @@ class BerkeleyDB implements DatabaseInterface
                     }
                     $status = proc_close($proc);
                 } else {
-                    throw new Exception("Failed to execute command: $cmd.");
+                    throw new Exception(sprintf(
+                        'Failed to execute command: %s',
+                        $cmd
+                    ));
                 }
             }
 
@@ -101,7 +104,7 @@ class BerkeleyDB implements DatabaseInterface
             # Create a logbdb file from scratch and make them writable
             $logbdb = $path . DIRECTORY_SEPARATOR . 'logbdb';
             if (file_put_contents($logbdb, '') === false || !chmod($logbdb, 0666)) {
-                // Log::addmsg(NULL, "Couldn’t chmod logbdb file: {$logbdb}");
+                // Log::addmsg(null, sprintf('Couldn’t chmod logbdb file: %s', $logbdb));
                 return false;
             }
             if (is_writable($logbdb)) {

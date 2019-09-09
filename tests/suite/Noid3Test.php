@@ -54,7 +54,7 @@ class Noid3Test extends NoidTestCase
         $this->assertEquals(0, $status);
 
         # Check that the "NOID" subdirectory was created.
-        $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
+        $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
         # echo 'NOID was created';
 
         # That "NOID" is a directory.
@@ -71,7 +71,7 @@ class Noid3Test extends NoidTestCase
         # echo 'NOID/logbdb was created';
 
         # Check for the presence of the BerkeleyDB file within "NOID".
-        $this->assertFileExists($this->noid_dir . 'noid.bdb', 'minter initialization failed, stopped');
+        $this->assertFileExists($this->noid_dir . 'noid.bdb', 'Minter initialization failed, stopped');
         # echo 'NOID/noid.bdb was created';
 
         # Hold first and second identifiers.
@@ -86,7 +86,7 @@ class Noid3Test extends NoidTestCase
 
         # Verify that it's the third one.
         $noid_output = trim($output);
-        $this->assertEquals('id: 13030/tst394', $noid_output);
+        $this->assertEquals('Id: 13030/tst394', $noid_output);
         # echo 'held two, minted one, got the third one';
     }
 }

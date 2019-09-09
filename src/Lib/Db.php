@@ -78,13 +78,19 @@ class Db
         # Type check various parameters.
         #
         if (empty($contact) || trim($contact) == '') {
-            Log::addmsg($noid, sprintf('error: contact (%s) must be non-empty.', $contact));
+            Log::addmsg($noid, sprintf(
+                'Error: contact (%s) must be non-empty.',
+                $contact
+            ));
             return null;
         }
 
         $term = $term ? : '-';
         if (!in_array($term, array('long', 'medium', 'short', '-'))) {
-            Log::addmsg($noid, sprintf('error: term (%s) must be either "long", "medium", "-", or "short".', $term));
+            Log::addmsg($noid, sprintf(
+                'Error: term (%s) must be either "long", "medium", "-", or "short".',
+                $term
+            ));
             return null;
         }
 
@@ -95,29 +101,39 @@ class Db
         if ($term === 'long'
             && (!strlen(trim($naan)) || !strlen(trim($naa)) || !strlen(trim($subnaa)))
         ) {
-            Log::addmsg($noid, sprintf('error: longterm identifiers require an NAA Number, NAA, and SubNAA.'));
+            Log::addmsg($noid, sprintf(
+                'Error: longterm identifiers require an NAA Number, NAA, and SubNAA.'
+            ));
             return null;
         }
         # xxx should be able to check naa and naan live against registry
         # yyy code should invite to apply for NAAN by email to ark@cdlib.org
         # yyy ARK only? why not DOI/handle?
         if ($term === 'long' && !preg_match('/\d\d\d\d\d/', $naan)) {
-            Log::addmsg($noid, sprintf('error: term of "long" requires a 5-digit NAAN (00000 if none), and non-empty string values for NAA and SubNAA.'));
+            Log::addmsg($noid, sprintf(
+                'Error: term of "long" requires a 5-digit NAAN (00000 if none), and non-empty string values for NAA and SubNAA.'
+            ));
             return null;
         }
 
         $noid = self::dbopen($dbdir, DatabaseInterface::DB_CREATE);
         if (!$noid) {
-            Log::addmsg(null, "error: a NOID database can not be created in: " . $dbdir . "." . PHP_EOL
+            Log::addmsg(null, sprintf(
+                'Error: a NOID database can not be created in: %1$s.' . PHP_EOL
                 . "\t" . 'To permit creation of a new minter, rename' . PHP_EOL
-                . "\t" . 'or remove the entire ' . DatabaseInterface::DATABASE_NAME . ' subdirectory.');
+                . "\t" . 'or remove the entire %2$s subdirectory.',
+                $dbdir, DatabaseInterface::DATABASE_NAME
+            ));
             return null;
         }
 
         # Create a log file from scratch and make them writable
         $db_path = ($dbdir == '.' ? getcwd() : $dbdir) . DIRECTORY_SEPARATOR . DatabaseInterface::DATABASE_NAME;
         if (!file_put_contents("$db_path/log", ' ') || !chmod("$db_path/log", 0666)) {
-            Log::addmsg(null, "Couldn’t chmod log file: {$db_path}/log");
+            Log::addmsg(null, sprintf(
+                'Couldn’t chmod log file: %s/log',
+                $db_path
+            ));
             return null;
         }
 
@@ -128,7 +144,8 @@ class Db
 
         Log::logmsg($noid, $template
             ? sprintf('Creating database for template "%s".', $template)
-            : sprintf('Creating database for bind-only minter.'));
+            : sprintf('Creating database for bind-only minter.')
+        );
 
         # Database info
         # yyy should be using db-> ops directly (for efficiency and?)
@@ -354,27 +371,39 @@ NAAN:      $naan
         case DatabaseInterface::DB_WRITE:
             break;
         default:
-            Log::addmsg(null, sprintf('"%s" is not a regular flag', $flags));
+            Log::addmsg(null, sprintf(
+                '"%s" is not a regular flag',
+                $flags
+            ));
             return null;
         }
 
         $envhome = $dbdir . DIRECTORY_SEPARATOR . DatabaseInterface::DATABASE_NAME . DIRECTORY_SEPARATOR;
         if (!is_dir($envhome) && !mkdir($envhome, 0755, true)) {
             $error = error_get_last();
-            throw new Exception(sprintf('error: couldn’t create database directory %s: %s', $envhome, isset($error) ? $error['message'] : '[no message]'));
+            throw new Exception(sprintf(
+                'Error: couldn’t create database directory %1$s: %2$s',
+                $envhome, isset($error) ? $error['message'] : '[no message]'
+            ));
         }
 
         $mode = $flags . self::$_db_lock;
 
         $db = @self::$engine->open($dbdir, $mode);
         if ($db === false) {
-            Log::addmsg(null, sprintf('Failed to open database in directory "%s".', $dbdir));
+            Log::addmsg(null, sprintf(
+                'Failed to open database in directory "%s".',
+                $dbdir
+            ));
             return null;
         }
 
         # yyy to test: can we now open more than one noid at once?
         if (!is_dir($envhome)) {
-            Log::addmsg(null, sprintf('%s not a directory', $envhome));
+            Log::addmsg(null, sprintf(
+                '%s not a directory',
+                $envhome
+            ));
             return null;
         }
 
@@ -450,7 +479,9 @@ NAAN:      $naan
         // initialize this database.
         Noid::init();
         if (!self::$engine->open($dbdir, DatabaseInterface::DB_WRITE)) {
-            throw new Exception('The destination database is not exist.' . PHP_EOL);
+            throw new Exception(
+                'The destination database does not exist.'
+            );
         }
 
         // initialize the source db
@@ -460,7 +491,10 @@ NAAN:      $naan
         /** @var DatabaseInterface $src_engine */
         $src_engine = new $db_class();
         if (!$src_engine->open($dbdir, DatabaseInterface::DB_RDONLY)) {
-            throw new Exception('The source database is not exist in ' . $dbdir . PHP_EOL);
+            throw new Exception(sprintf(
+                'The source database does not exist in %s.',
+                $dbdir
+            ));
         }
 
         // do import!
@@ -514,7 +548,9 @@ NAAN:      $naan
         print 'Admin Values:' . PHP_EOL;
         $values = self::$engine->get_range(Globals::_RR . "/");
         if (is_null($values)) {
-            Log::addmsg($noid, sprintf('No values returned by the database.'));
+            Log::addmsg($noid, sprintf(
+                'No values returned by the database.'
+            ));
             return 0;
         }
         foreach ($values as $key => $value) {
@@ -543,12 +579,18 @@ NAAN:      $naan
     public static function getDb($noid)
     {
         if (!isset(Globals::$open_tab['database'][$noid])) {
-            Log::addmsg($noid, sprintf('error: Database "%s" is not opened.', $noid));
+            Log::addmsg($noid, sprintf(
+                'Error: Database "%s" is not opened.',
+                $noid
+            ));
             return null;
         }
         $db = Globals::$open_tab['database'][$noid];
         if (!is_resource($db) && !is_object($db)) {
-            Log::addmsg($noid, sprintf('error: Access to database "%s" failed .', $noid));
+            Log::addmsg($noid, sprintf(
+                'Error: Access to database "%s" failed.',
+                $noid
+            ));
             return null;
         }
         return $db;
@@ -723,8 +765,10 @@ NAAN:      $naan
         $mask = self::$engine->get(Globals::_RR . "/mask");
         $gen_type = self::$engine->get(Globals::_RR . "/generator_type");
 
-        print sprintf('Template %s will yield %s %s unique ids',
-                $template, $total < 0 ? 'an unbounded number of' : $totalstr, $gen_type) . PHP_EOL;
+        print sprintf(
+            'Template %1$s will yield %2$s %3$s unique ids',
+            $template, $total < 0 ? 'an unbounded number of' : $totalstr, $gen_type
+        ) . PHP_EOL;
         $tminus1 = $total < 0 ? 987654321 : $total - 1;
 
         # See if we need to compute a check character.

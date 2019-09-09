@@ -62,7 +62,7 @@ class Noid6Test extends NoidTestCase
         $this->assertEquals(0, $status);
 
         # Check that the "NOID" subdirectory was created.
-        $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
+        $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
         # echo 'NOID was created';
 
         # That "NOID" is a directory.
@@ -79,7 +79,7 @@ class Noid6Test extends NoidTestCase
         # echo 'NOID/logbdb was created';
 
         # Check for the presence of the BerkeleyDB file within "NOID".
-        $this->assertFileExists($this->noid_dir . 'noid.bdb', 'minter initialization failed, stopped');
+        $this->assertFileExists($this->noid_dir . 'noid.bdb', 'Minter initialization failed, stopped');
         # echo 'NOID/noid.bdb was created';
 
         # Mint one.
@@ -91,9 +91,9 @@ class Noid6Test extends NoidTestCase
         $noid_output = array_map('trim', $noid_output);
         $noid_output = array_filter($noid_output, 'strlen');
 
-        $bound_noid = preg_replace('/^id:\s+/', '', $noid_output[0]);
+        $bound_noid = preg_replace('/^Id:\s+/', '', $noid_output[0]);
         $this->assertNotEmpty($bound_noid);
-        # echo '"id: " preceded minted noid';
+        # echo '"Id: " preceded minted noid';
         unset($noid_output);
 
         # Set up the elements and values that we'll bind to this noid.
@@ -121,7 +121,7 @@ class Noid6Test extends NoidTestCase
         $cmd .= ' < ' . escapeshellarg($stdinFilename);
         $this->_executeCommand($cmd, $status, $output, $errors);
         unlink($stdinFilename);
-        $this->assertEquals(0, $status, sprintf('open of "%s" failed, %s, stopped', $cmd, $errors));
+        $this->assertEquals(0, $status, sprintf('Open of "%1$s" failed, %2$s, stopped', $cmd, $errors));
 
         # Now, run the "fetch" command to get it all back.
         $cmd = "{$noid_cmd} fetch $bound_noid";
@@ -138,11 +138,11 @@ class Noid6Test extends NoidTestCase
         $noid_output = array_filter($noid_output, 'strlen');
         $this->assertEquals(102, count($noid_output),
             # If there aren't 102 lines of output, somethings is wrong.
-            'something wrong with fetch output, stopped');
+            'Something wrong with fetch output, stopped');
         # echo 'there are 102 lines of output from the "fetch" command';
 
         # Check first line.
-        $regex = '/^id:\s+' . preg_quote($bound_noid, '/') . '\s+hold\s*$/';
+        $regex = '/^Id:\s+' . preg_quote($bound_noid, '/') . '\s+hold\s*$/';
         $this->assertNotEmpty(preg_match($regex, $noid_output[0]));
         # echo 'line 1 of "fetch" output';
 
@@ -158,17 +158,17 @@ class Noid6Test extends NoidTestCase
         # Run through the rest, looking to see if they're correct.
         for ($i = 0; $i < 100; $i++) {
             $this->assertNotEmpty(preg_match('/^\s*(\S+)\s*:\s*(\S+)\s*$/', $noid_output[$i], $matches),
-                sprintf('line %d of "fetch" output: ("%s") is in an unexpected format',
+                sprintf('Line %1$d of "fetch" output: ("%2$s") is in an unexpected format',
                     $i + 3, $noid_output[$i]));
 
             $element = $matches[1];
             $value = $matches[2];
             $this->assertArrayHasKey($element, $bind_stuff,
-                sprintf('line %d of "fetch" output: ("%s") contained an element that was not in the group of elements bound to this noid',
+                sprintf('Line %1$d of "fetch" output: ("%2$s") contained an element that was not in the group of elements bound to this noid',
                     $i + 3, $noid_output[$i]));
 
             $this->assertEquals($bind_stuff[$element], $value,
-                sprintf('line %d of "fetch" output:  element "%s" was bound to value "%s", but "fetch" returned that it was bound to value "%s"',
+                sprintf('Line %1$d of "fetch" output: element "%2$s" was bound to value "%s", but "fetch" returned that it was bound to value "%3$s"',
                     $i + 3, $element, $bind_stuff[$element], $value));
             # echo 'line ' . $i + 3 . ' of "fetch" output';
             unset($bind_stuff[$element]);

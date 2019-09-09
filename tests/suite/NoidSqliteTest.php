@@ -58,7 +58,7 @@ class NoidSqliteTest extends NoidTestCase
         $this->assertEquals(0, $status);
 
         # Check that the "NOID" subdirectory was created.
-        $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
+        $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
         # echo 'NOID was created';
 
         # That "NOID" is a directory.
@@ -73,7 +73,7 @@ class NoidSqliteTest extends NoidTestCase
         # echo 'NOID/log was created';
 
         # Check for the presence of the BerkeleyDB file within "NOID".
-        $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'minter initialization failed, stopped');
+        $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'Minter initialization failed, stopped');
         # echo 'NOID/noid.bdb was created';
 
         # Mint all but the last two of 290.
@@ -85,7 +85,7 @@ class NoidSqliteTest extends NoidTestCase
         $noid_output = explode(PHP_EOL, $output);
         foreach ($noid_output as &$no) {
             $no = trim($no);
-            $no = preg_replace('/^\s*id:\s+/', '', $no);
+            $no = preg_replace('/^\s*Id:\s+/', '', $no);
         }
         # If the last one is the null string, delete it.
         $noid_output = array_filter($noid_output, 'strlen');
@@ -103,10 +103,10 @@ class NoidSqliteTest extends NoidTestCase
         $cmd = "{$noid_cmd} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
-        # Remove leading "id: ".
-        $noid = preg_replace('/^id:\s+/', '', $output);
+        # Remove leading "Id: ".
+        $noid = preg_replace('/^Id:\s+/', '', $output);
         $this->assertNotEmpty($noid);
-        # echo '"id: " precedes output of mint command for next to last noid';
+        # echo '"Id: " precedes output of mint command for next to last noid';
         # Remove trailing white space.
         $noid = preg_replace('/\s+$/', '', $noid);
         $this->assertNotEmpty($noid);
@@ -124,7 +124,7 @@ class NoidSqliteTest extends NoidTestCase
 
         # Verify that it won't let me.
         $noidOutput0 = trim($output);
-        $noidOutput0 = preg_match('/^error: a hold has been set for .* and must be released before the identifier can be queued for minting/', $noidOutput0);
+        $noidOutput0 = preg_match('/^Error: a hold has been set for .* and must be released before the identifier can be queued for minting/', $noidOutput0);
         $this->assertNotEmpty($noidOutput0);
         # echo 'correctly disallowed queue before hold release';
 
@@ -147,7 +147,7 @@ class NoidSqliteTest extends NoidTestCase
         $noid_output = explode(PHP_EOL, $output);
         foreach ($noid_output as &$no) {
             $no = trim($no);
-            $no = preg_replace('/^\s*id:\s+/', '', $no);
+            $no = preg_replace('/^\s*Id:\s+/', '', $no);
         }
         # If the last one is the null string, delete it.
         $noid_output = array_filter($noid_output, 'strlen');
@@ -169,10 +169,10 @@ class NoidSqliteTest extends NoidTestCase
         $cmd = "{$noid_cmd} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
-        # Remove leading "id: ".
-        $noid = preg_replace('/^id:\s+/', '', $output);
+        # Remove leading "Id: ".
+        $noid = preg_replace('/^Id:\s+/', '', $output);
         $this->assertNotEmpty($noid);
-        # echo '"id: " precedes output of mint command for last noid';
+        # echo '"Id: " precedes output of mint command for last noid';
         # Remove trailing white space.
         $noid = preg_replace('/\s+$/', '', $noid);
         $this->assertNotEmpty($noid);
@@ -189,7 +189,7 @@ class NoidSqliteTest extends NoidTestCase
 
         # Clean up each line.
         $noidOutput0 = trim($output);
-        $noidOutput0 = preg_match('/^error: identifiers exhausted/', $noidOutput0);
+        $noidOutput0 = preg_match('/^Error: identifiers exhausted/', $noidOutput0);
         $this->assertNotEmpty($noidOutput0);
         # echo 'correctly disallowed minting after identifiers were exhausted';
     }
@@ -231,7 +231,7 @@ class NoidSqliteTest extends NoidTestCase
         $this->assertEquals(0, $status);
 
         # Check that the "NOID" subdirectory was created.
-        $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
+        $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
         # echo 'NOID was created';
 
         # That "NOID" is a directory.
@@ -246,7 +246,7 @@ class NoidSqliteTest extends NoidTestCase
         # echo 'NOID/log was created';
 
         # Check for the presence of the BerkeleyDB file within "NOID".
-        $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'minter initialization failed, stopped');
+        $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'Minter initialization failed, stopped');
         # echo 'NOID/noid.bdb was created';
 
         # Try to queue one.
@@ -256,7 +256,7 @@ class NoidSqliteTest extends NoidTestCase
 
         # Examine the contents of the log.
         $fh = fopen($this->noid_dir . 'log', 'r');
-        $this->assertNotEmpty($fh, 'failed to open log file, stopped');
+        $this->assertNotEmpty($fh, 'Failed to open log file, stopped');
         # echo 'successfully opened "' . $this->noid_dir . 'log"';
 
         # Read in the log.
@@ -265,7 +265,7 @@ class NoidSqliteTest extends NoidTestCase
 
         $this->assertEquals(4, count($log_lines),
             # If we don't have exactly 4 lines, something is probably very wrong.
-            'log_lines: ' . implode(', ', $log_lines));
+            'Log_lines: ' . implode(', ', $log_lines));
         # echo 'number of lines in "' . $this->noid_dir . 'log"';
 
         # Remove trailing newlines.
@@ -274,12 +274,12 @@ class NoidSqliteTest extends NoidTestCase
         # Check the contents of the lines.
         $this->assertEquals('Creating database for template "tst2.rde".', $log_lines[0]);
         # echo 'line 1 of "' . $this->noid_dir . 'log" correct';
-        $this->assertEquals('note: id 13030/tst27h being queued before first minting (to be pre-cycled)', $log_lines[1]);
+        $this->assertEquals('Note: id 13030/tst27h being queued before first minting (to be pre-cycled)', $log_lines[1]);
         # echo 'line 2 of "' . $this->noid_dir . 'log" correct';
         $regex = preg_quote('m: q|', '@') . '\d\d\d\d\d\d\d\d\d\d\d\d\d\d' . preg_quote('|', '@') . '[a-zA-Z0-9_-]*/[a-zA-Z0-9_-]*(?: \([a-zA-Z0-9_-]*/[a-zA-Z0-9_-]*\))?' . preg_quote('|0', '@');
         $this->assertTrue((bool) preg_match('@' . $regex . '@', $log_lines[2]));
         # echo 'line 3 of "' . $this->noid_dir . 'log" correct';
-        $this->assertTrue((bool) preg_match('/^id: 13030\/tst27h added to queue under :\/q\//', $log_lines[3]));
+        $this->assertTrue((bool) preg_match('/^Id: 13030\/tst27h added to queue under :\/q\//', $log_lines[3]));
         # echo 'line 4 of "' . $this->noid_dir . 'log" correct';
     }
 
@@ -320,7 +320,7 @@ class NoidSqliteTest extends NoidTestCase
         $this->assertEquals(0, $status);
 
         # Check that the "NOID" subdirectory was created.
-        $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
+        $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
         # echo 'NOID was created';
 
         # That "NOID" is a directory.
@@ -335,7 +335,7 @@ class NoidSqliteTest extends NoidTestCase
         # echo 'NOID/log was created';
 
         # Check for the presence of the BerkeleyDB file within "NOID".
-        $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'minter initialization failed, stopped');
+        $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'Minter initialization failed, stopped');
         # echo 'NOID/noid.bdb was created';
 
         # Hold first and second identifiers.
@@ -350,7 +350,7 @@ class NoidSqliteTest extends NoidTestCase
 
         # Verify that it's the third one.
         $noid_output = trim($output);
-        $this->assertEquals('id: 13030/tst394', $noid_output);
+        $this->assertEquals('Id: 13030/tst394', $noid_output);
         # echo 'held two, minted one, got the third one';
     }
 
@@ -393,7 +393,7 @@ class NoidSqliteTest extends NoidTestCase
         $this->assertEquals(0, $status);
 
         # Check that the "NOID" subdirectory was created.
-        $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
+        $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
         # echo 'NOID was created';
 
         # That "NOID" is a directory.
@@ -408,7 +408,7 @@ class NoidSqliteTest extends NoidTestCase
         # echo 'NOID/log was created';
 
         # Check for the presence of the BerkeleyDB file within "NOID".
-        $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'minter initialization failed, stopped');
+        $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'Minter initialization failed, stopped');
         # echo 'NOID/noid.bdb was created';
 
         # Mint 10.
@@ -438,29 +438,29 @@ class NoidSqliteTest extends NoidTestCase
         $noid_output = array_filter($noid_output, 'strlen');
         $this->assertEquals(20, count($noid_output),
             # If we don't have exactly 20, something is probably very wrong.
-            'wrong number of ids minted, stopped');
+            'Wrong number of ids minted, stopped');
         # echo 'number of minted noids';
 
-        $this->assertEquals('id: 13030/tst43m', $noid_output[0], 'Error in 1st minted noid');
-        $this->assertEquals('id: 13030/tst47h', $noid_output[1], 'Error in 2nd minted noid');
-        $this->assertEquals('id: 13030/tst44k', $noid_output[2], 'Error in 3rd minted noid');
-        $this->assertEquals('id: 13030/tst48t', $noid_output[3], 'Error in 4th minted noid');
-        $this->assertEquals('id: 13030/tst466', $noid_output[4], 'Error in 5th minted noid');
-        $this->assertEquals('id: 13030/tst44x', $noid_output[5], 'Error in 6th minted noid');
-        $this->assertEquals('id: 13030/tst42c', $noid_output[6], 'Error in 7th minted noid');
-        $this->assertEquals('id: 13030/tst49s', $noid_output[7], 'Error in 8th minted noid');
-        $this->assertEquals('id: 13030/tst48f', $noid_output[8], 'Error in 9th minted noid');
-        $this->assertEquals('id: 13030/tst475', $noid_output[9], 'Error in 10th minted noid');
-        $this->assertEquals('id: 13030/tst45v', $noid_output[10], 'Error in 11th minted noid');
-        $this->assertEquals('id: 13030/tst439', $noid_output[11], 'Error in 12th minted noid');
-        $this->assertEquals('id: 13030/tst40q', $noid_output[12], 'Error in 13th minted noid');
-        $this->assertEquals('id: 13030/tst49f', $noid_output[13], 'Error in 14th minted noid');
-        $this->assertEquals('id: 13030/tst484', $noid_output[14], 'Error in 15th minted noid');
-        $this->assertEquals('id: 13030/tst46t', $noid_output[15], 'Error in 16th minted noid');
-        $this->assertEquals('id: 13030/tst45h', $noid_output[16], 'Error in 17th minted noid');
-        $this->assertEquals('id: 13030/tst447', $noid_output[17], 'Error in 18th minted noid');
-        $this->assertEquals('id: 13030/tst42z', $noid_output[18], 'Error in 19th minted noid');
-        $this->assertEquals('id: 13030/tst41n', $noid_output[19], 'Error in 20th minted noid');
+        $this->assertEquals('Id: 13030/tst43m', $noid_output[0], 'Error in 1st minted noid');
+        $this->assertEquals('Id: 13030/tst47h', $noid_output[1], 'Error in 2nd minted noid');
+        $this->assertEquals('Id: 13030/tst44k', $noid_output[2], 'Error in 3rd minted noid');
+        $this->assertEquals('Id: 13030/tst48t', $noid_output[3], 'Error in 4th minted noid');
+        $this->assertEquals('Id: 13030/tst466', $noid_output[4], 'Error in 5th minted noid');
+        $this->assertEquals('Id: 13030/tst44x', $noid_output[5], 'Error in 6th minted noid');
+        $this->assertEquals('Id: 13030/tst42c', $noid_output[6], 'Error in 7th minted noid');
+        $this->assertEquals('Id: 13030/tst49s', $noid_output[7], 'Error in 8th minted noid');
+        $this->assertEquals('Id: 13030/tst48f', $noid_output[8], 'Error in 9th minted noid');
+        $this->assertEquals('Id: 13030/tst475', $noid_output[9], 'Error in 10th minted noid');
+        $this->assertEquals('Id: 13030/tst45v', $noid_output[10], 'Error in 11th minted noid');
+        $this->assertEquals('Id: 13030/tst439', $noid_output[11], 'Error in 12th minted noid');
+        $this->assertEquals('Id: 13030/tst40q', $noid_output[12], 'Error in 13th minted noid');
+        $this->assertEquals('Id: 13030/tst49f', $noid_output[13], 'Error in 14th minted noid');
+        $this->assertEquals('Id: 13030/tst484', $noid_output[14], 'Error in 15th minted noid');
+        $this->assertEquals('Id: 13030/tst46t', $noid_output[15], 'Error in 16th minted noid');
+        $this->assertEquals('Id: 13030/tst45h', $noid_output[16], 'Error in 17th minted noid');
+        $this->assertEquals('Id: 13030/tst447', $noid_output[17], 'Error in 18th minted noid');
+        $this->assertEquals('Id: 13030/tst42z', $noid_output[18], 'Error in 19th minted noid');
+        $this->assertEquals('Id: 13030/tst41n', $noid_output[19], 'Error in 20th minted noid');
     }
 
     /**
@@ -500,7 +500,7 @@ class NoidSqliteTest extends NoidTestCase
         $this->assertEquals(0, $status);
 
         # Check that the "NOID" subdirectory was created.
-        $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
+        $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
         # echo 'NOID was created';
 
         # That "NOID" is a directory.
@@ -515,7 +515,7 @@ class NoidSqliteTest extends NoidTestCase
         # echo 'NOID/log was created';
 
         # Check for the presence of the BerkeleyDB file within "NOID".
-        $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'minter initialization failed, stopped');
+        $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'Minter initialization failed, stopped');
         # echo 'NOID/noid.bdb was created';
 
         # Try binding the 3rd identifier to be minted.
@@ -529,8 +529,7 @@ class NoidSqliteTest extends NoidTestCase
         $this->assertGreaterThanOrEqual(1, count($noid_output));
         # echo 'at least one line of output from attempt to bind to an unminted id';
 
-        $msg = 'error: 13030/tst594: "long" term disallows binding ' .
-            'an unissued identifier unless a hold is first placed on it.';
+        $msg = 'Error: 13030/tst594: "long" term disallows binding an unissued identifier unless a hold is first placed on it.';
         $this->assertEquals($msg, $noid_output[0]);
         # echo 'disallowed binding to unminted id';
     }
@@ -573,7 +572,7 @@ class NoidSqliteTest extends NoidTestCase
         $this->assertEquals(0, $status);
 
         # Check that the "NOID" subdirectory was created.
-        $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
+        $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
         # echo 'NOID was created';
 
         # That "NOID" is a directory.
@@ -588,7 +587,7 @@ class NoidSqliteTest extends NoidTestCase
         # echo 'NOID/log was created';
 
         # Check for the presence of the BerkeleyDB file within "NOID".
-        $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'minter initialization failed, stopped');
+        $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'Minter initialization failed, stopped');
         # echo 'NOID/noid.bdb was created';
 
         # Mint one.
@@ -600,9 +599,9 @@ class NoidSqliteTest extends NoidTestCase
         $noid_output = array_map('trim', $noid_output);
         $noid_output = array_filter($noid_output, 'strlen');
 
-        $bound_noid = preg_replace('/^id:\s+/', '', $noid_output[0]);
+        $bound_noid = preg_replace('/^Id:\s+/', '', $noid_output[0]);
         $this->assertNotEmpty($bound_noid);
-        # echo '"id: " preceded minted noid';
+        # echo '"Id: " preceded minted noid';
         unset($noid_output);
 
         # Set up the elements and values that we'll bind to this noid.
@@ -630,7 +629,7 @@ class NoidSqliteTest extends NoidTestCase
         $cmd .= ' < ' . escapeshellarg($stdinFilename);
         $this->_executeCommand($cmd, $status, $output, $errors);
         unlink($stdinFilename);
-        $this->assertEquals(0, $status, sprintf('open of "%s" failed, %s, stopped', $cmd, $errors));
+        $this->assertEquals(0, $status, sprintf('Open of "%1$s" failed, %2$s, stopped', $cmd, $errors));
 
         # Now, run the "fetch" command to get it all back.
         $cmd = "{$noid_cmd} fetch $bound_noid";
@@ -647,11 +646,11 @@ class NoidSqliteTest extends NoidTestCase
         $noid_output = array_filter($noid_output, 'strlen');
         $this->assertEquals(102, count($noid_output),
             # If there aren't 102 lines of output, somethings is wrong.
-            'something wrong with fetch output, stopped');
+            'Something wrong with fetch output, stopped');
         # echo 'there are 102 lines of output from the "fetch" command';
 
         # Check first line.
-        $regex = '/^id:\s+' . preg_quote($bound_noid, '/') . '\s+hold\s*$/';
+        $regex = '/^Id:\s+' . preg_quote($bound_noid, '/') . '\s+hold\s*$/';
         $this->assertEquals(1, preg_match($regex, $noid_output[0]));
         # echo 'line 1 of "fetch" output';
 
@@ -667,17 +666,17 @@ class NoidSqliteTest extends NoidTestCase
         # Run through the rest, looking to see if they're correct.
         for ($i = 0; $i < 100; $i++) {
             $this->assertEquals(1, preg_match('/^\s*(\S+)\s*:\s*(\S+)\s*$/', $noid_output[$i], $matches),
-                sprintf('line %d of "fetch" output: ("%s") is in an unexpected format',
+                sprintf('Line %1$d of "fetch" output: ("%2$s") is in an unexpected format',
                     $i + 3, $noid_output[$i]));
 
             $element = $matches[1];
             $value = $matches[2];
             $this->assertArrayHasKey($element, $bind_stuff,
-                sprintf('line %d of "fetch" output: ("%s") contained an element that was not in the group of elements bound to this noid',
+                sprintf('Line %1$d of "fetch" output: ("%2$s") contained an element that was not in the group of elements bound to this noid',
                     $i + 3, $noid_output[$i]));
 
             $this->assertEquals($bind_stuff[$element], $value,
-                sprintf('line %d of "fetch" output:  element "%s" was bound to value "%s", but "fetch" returned that it was bound to value "%s"',
+                sprintf('Line %1$d of "fetch" output: element "%2$s" was bound to value "%3$s", but "fetch" returned that it was bound to value "%4$s"',
                     $i + 3, $element, $bind_stuff[$element], $value));
             # echo 'line ' . $i + 3 . ' of "fetch" output';
             unset($bind_stuff[$element]);
@@ -731,7 +730,7 @@ class NoidSqliteTest extends NoidTestCase
         $this->assertEquals(0, $status);
 
         # Check that the "NOID" subdirectory was created.
-        $this->assertFileExists($this->noid_dir, 'no minter directory created, stopped');
+        $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
         # echo 'NOID was created';
 
         # That "NOID" is a directory.
@@ -746,7 +745,7 @@ class NoidSqliteTest extends NoidTestCase
         # echo 'NOID/log was created';
 
         # Check for the presence of the BerkeleyDB file within "NOID".
-        $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'minter initialization failed, stopped');
+        $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'Minter initialization failed, stopped');
         # echo 'NOID/noid.bdb was created';
 
         # Mint two.
@@ -760,12 +759,12 @@ class NoidSqliteTest extends NoidTestCase
         # If the last line is empty, delete it.
         $noid_output = array_filter($noid_output, 'strlen');
 
-        $noid_output[0] = preg_replace('/^id:\s+/', '', $noid_output[0]);
+        $noid_output[0] = preg_replace('/^Id:\s+/', '', $noid_output[0]);
         $this->assertNotEmpty($noid_output[0]);
-        # echo 'first line:  "id: " preceded minted noid';
-        $noid_output[1] = preg_replace('/^id:\s+/', '', $noid_output[1]);
+        # echo 'first line:  "Id: " preceded minted noid';
+        $noid_output[1] = preg_replace('/^Id:\s+/', '', $noid_output[1]);
         $this->assertNotEmpty($noid_output[1]);
-        # echo 'second line:  "id: " preceded minted noid';
+        # echo 'second line:  "Id: " preceded minted noid';
         $bound_noid1 = $noid_output[0];
         $bound_noid2 = $noid_output[1];
         unset($noid_output);
@@ -786,7 +785,7 @@ class NoidSqliteTest extends NoidTestCase
         $cmd .= ' < ' . escapeshellarg($stdinFilename);
         $this->_executeCommand($cmd, $status, $output, $errors);
         //unlink($stdinFilename);
-        $this->assertEquals(0, $status, sprintf('open of "%s" failed, %s, stopped', $cmd, $errors));
+        $this->assertEquals(0, $status, sprintf('Open of "%1$s" failed, %2$s, stopped', $cmd, $errors));
 
         # Generate the stuff for noid number 2.
         $element2 = '';
@@ -816,7 +815,7 @@ class NoidSqliteTest extends NoidTestCase
         $cmd .= ' < ' . escapeshellarg($stdinFilename);
         $this->_executeCommand($cmd, $status, $output, $errors);
         //unlink($stdinFilename);
-        $this->assertEquals(0, $status, sprintf('open of "%s" failed, %s, stopped', $cmd, $errors));
+        $this->assertEquals(0, $status, sprintf('Open of "%1$s" failed, %2$s, stopped', $cmd, $errors));
 
         # Now, run the "fetch" command on the noid number 1.
         $cmd = "{$noid_cmd} fetch $bound_noid1";
@@ -832,11 +831,11 @@ class NoidSqliteTest extends NoidTestCase
         $noid_output = array_filter($noid_output, 'strlen');
 
         # If there aren't 3 lines of output, somethings is wrong.
-        $this->assertEquals(3, count($noid_output), 'something wrong with fetch output, stopped');
+        $this->assertEquals(3, count($noid_output), 'Something wrong with fetch output, stopped');
         #echo 'there are 3 lines of output from the "fetch" command on noid 1';
 
         # Check first line.
-        $regex = '/^id:\s+' . preg_quote($bound_noid1, '/') . '\s+hold\s*$/';
+        $regex = '/^Id:\s+' . preg_quote($bound_noid1, '/') . '\s+hold\s*$/';
         $this->assertEquals(1, preg_match($regex, $noid_output[0]));
         # echo 'line 1 of "fetch" output for noid 1';
 
@@ -848,7 +847,7 @@ class NoidSqliteTest extends NoidTestCase
         # Check third line.
         $regex = '/^\s*(\S+)\s*:\s*(\S+)\s*$/';
         $this->assertEquals(1, preg_match($regex, $noid_output[2], $matches),
-            'something wrong with bound value, stopped');
+            'Something wrong with bound value, stopped');
         # echo 'line 3 of "fetch" output for noid 1';
 
         $this->assertEquals($element1, $matches[1]);
@@ -869,11 +868,11 @@ class NoidSqliteTest extends NoidTestCase
         $noid_output = array_filter($noid_output, 'strlen');
 
         # If there aren't 12 lines of output, somethings is wrong.
-        $this->assertEquals(12, count($noid_output), 'not enough lines of output, stopped');
+        $this->assertEquals(12, count($noid_output), 'Not enough lines of output, stopped');
         #echo 'there are 12 lines of output from the "fetch" command on noid 1';
 
         # Check first line.
-        $regex = '/^id:\s+' . preg_quote($bound_noid2, '/') . '\s+hold\s*$/';
+        $regex = '/^Id:\s+' . preg_quote($bound_noid2, '/') . '\s+hold\s*$/';
         $this->assertEquals(1, preg_match($regex, $noid_output[0]));
         # echo 'line 1 of "fetch" output for noid 2';
 
@@ -885,7 +884,7 @@ class NoidSqliteTest extends NoidTestCase
         # Check third line.
         $regex = '/^\s*(\S+)\s*:\s*(\S+)\s*$/';
         $this->assertEquals(1, preg_match($regex, $noid_output[2], $matches),
-            'something wrong with bound value, stopped');
+            'Something wrong with bound value, stopped');
         # echo 'line 3 of "fetch" output for noid 2';
 
         $this->assertEquals($element2, $matches[1]);
@@ -940,7 +939,7 @@ class NoidSqliteTest extends NoidTestCase
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
-        $this->assertNotEmpty($policy, 'unable to get policy');
+        $this->assertNotEmpty($policy, 'Unable to get policy');
         $this->assertEquals('GRANITE', $policy);
         # echo 'policy "GRANITE"';
 
@@ -952,7 +951,7 @@ class NoidSqliteTest extends NoidTestCase
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
-        $this->assertNotEmpty($policy, 'unable to get policy');
+        $this->assertNotEmpty($policy, 'Unable to get policy');
         $this->assertEquals('-RANITE', $policy);
         # echo 'policy "-RANITE"';
 
@@ -976,7 +975,7 @@ class NoidSqliteTest extends NoidTestCase
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
-        $this->assertNotEmpty($policy, 'unable to get policy');
+        $this->assertNotEmpty($policy, 'Unable to get policy');
         $this->assertEquals('GR-NITE', $policy);
         # echo 'policy "GR-NITE"';
 
@@ -988,7 +987,7 @@ class NoidSqliteTest extends NoidTestCase
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
-        $this->assertNotEmpty($policy, 'unable to get policy');
+        $this->assertNotEmpty($policy, 'Unable to get policy');
         $this->assertEquals('GRA-ITE', $policy);
         # echo 'policy "GRA-ITE"';
 
@@ -1000,7 +999,7 @@ class NoidSqliteTest extends NoidTestCase
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
-        $this->assertNotEmpty($policy, 'unable to get policy');
+        $this->assertNotEmpty($policy, 'Unable to get policy');
         $this->assertEquals('GRAN--E', $policy);
         # echo 'policy "GRAN--E"';
 
@@ -1012,7 +1011,7 @@ class NoidSqliteTest extends NoidTestCase
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
-        $this->assertNotEmpty($policy, 'unable to get policy');
+        $this->assertNotEmpty($policy, 'Unable to get policy');
         $this->assertEquals('GRANI-E', $policy);
         # echo 'policy "GRANI-E"';
 
@@ -1024,7 +1023,7 @@ class NoidSqliteTest extends NoidTestCase
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
-        $this->assertNotEmpty($policy, 'unable to get policy');
+        $this->assertNotEmpty($policy, 'Unable to get policy');
         $this->assertEquals('GRANI--', $policy);
         # echo 'policy "GRANI--"';
 
@@ -1036,7 +1035,7 @@ class NoidSqliteTest extends NoidTestCase
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
-        $this->assertNotEmpty($policy, 'unable to get policy');
+        $this->assertNotEmpty($policy, 'Unable to get policy');
         $this->assertEquals('-------', $policy);
         # echo 'policy "-------"';
 

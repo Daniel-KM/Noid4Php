@@ -185,7 +185,7 @@ class NoidTestCase extends TestCase
         // Return the erc.
         $isReadable = is_readable($this->noid_dir . 'README');
         $error = error_get_last();
-        $this->assertTrue($isReadable, sprintf('can’t open README: %s', isset($error) ? $error['message'] : '[no message]'));
+        $this->assertTrue($isReadable, sprintf('Can’t open README: %s', isset($error) ? $error['message'] : '[no message]'));
 
         $erc = file_get_contents($this->noid_dir . 'README');
         return $erc;
