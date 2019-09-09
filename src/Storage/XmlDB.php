@@ -125,7 +125,12 @@ class XmlDB implements DatabaseInterface
     public function close()
     {
         // well, it's time for saving the database into the disk.
-        $this->handle->asXML($this->file_path);
+        // Save indented xml, but keep space.
+        // $this->handle->asXML($this->file_path);
+        $dom = dom_import_simplexml($this->handle)->ownerDocument;
+        // $dom->preserveWhiteSpace = false;
+        $dom->formatOutput = true;
+        $dom->save($this->file_path);
         $this->handle = null;
     }
 
