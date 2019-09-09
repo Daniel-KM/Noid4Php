@@ -17,9 +17,9 @@ interface DatabaseInterface
      * Database name.
      *
      * For the file-based databases such as BerkeleyDB, XML and Json,
-     * this constant is used as the database directory name.
+     * this constant is used as default database directory name.
      * And for the relative table-structured databases such as mysql,
-     * it is used as the named "default database name".
+     * it is used as the default database name.
      *
      * @const string DATABASE_NAME
      */
@@ -29,7 +29,7 @@ interface DatabaseInterface
      * Database table name.
      *
      * For the file-based databases such as BerkeleyDB, XML and Json,
-     * this constant is used as the database file name.
+     * this constant is used as the default database file name.
      * And for the relative table-structured databases such as mysql,
      * it is used as the named "table name".
      *
@@ -40,13 +40,13 @@ interface DatabaseInterface
     /**
      * Open database/file/other storage.
      *
-     * @param string $name
+     * @param array $settings Set all settings, in particular for import.
      * @param string $mode
      *
      * @return resource|object|FALSE
      * @throws Exception
      */
-    public function open($name, $mode);
+    public function open($settings, $mode);
 
     /**
      * Close the storage.

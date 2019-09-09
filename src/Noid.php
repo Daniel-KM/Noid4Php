@@ -108,6 +108,7 @@ class Noid
      */
     public function __construct()
     {
+        // Db::$db_type should be set with dbopen(), dbcreate() or dbimport().
         self::init();
     }
 
@@ -129,7 +130,7 @@ class Noid
 
         // create database interface according to database option. added by Daniel Berthereau, 2019-07-29 00:00
         if (is_null(Db::$engine)) {
-            $db_class = Globals::DB_TYPES[Globals::$db_type];
+            $db_class = Globals::DB_TYPES[Db::$db_type];
             Db::$engine = new $db_class();
         }
         // function _dba_fetch_range() went as named "get_range()" to DatabaseInterface(BerkeleyDB and MysqlDB)
@@ -151,6 +152,7 @@ class Noid
      */
     public static function bind($noid, $contact, $validate, $how, $id, $elem, $value)
     {
+        // Db::$db_type should be set with dbopen(), dbcreate() or dbimport().
         self::init();
 
         $db = Db::getDb($noid);
@@ -350,6 +352,7 @@ class Noid
      */
     public static function fetch($noid, $verbose, $id, $elems)
     {
+        // Db::$db_type should be set with dbopen(), dbcreate() or dbimport().
         self::init();
 
         if (strlen($id) == 0) {
@@ -449,6 +452,7 @@ class Noid
      */
     public static function mint($noid, $contact, $pepper = 0)
     {
+        // Db::$db_type should be set with dbopen(), dbcreate() or dbimport().
         self::init();
 
         $db = Db::getDb($noid);
@@ -764,6 +768,7 @@ class Noid
      */
     public static function queue($noid, $contact, $when, $ids)
     {
+        // Db::$db_type should be set with dbopen(), dbcreate() or dbimport().
         self::init();
 
         $db = Db::getDb($noid);
@@ -997,6 +1002,7 @@ class Noid
      */
     public static function validate($noid, $template, $ids)
     {
+        // Db::$db_type should be set with dbopen(), dbcreate() or dbimport().
         self::init();
 
         $db = Db::getDb($noid);
@@ -1161,6 +1167,7 @@ class Noid
      */
     public static function hold($noid, $contact, $on_off, $ids)
     {
+        // Db::$db_type should be set with dbopen(), dbcreate() or dbimport().
         self::init();
 
         $db = Db::getDb($noid);
@@ -1265,6 +1272,7 @@ class Noid
      */
     public static function hold_set($noid, $id)
     {
+        // Db::$db_type should be set with dbopen(), dbcreate() or dbimport().
         self::init();
 
         $db = Db::getDb($noid);
@@ -1302,6 +1310,7 @@ class Noid
      */
     public static function hold_release($noid, $id)
     {
+        // Db::$db_type should be set with dbopen(), dbcreate() or dbimport().
         self::init();
 
         $db = Db::getDb($noid);

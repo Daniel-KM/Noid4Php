@@ -10,12 +10,12 @@
  * use Noid;                # import routines into a Perl script
  *
  * $dbreport = Noid::dbcreate(        # create minter database & printable
- * $dbdir, $contact,   # report on its properties; $contact
+ * $settings, $contact,   # report on its properties; $contact
  * $template, $term,   # is string identifying the operator
  * $naan, $naa,        # (authentication information); the
  * $subnaa );          # report is printable
  *
- * $noid = Noid::dbopen( $dbname, $flags );    # open a minter, optionally
+ * $noid = Noid::dbopen( $settings, $flags );    # open a minter, optionally
  * $flags = 0 | DB_RDONLY;             # in read only mode
  *
  * Noid::mint( $noid, $contact, $pepper );     # generate an identifier

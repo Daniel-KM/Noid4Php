@@ -84,6 +84,7 @@ class Log
      */
     public static function note($noid, $contact, $key, $value)
     {
+        // Db::$db_type should be set with dbopen(), dbcreate() or dbimport().
         Noid::init();
 
         $db = Db::getDb($noid);
@@ -116,6 +117,7 @@ class Log
      */
     public static function get_note($noid, $key)
     {
+        // Db::$db_type should be set with dbopen(), dbcreate() or dbimport().
         Noid::init();
 
         $db = Db::getDb($noid);
@@ -138,6 +140,7 @@ class Log
      */
     public static function getnoid($noid, $varname)
     {
+        // Db::$db_type should be set with dbopen(), dbcreate() or dbimport().
         Noid::init();
 
         $db = Db::getDb($noid);

@@ -29,6 +29,11 @@ class SqliteDB implements DatabaseInterface
     private $handle;
 
     /**
+     * @var array
+     */
+    private $settings;
+
+    /**
      * SqliteDB: constructor.
      * @throws Exception
      */
@@ -43,15 +48,38 @@ class SqliteDB implements DatabaseInterface
     }
 
     /**
-     * @param string $data_dir
+     * Open database/file/other storage.
+     *
+     * @param array $settings Set all settings, in particular for import.
      * @param string $mode
      *
-     * @return SQLite3|FALSE
+     * @return resource|object|FALSE
      * @throws Exception
      */
-    public function open($data_dir, $mode)
+    public function open($settings, $mode)
     {
-        $path = $data_dir . DIRECTORY_SEPARATOR . DatabaseInterface::DATABASE_NAME;
+        $this->settings = $settings;
+
+        $storage = $this->settings['storage']['sqlite'];
+
+        if (empty($storage['data_dir'])) {
+            throw new Exception('A directory where to store the sqlite database is required.');
+        }
+
+        $data_dir = $storage['data_dir'];
+        $db_name = !empty($storage['db_name']) ? $storage['db_name'] : DatabaseInterface::DATABASE_NAME;
+
+        $path = $data_dir . DIRECTORY_SEPARATOR . $db_name;
+        if (!file_exists($data_dir . DIRECTORY_SEPARATOR . $db_name)) {
+            $result = mkdir($path, 0775, true);
+            if (!$result) {
+                throw new Exception(sprintf(
+                    'A directory %s cannot be created.',
+                    $path
+                ));
+            }
+        }
+
         $file_path = $path . DIRECTORY_SEPARATOR . DatabaseInterface::TABLE_NAME . '.' . self::FILE_EXT;
 
         if (!is_null($this->handle) && $this->handle instanceof SQLite3) {

@@ -1,11 +1,12 @@
 /build
 /datafiles
 /node_modules
+/NOID
+/tests/.phpunit.result.cache
 /vendor
 /.idea
 /.sass-cache
 /.settings
-/tests/.phpunit.result.cache
 .buildpath
 .bundle
 .DS_Store

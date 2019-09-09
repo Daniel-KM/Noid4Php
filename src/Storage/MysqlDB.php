@@ -22,6 +22,11 @@ class MysqlDB implements DatabaseInterface
     private $handle;
 
     /**
+     * @var array
+     */
+    private $settings;
+
+    /**
      * MysqlDB constructor.
      * @throws Exception
      */
@@ -42,14 +47,18 @@ class MysqlDB implements DatabaseInterface
      */
     private function connect()
     {
+        $storage = $this->settings['storage']['mysql'];
+
         // My lovely Maria (DB) lives my home (local). :)
         $this->handle = @new mysqli(
-            isset(MysqlConf::$mysql_host) ? trim(MysqlConf::$mysql_host) : ini_get('mysqli.default_host'),
-            isset(MysqlConf::$mysql_user) ? trim(MysqlConf::$mysql_user) : ini_get('mysqli.default_user'),
-            isset(MysqlConf::$mysql_passwd) ? MysqlConf::$mysql_passwd : ini_get('mysqli.default_pw'),
-            '', // default database is none. maybe selected later.
-            isset(MysqlConf::$mysql_port) ? MysqlConf::$mysql_port : ini_get('mysqli.default_port'),
-            isset(MysqlConf::$mysql_socket) ? trim(MysqlConf::$mysql_socket) : ini_get('mysqli.default_socket'));
+            isset($storage['host']) ? trim($storage['host']) : ini_get('mysqli.default_host'),
+            isset($storage['user']) ? trim($storage['user']) : ini_get('mysqli.default_user'),
+            isset($storage['password']) ? $storage['password'] : ini_get('mysqli.default_pw'),
+            // Default database is none. May be selected later.
+            '',
+            isset($storage['port']) ? $storage['port'] : ini_get('mysqli.default_port'),
+            isset($storage['socket']) ? trim($storage['socket']) : ini_get('mysqli.default_socket')
+        );
 
         // Oops! I can't see her (Maria).
         if ($this->handle->connect_errno) {
@@ -61,46 +70,70 @@ class MysqlDB implements DatabaseInterface
     }
 
     /**
-     * @param string $name
+     * Open database/file/other storage.
+     *
+     * @param array $settings Set all settings, in particular for import.
      * @param string $mode
      *
-     * @return mysqli|FALSE
+     * @return resource|object|FALSE
      * @throws Exception
      */
-    public function open($name, $mode)
+    public function open($settings, $mode)
     {
         if (is_null($this->handle)) {
+            $this->settings = $settings;
             $this->connect();
         }
 
-        if (!is_null($this->handle)) {
-            // determine the database name.
-            $database = !empty(MysqlConf::$mysql_dbname)
-                ? trim(MysqlConf::$mysql_dbname)
-                : DatabaseInterface::DATABASE_NAME;
-
-            // It's time for checking the db existence. If not exists, will create it.
-            $this->handle->query("CREATE DATABASE IF NOT EXISTS `" . $database . "`");
-
-            // select the database `noid`.
-            $this->handle->select_db($database);
-
-            // If the table does not exist, create it.
-            $this->handle->query("CREATE TABLE IF NOT EXISTS `" . DatabaseInterface::TABLE_NAME . "` (  `_key` VARCHAR(512) NOT NULL, `_value` VARCHAR(4096) DEFAULT NULL, PRIMARY KEY (`_key`))");
-
-            // when create db
-            if (strpos(strtolower($mode), DatabaseInterface::DB_CREATE) !== false) {
-                // if create mode, truncate the table records.
-                $this->handle->query("TRUNCATE TABLE `" . DatabaseInterface::TABLE_NAME . "`");
-            }
-
-            // Optimize the table for better performance.
-            $this->handle->query("OPTIMIZE TABLE `" . DatabaseInterface::TABLE_NAME . "`");
-
-            return $this->handle;
+        // Early return in case of an issue during connection.
+        if (is_null($this->handle)) {
+            return false;
         }
 
-        return false;
+        $storage = $this->settings['storage']['mysql'];
+
+        if (empty($storage['data_dir'])) {
+            throw new Exception('A directory where to store logs is required.');
+        }
+
+        $data_dir = $storage['data_dir'];
+        if (substr($data_dir, 0, 1) !== '/' && substr($data_dir, 0, 1) !== '\\') {
+            $data_dir = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . $data_dir;
+        }
+
+        // determine the database name.
+        $db_name = !empty($storage['db_name']) ? $storage['db_name'] : DatabaseInterface::DATABASE_NAME;
+
+        $path = $data_dir . DIRECTORY_SEPARATOR . $db_name;
+        if (!file_exists($data_dir . DIRECTORY_SEPARATOR . $db_name)) {
+            $result = mkdir($path, 0775, true);
+            if (!$result) {
+                throw new Exception(sprintf(
+                    'A directory %s cannot be created.',
+                    $path
+                ));
+            }
+        }
+
+        // It's time for checking the db existence. If not exists, will create it.
+        $this->handle->query("CREATE DATABASE IF NOT EXISTS `" . $db_name . "`");
+
+        // select the database `NOID`.
+        $this->handle->select_db($db_name);
+
+        // If the table does not exist, create it.
+        $this->handle->query("CREATE TABLE IF NOT EXISTS `" . DatabaseInterface::TABLE_NAME . "` (  `_key` VARCHAR(512) NOT NULL, `_value` VARCHAR(4096) DEFAULT NULL, PRIMARY KEY (`_key`))");
+
+        // when create db
+        if (strpos(strtolower($mode), DatabaseInterface::DB_CREATE) !== false) {
+            // if create mode, truncate the table records.
+            $this->handle->query("TRUNCATE TABLE `" . DatabaseInterface::TABLE_NAME . "`");
+        }
+
+        // Optimize the table for better performance.
+        $this->handle->query("OPTIMIZE TABLE `" . DatabaseInterface::TABLE_NAME . "`");
+
+        return $this->handle;
     }
 
     /**

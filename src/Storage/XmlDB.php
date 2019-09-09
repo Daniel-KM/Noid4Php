@@ -48,6 +48,11 @@ class XmlDB implements DatabaseInterface
     private $handle;
 
     /**
+     * @var array
+     */
+    private $settings;
+
+    /**
      * BerkeleyDB constructor.
      * @throws Exception
      */
@@ -62,16 +67,40 @@ class XmlDB implements DatabaseInterface
     }
 
     /**
-     * @param string $data_dir
+     * Open database/file/other storage.
+     *
+     * @param array $settings Set all settings, in particular for import.
      * @param string $mode
      *
-     * @return SimpleXMLElement|FALSE
+     * @return resource|object|FALSE
      * @throws Exception
      */
-    public function open($data_dir, $mode)
+    public function open($settings, $mode)
     {
-        $path = $data_dir . DIRECTORY_SEPARATOR . DatabaseInterface::DATABASE_NAME;
-        $this->file_path = $path . DIRECTORY_SEPARATOR . DatabaseInterface::TABLE_NAME . '.' . self::FILE_EXT;
+        $this->settings = $settings;
+
+        $storage = $settings['storage']['xml'];
+
+        if (empty($storage['data_dir'])) {
+            throw new Exception('A directory where to store BerkeleyDB is required.');
+        }
+
+        $data_dir = $storage['data_dir'];
+        $db_name = !empty($storage['db_name']) ? $storage['db_name'] : DatabaseInterface::DATABASE_NAME;
+
+        $path = $data_dir . DIRECTORY_SEPARATOR . $db_name;
+        if (!file_exists($data_dir . DIRECTORY_SEPARATOR . $db_name)) {
+            $result = mkdir($path, 0775, true);
+            if (!$result) {
+                throw new Exception(sprintf(
+                    'A directory %s cannot be created.',
+                    $path
+                ));
+            }
+        }
+
+        $file_path = $path . DIRECTORY_SEPARATOR . DatabaseInterface::TABLE_NAME . '.' . self::FILE_EXT;
+        $this->file_path = $file_path;
 
         // create mode
         if (strpos(strtolower($mode), DatabaseInterface::DB_CREATE) !== false) {

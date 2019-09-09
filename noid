@@ -156,6 +156,16 @@ if(!class_exists('NoidApp')){
         private $_info;
 
         /**
+         * @var string
+         */
+        private $settings_file = 'config/settings.php';
+
+        /**
+         * @var array
+         */
+        private $settings;
+
+        /**
          * @var string $data_dir where bdb/log files are placed.
          *                    though mysql mode, it is used for logging.
          */
@@ -298,7 +308,52 @@ if(!class_exists('NoidApp')){
                 return FALSE;
             }
 
+            $is_fdbdir_config = false;
+
             $this->data_dir = isset($options['fdbdir']) ? $options['fdbdir'] : NULL;
+
+            if ($this->data_dir) {
+                if (substr($this->data_dir, 0, 1) !== '/') {
+                    $this->data_dir = __DIR__ . DIRECTORY_SEPARATOR . $this->data_dir;
+                }
+                if (file_exists($this->data_dir)) {
+                    if (!is_readable($this->data_dir)) {
+                        print sprintf('Error: path %s is not readable.', $this->data_dir) . PHP_EOL;
+                        return FALSE;
+                    }
+                    if (is_file($this->data_dir) && !is_dir($this->data_dir)) {
+                        if (strtolower((string) pathinfo($this->data_dir, PATHINFO_EXTENSION)) !== 'php') {
+                            print sprintf('Error: path %s is not a php config file.', $this->data_dir) . PHP_EOL;
+                            return FALSE;
+                        }
+                        $this->settings_file = $this->data_dir;
+                        $this->data_dir = null;
+                        $is_fdbdir_config = true;
+                    }
+                }
+            }
+
+            if (substr($this->settings_file, 0, 1) !== '/') {
+                $this->settings_file = __DIR__ . DIRECTORY_SEPARATOR . $this->settings_file;
+            }
+
+            $this->settings = include $this->settings_file;
+
+            // get the option "-t/--type" (database type)
+            // default - bdb (BerkeleyDB)
+            $db_type_option = isset($options['type']) ? $options['type'] : null;
+            if (empty($db_type_option)) {
+                $db_type_option = $this->settings['db_type'];
+            }
+            if (empty($db_type_option)) {
+                $db_type_option = 'bdb';
+            } else if (!in_array(strtolower($db_type_option), array_keys(Globals::DB_TYPES))) {
+                print 'Error: invalid DbType (database type).' . PHP_EOL;
+                $this->usage(1, 1, 'intro');
+                return FALSE;
+            }
+
+            $settings_storage = $this->settings['storage'][$db_type_option];
 
             // Now try to find a database directory string.
             // In the special case of dbcreate, we may create
@@ -307,18 +362,27 @@ if(!class_exists('NoidApp')){
                 if(getenv('NOID')){ // is NOID env variable defined?
                     $this->data_dir = getenv('NOID');
                 }
-                // Executable link reveals dbdir?
+                // Executable link reveals data_dir?
+                // For example "/path/to/noid_test" returns "test".
                 else if(preg_match('|_([^/]+)$|', $args[0], $matches)){
                     $this->data_dir = $matches[1];
+                }
+                // Use the dir set in the config file.
+                else if(!empty($settings_storage['data_dir'])){
+                    $dir = $settings_storage['data_dir'];
+                    if (substr($dir, 0, 1) !== '/') {
+                        $dir = __DIR__ . DIRECTORY_SEPARATOR . $dir;
+                    }
+                    $this->data_dir = $dir;
                 }
                 // Else try current directory.
                 else{
                     $this->data_dir = __DIR__;
                 }
 
-                $this->data_dir = trim($this->db_dir);
+                $this->data_dir = trim($this->data_dir);
                 if(empty($this->data_dir)){
-                    print 'Error: no DbDir' . PHP_EOL;
+                    print 'Error: no database directory.' . PHP_EOL;
                     $this->usage(1, 1, 'intro');
                     return FALSE;
                 }
@@ -329,23 +393,30 @@ if(!class_exists('NoidApp')){
                 $this->data_dir = $matches[1];
             }
             else{
-                print('Error: bad DbDir' . PHP_EOL);
+                print('Error: bad database directory.' . PHP_EOL);
                 $this->usage(1, 1, 'intro');
                 return FALSE;
             }
 
-            // get the option "-t/--type" (database type)
-            // default - bdb (BerkeleyDB)
-            $db_type_option = isset($options['type']) ? $options['type'] : 'bdb';
-            if(empty($db_type_option)){
-                $db_type_option = 'bdb';
+            if (file_exists($this->data_dir) && !is_dir($this->data_dir)) {
+                print sprintf('Error: path %s is not a directory.', $this->data_dir) . PHP_EOL;
+                return false;
             }
-            else if(!in_array($db_type_option, array_keys(Globals::DB_TYPES))){
-                print 'Error: invalid DbType (database type).' . PHP_EOL;
-                $this->usage(1, 1, 'intro');
-                return FALSE;
+            if (file_exists($this->data_dir) && !is_readable($this->data_dir)) {
+                print sprintf('Error: path %s is not a readable.', $this->data_dir) . PHP_EOL;
+                return false;
             }
-            Globals::$db_type = $db_type_option;
+            if (!file_exists($this->data_dir)) {
+                $result = mkdir($this->data_dir, 0775, true);
+                if (!$result) {
+                    print sprintf('Error: cannot create directory %s.', $this->data_dir) . PHP_EOL;
+                    return false;
+                }
+            }
+
+            // Update the settings with real type and data dir.
+            $this->settings['db_type'] = $db_type_option;
+            $this->settings['storage'][$db_type_option]['data_dir'] = $this->data_dir;
 
             // Bulk command mode is signified by a single final argument of "-".
             // If we're _not_ in bulk command mode, expect a single command
@@ -438,7 +509,7 @@ if(!class_exists('NoidApp')){
         public function bind($how = NULL, $id = NULL, $elem = NULL, $value = NULL)
         {
             $validate = 1;
-            $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_WRITE);
+            $noid = Db::dbopen($this->settings, DatabaseInterface::DB_WRITE);
             if(!$noid){
                 fwrite($this->stderr, Log::errmsg($noid));
                 return 0;
@@ -599,8 +670,7 @@ if(!class_exists('NoidApp')){
          */
         public function dbcreate($template = NULL, $policy = NULL, $naan = NULL, $naa = NULL, $subnaa = NULL)
         {
-            $dbreport = Db::dbcreate($this->data_dir, $this->contact, $template, $policy,
-                $naan, $naa, $subnaa);
+            $dbreport = Db::dbcreate($this->settings, $this->contact, $template, $policy, $naan, $naa, $subnaa);
             if(!$dbreport){
                 print Log::errmsg() . PHP_EOL;
                 return 0;
@@ -628,13 +698,14 @@ if(!class_exists('NoidApp')){
                 return 0;
             }
 
-            if(!strcmp(Globals::$db_type, $src_type)){
-                print sprintf('The source db type (%1$s) must differ to the destination (%2$s).', $src_type, Globals::$db_type) . PHP_EOL;
+            $db_type = $this->settings['db_type'];
+            if(!strcmp($db_type, $src_type)){
+                print sprintf('The source db type (%1$s) must differ to the destination (%2$s).', $src_type, $db_type) . PHP_EOL;
                 return 0;
             }
 
-            print sprintf('Importing from %1$s to %2$s… ', $src_type, Globals::$db_type);
-            if(!Db::dbimport($this->data_dir, $src_type)){
+            print sprintf('Importing from %1$s to %2$s… ', $src_type, $db_type);
+            if(!Db::dbimport($this->settings, $src_type)){
                 print "[failed]" . PHP_EOL;
                 return 0;
             }
@@ -655,7 +726,7 @@ if(!class_exists('NoidApp')){
             if(empty($level)){
                 $level = 'brief';
             }
-            $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_RDONLY);
+            $noid = Db::dbopen($this->settings, DatabaseInterface::DB_RDONLY);
             if(!$noid){
                 print Log::errmsg($noid);
                 return 0;
@@ -715,7 +786,7 @@ if(!class_exists('NoidApp')){
          */
         private function _getfetch($verbose, $id, $elems)
         {
-            $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_RDONLY);
+            $noid = Db::dbopen($this->settings, DatabaseInterface::DB_RDONLY);
             if(!$noid){
                 fwrite($this->stderr, Log::errmsg($noid));
                 return 0;
@@ -744,7 +815,7 @@ if(!class_exists('NoidApp')){
          */
         public function get_note($key)
         {
-            $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_RDONLY);
+            $noid = Db::dbopen($this->settings, DatabaseInterface::DB_RDONLY);
             if(!$noid){
                 fwrite($this->stderr, Log::errmsg($noid));
                 return 0;
@@ -806,7 +877,7 @@ if(!class_exists('NoidApp')){
                 array_shift($ids);
             }
 
-            $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_WRITE);
+            $noid = Db::dbopen($this->settings, DatabaseInterface::DB_WRITE);
             if(!$noid){
                 fwrite($this->stderr, Log::errmsg($noid));
                 return 0;
@@ -863,7 +934,7 @@ if(!class_exists('NoidApp')){
                 $this->usage(1, 1, 'mint');
                 return 0;
             }
-            $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_WRITE);
+            $noid = Db::dbopen($this->settings, DatabaseInterface::DB_WRITE);
 
             if(!$noid){
                 print Log::errmsg($noid);
@@ -900,7 +971,7 @@ if(!class_exists('NoidApp')){
                 $this->usage(1, 1, 'note');
                 return 0;
             }
-            $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_WRITE);
+            $noid = Db::dbopen($this->settings, DatabaseInterface::DB_WRITE);
             if(!Log::note($noid, $this->contact, $key, $value)){
                 print Log::errmsg($noid);
             }
@@ -924,7 +995,7 @@ if(!class_exists('NoidApp')){
                 array_shift($ids);
             }
 
-            $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_WRITE);
+            $noid = Db::dbopen($this->settings, DatabaseInterface::DB_WRITE);
             if(!$noid){
                 fwrite($this->stderr, Log::errmsg($noid));
                 return 0;
@@ -963,7 +1034,7 @@ if(!class_exists('NoidApp')){
                 array_shift($ids);
             }
 
-            $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_RDONLY);
+            $noid = Db::dbopen($this->settings, DatabaseInterface::DB_RDONLY);
             if(!$noid){
                 print Log::errmsg($noid);
                 return 0;
@@ -1077,26 +1148,30 @@ if(!class_exists('NoidApp')){
             // so we print "\n\n" at the end.
             if($blurb == 'intro'){
                 $msg = 'Usage:
-              noid [-f DbDir] [-t DbType] [-v] [-h] Command Arguments';
+              noid [-f DbDirOrConfig] [-t DbType] [-v] [-h] Command Arguments';
                 if($brief){
                     $msg .= '
               noid -h             (for help with a Command summary).';
                     $msg .= '
               DbType: ';
-                    foreach(Globals::DB_TYPES as $key => $item){
-                        $msg .= "{$key}, ";
-                    }
-                    $msg .= '…';
+                    $msg .= implode(', ', array_keys(Globals::DB_TYPES)) . '…';
                     $this->_bprint($out, $msg);
                     print(PHP_EOL . PHP_EOL);
                     return 1;
                 }
                 $msg .= '
 
-DbDir defaults to "." if not found from -f/--fdbdir or a NOID environment
-variable.
-DbType defaults to "bdb" (means Berkeley DB) if not found from -t/--type.
-For more information try "perldoc noid" or "noid help Command".  Summary:
+DbDirOrConfig defaults to "." if not found from -f/--fdbdir, or a NOID
+environment variable, or the param set in file "config/settings.php".
+When the path is a config file, its params will be used. The default config
+file is "config/settings.php" in other cases.
+
+DbType defaults to "bdb" (means Berkeley DB) if not found from -t/--type or
+the param set in config/settings.php.
+
+For more information, try "perldoc noid" or "noid help Command".
+
+Summary:
 ';
                 $this->_bprint($out, $msg);
                 foreach(self::VALID_COMMANDS as $t){
@@ -1520,7 +1595,7 @@ $app->run($argv);
  *
  * =head1 SYNOPSIS
  *
- * B<noid> [ B<-f> I<DbDir> ] [ B<-t> I<DbType> ] [ B<-vh> ] I<Command> I<Arguments>
+ * B<noid> [ B<-f> I<DbDirOrConfig> ] [ B<-t> I<DbType> ] [ B<-vh> ] I<Command> I<Arguments>
  *
  * =head1 DESCRIPTION
  *
@@ -1562,8 +1637,9 @@ $app->run($argv);
  * generated twice unless the supplied Term is "short" and the namespace is
  * finite and completely exhausted.  The default Term is "medium".
  *
- * The B<noid> utility parameters -- flags, I<DbDir> (database location),
- * I<Command>, I<Arguments> -- are described later under COMMANDS AND MODES.
+ * The B<noid> utility parameters -- flags, I<DbType> (database type),
+ * I<DbDirOrConfig> (database location or config), I<Command>, I<Arguments> --
+ * are described later under COMMANDS AND MODES.
  * There are also sections covering persistence, templates, rule-based
  * mapping, URL interface, and name resolution.
  *
@@ -1765,7 +1841,7 @@ $app->run($argv);
  *
  * =over 5
  *
- * B<noid> [ B<-f> I<DbDir> ] [ B<-t> I<DbType> ] [ B<-vh> ] I<Command> I<Arguments>
+ * B<noid> [ B<-f> I<DbDirOrConfig> ] [ B<-t> I<DbType> ] [ B<-vh> ] I<Command> I<Arguments>
  *
  * =back
  *
@@ -1775,27 +1851,30 @@ $app->run($argv);
  * if I<Command> is given as a "-" argument, then actual I<Commands>
  * are read in bulk from the standard input.
  *
- * The string, I<DbDir>, specifies the directory where the database resides.
+ * The string, I<DbDirOrConfig>, specifies the directory where the database
+ * resides. Id it is a config file, its settings are used (the default config
+ * file is "config/settings.php").
  * To protect database coherence, it should not be located on a filesystem
  * such as NFS or AFS that doesn't support POSIX file locking semantics.
- * I<DbDir> may be given with the B<NOID>
+ * I<DbDirOrConfig> may be given with the B<NOID>
  * environment variable, overridable with the B<-f> option.  If those strings
  * are empty, the name or link name of the B<noid> executable (argv[0] for C
- * programmers) is checked to see if it reveals I<DbDir>.  If that check
- * (described next) fails, I<DbDir> is taken to be the current directory.
+ * programmers) is checked to see if it reveals I<DbDirOrConfig>.  If that check
+ * (described next) fails, I<DbDirOrConfig> is taken to be the current directory.
  *
- * To check the name of the executable for I<DbDir>, the final pathname
+ * To check the name of the executable for I<DbDirOrConfig>, the final pathname
  * component (tail) is examined and split at the first "_" encountered.  If none,
  * the check fails.  Otherwise, the check is considered successful and the
- * latter half is taken as naming I<DbDir> relative to the current directory.
+ * latter half is taken as naming I<DbDirOrConfig> relative to the current
+ * directory.
  * This mechanism is designed for cases when it is inconvenient to specify
- * I<DbDir> (such as in the URL interface) or when you are running several
- * minters at once.  As an example, F</usr/bin/noid_fk9> specifies a
- * I<DbDir> of F<fk9>.
+ * I<DbDirOrConfig> (such as in the URL interface) or when you are running
+ * several minters at once.  As an example, F</usr/bin/noid_fk9> specifies a
+ * I<DbDirOrConfig> of F<fk9>.
  *
  * All files associated with a minter will be organized in a subdirectory,
- * F<NOID>, of I<DbDir>; this has the consequence that there can be at most
- * one minter in a directory.  To allow B<noid> to create a new minter in
+ * F<NOID>, of I<DbDirOrConfig>; this has the consequence that there can be at
+ * most one minter in a directory.  To allow B<noid> to create a new minter in
  * a directory already containing a F<NOID> subdirectory, remove or rename
  * the entire F<NOID> subdirectory.
  *
@@ -1805,7 +1884,7 @@ $app->run($argv);
  * Input parameters, separated by a "+" sign, are expected to arrive
  * embedded in the query part of a URL, and output will be formatted
  * for display on an ordinary web browser.  An executable of B<noidu_xk4>,
- * for example, would turn on URL mode and set I<DbDir> to F<xk4>.
+ * for example, would turn on URL mode and set I<DbDirOrConfig> to F<xk4>.
  * This is further described under URL INTERFACE.
  *
  * The B<noid> utility may be run as a name resolver running behind a web
@@ -1836,11 +1915,12 @@ $app->run($argv);
  *
  * Create a database that will mint (generate) identifiers according to the
  * given Template and Term.  As a side-effect this causes the creation of
- * a directory, F<NOID>, within I<DbDir>.  If you have several generators,
- * it may be convenient to operate each from within a I<DbDir> that uniquely
- * identifies each Template; for example, you might change to a directory
- * that you named F<fk6> after the Template C<fk.rdeedde> ("fk" followed by
- * 6 variable characters) of the minter that resides there.
+ * a directory, F<NOID>, within I<DbDirOrConfig>.  If you have several
+ * generators, it may be convenient to operate each from within a
+ * I<DbDirOrConfig> that uniquely identifies each Template; for example, you
+ * might change to a directory that you named F<fk6> after the Template
+ * C<fk.rdeedde> ("fk" followed by 6 variable characters) of the minter that
+ * resides there.
  *
  * The Term declares whether the identifiers are intended to be "long",
  * "medium" (the default), or "short".  A short term identifier minter is

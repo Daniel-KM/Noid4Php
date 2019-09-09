@@ -36,11 +36,6 @@ class Globals
     );
 
     /**
-     * @var string $db_type database type such as 'bdb', 'mysql' or 'xml'
-     */
-    public static $db_type;
-
-    /**
      * References to opened resources and global messages.
      *
      * @internal In the Perl script:
