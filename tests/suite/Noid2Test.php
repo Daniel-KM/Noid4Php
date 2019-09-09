@@ -9,8 +9,6 @@ namespace NoidTest;
 
 use Exception;
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
-
 /**
  * Tests for Noid (2).
  *

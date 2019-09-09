@@ -13,8 +13,6 @@ use Noid\Lib\Helper;
 use Noid\Noid;
 use Noid\Storage\DatabaseInterface;
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
-
 /**
  * Tests for Noid (Bind).
  */

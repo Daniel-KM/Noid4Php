@@ -11,8 +11,6 @@ use Noid\Lib\Db;
 use Noid\Noid;
 use Noid\Storage\DatabaseInterface;
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
-
 /**
  * Tests for Noid: create a template with 3721 noids, and mint them all, until a
  * duplicate is found (none!).

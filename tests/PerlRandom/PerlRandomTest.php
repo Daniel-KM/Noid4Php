@@ -30,11 +30,6 @@ class PerlRandomTest extends TestCase
                 'Perl is unavailable.'
             );
         }
-
-        require_once dirname(dirname(__DIR__))
-            . DIRECTORY_SEPARATOR . 'src'
-            . DIRECTORY_SEPARATOR . 'Lib'
-            . DIRECTORY_SEPARATOR . 'PerlRandom.php';
     }
 
     /**

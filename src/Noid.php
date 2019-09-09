@@ -69,13 +69,6 @@ use Noid\Lib\Helper;
 use Noid\Lib\Log;
 use Noid\Lib\PerlRandom;
 
-require_once 'Lib' . DIRECTORY_SEPARATOR . 'Generator.php';
-require_once 'Lib' . DIRECTORY_SEPARATOR . 'Helper.php';
-require_once 'Lib' . DIRECTORY_SEPARATOR . 'Db.php';
-require_once 'Lib' . DIRECTORY_SEPARATOR . 'Log.php';
-require_once 'Lib' . DIRECTORY_SEPARATOR . 'Globals.php';
-require_once 'Lib' . DIRECTORY_SEPARATOR . 'PerlRandom.php';
-
 /**
  * Create and manage noids.
  */
@@ -137,8 +130,6 @@ class Noid
         // create database interface according to database option. added by Daniel Berthereau, 2019-07-29 00:00
         if (is_null(Db::$engine)) {
             $db_class = Globals::DB_TYPES[Globals::$db_type];
-            $db_class_file = preg_replace('/(^.*\\\\)/', '', $db_class);
-            require_once 'Storage' . DIRECTORY_SEPARATOR . $db_class_file . '.php';
             Db::$engine = new $db_class();
         }
         // function _dba_fetch_range() went as named "get_range()" to DatabaseInterface(BerkeleyDB and MysqlDB)

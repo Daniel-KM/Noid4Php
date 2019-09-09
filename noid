@@ -60,18 +60,14 @@
 
 namespace Noid;
 
+require_once __DIR__ . '/vendor/autoload.php';
+
 use Exception;
 use Noid\Lib\Globals;
 use Noid\Lib\Db;
 use Noid\Lib\Log;
 // use Noid\Noid;
 use Noid\Storage\DatabaseInterface;
-
-require_once 'src' . DIRECTORY_SEPARATOR . 'Noid.php';
-require_once 'src' . DIRECTORY_SEPARATOR . 'Lib' . DIRECTORY_SEPARATOR . 'Globals.php';
-require_once 'src' . DIRECTORY_SEPARATOR . 'Lib' . DIRECTORY_SEPARATOR . 'Db.php';
-require_once 'src' . DIRECTORY_SEPARATOR . 'Lib' . DIRECTORY_SEPARATOR . 'Log.php';
-require_once 'src' . DIRECTORY_SEPARATOR . 'Storage' . DIRECTORY_SEPARATOR . 'DatabaseInterface.php';
 
 // Not used.
 // $template = NULL;

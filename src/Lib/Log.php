@@ -2,9 +2,6 @@
 
 namespace Noid\Lib;
 
-require_once 'Db.php';
-require_once 'Globals.php';
-
 use Exception;
 use Noid\Noid;
 

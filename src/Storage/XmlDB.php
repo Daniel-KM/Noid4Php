@@ -16,8 +16,6 @@ namespace Noid\Storage;
 use Exception;
 use SimpleXMLElement;
 
-require_once 'DatabaseInterface.php';
-
 class XmlDB implements DatabaseInterface
 {
     /**

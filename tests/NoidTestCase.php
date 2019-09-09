@@ -6,8 +6,6 @@
 
 namespace NoidTest;
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Noid.php';
-
 use PHPUnit\Framework\TestCase;
 
 use Exception;
@@ -40,8 +38,6 @@ class NoidTestCase extends TestCase
             }
         }
         $this->noid_dir = $this->data_dir . DIRECTORY_SEPARATOR . 'NOID' . DIRECTORY_SEPARATOR;
-
-        require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Noid.php';
     }
 
     /**

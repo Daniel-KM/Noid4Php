@@ -6,13 +6,6 @@ use Exception;
 use Noid\Noid;
 use Noid\Storage\DatabaseInterface;
 
-require_once 'Generator.php';
-require_once 'Helper.php';
-require_once 'Log.php';
-require_once 'Globals.php';
-
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Storage' . DIRECTORY_SEPARATOR . 'DatabaseInterface.php';
-
 class Db
 {
     /**
@@ -490,8 +483,6 @@ NAAN:      $naan
 
         // initialize the source db
         $db_class = Globals::DB_TYPES[$src_type];
-        $db_class_file = preg_replace('/(^.*\\\\)/', '', $db_class);
-        require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Storage' . DIRECTORY_SEPARATOR . $db_class_file . '.php';
         /** @var DatabaseInterface $src_engine */
         $src_engine = new $db_class();
         if (!$src_engine->open($data_dir, DatabaseInterface::DB_RDONLY)) {

@@ -14,8 +14,6 @@ use SQLite3;
 
 // use \SQLite3Result;
 
-require_once 'DatabaseInterface.php';
-
 class SqliteDB implements DatabaseInterface
 {
     /**

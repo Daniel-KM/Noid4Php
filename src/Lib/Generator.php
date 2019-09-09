@@ -5,11 +5,6 @@ namespace Noid\Lib;
 use Exception;
 use Noid\Noid;
 
-require_once 'Helper.php';
-require_once 'Db.php';
-require_once 'Log.php';
-require_once 'Globals.php';
-
 class Generator
 {
     /**

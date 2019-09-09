@@ -9,8 +9,6 @@ namespace Noid\Storage;
 
 use Exception;
 
-require_once 'DatabaseInterface.php';
-
 class BerkeleyDB implements DatabaseInterface
 {
     /**

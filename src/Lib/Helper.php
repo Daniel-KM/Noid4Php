@@ -2,8 +2,6 @@
 
 namespace Noid\Lib;
 
-require_once 'Globals.php';
-
 use Exception;
 
 class Helper

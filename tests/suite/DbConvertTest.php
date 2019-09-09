@@ -2,8 +2,6 @@
 
 namespace NoidTest;
 
-require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
-
 class DbConvertTest extends NoidTestCase
 {
     public function testPhpExtensions()

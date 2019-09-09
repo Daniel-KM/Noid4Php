@@ -14,9 +14,6 @@ use mysqli;
 
 // use mysqli_result;
 
-require_once 'DatabaseInterface.php';
-require_once 'MysqlConf.php';
-
 class MysqlDB implements DatabaseInterface
 {
     /**
