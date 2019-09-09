@@ -102,7 +102,7 @@ class Log
                 . ($status ? '' : ' -- note failed'));
         }
         if (!$status) {
-            self::addmsg($noid, 'GloVal::$db_engine->set() error unknown.');
+            self::addmsg($noid, 'Globals::$db_engine->set() error unknown.');
             return 0;
         }
         return 1;
@@ -130,7 +130,7 @@ class Log
     }
 
     /**
-     * Get the value of any named internal variable (prefaced by GloVal::_RR)
+     * Get the value of any named internal variable (prefaced by Globals::_RR)
      * given an open database reference.
      *
      * @param string $noid

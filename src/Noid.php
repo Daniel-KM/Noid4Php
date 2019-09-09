@@ -192,7 +192,7 @@ class Noid
         # Transform and place a "hold" (if "long" term and we're not deleting)
         # on a special identifier.  Right now that means a user-entrered Id
         # of the form :idmap/Idpattern.  In this case, change it to a database
-        # Id of the form GloVal::_RR."/idmap/$elem", and change $elem to hold Idpattern;
+        # Id of the form Globals::_RR."/idmap/$elem", and change $elem to hold Idpattern;
         # this makes lookup faster and easier.
         #
         # First save original id and element names in $oid and $oelem to
@@ -461,7 +461,7 @@ class Noid
             $id = &$value;
             # The cursor, key and value are now set at the first item
             # whose key is greater than or equal to $first.  If the
-            # queue was empty, there should be no items under GloVal::_RR."/q/".
+            # queue was empty, there should be no items under Globals::_RR."/q/".
             #
             $qdate = preg_match('|' . preg_quote(Globals::_RR . "/q/", '|') . '(\d{14})|', $key, $matches) ? $matches[1] : null;
             if (empty($qdate)) {           # nothing in queue
@@ -676,12 +676,12 @@ class Noid
      * the default) or days ('d') which is a delay added to the current time;
      * a $when of "now" means use the current time with no delay.
      *
-     * The queue is composed of keys of the form ".GloVal::_RR."/q/$qdate/$seqnum/$paddedid,
+     * The queue is composed of keys of the form ".Globals::_RR."/q/$qdate/$seqnum/$paddedid,
      * with the correponding values being the actual queued identifiers.  The
      * Btree allows us to step sequentially through the queue in an ordering
      * that is a side-effect of our key structure.  Left-to-right, it is
      *
-     *   :/q/        ".GloVal::_RR."/q/, 4 characters wide
+     *   :/q/        ".Globals::_RR."/q/, 4 characters wide
      *   $qdate      14 digits wide, or 14 zeroes if "first" or "lvf"
      *   $seqnum     6 digits wide, or 000000 if "lvf"
      *   $paddedid   id "value", zero-padded on left, for "lvf"
@@ -968,7 +968,7 @@ class Noid
         $repertoire = null;
 
         if (!strcmp($template, '-')) {
-            # $retvals[] = sprintf('template: %s', GloVal::$db_engine->get(GloVal::_RR."/template")));
+            # $retvals[] = sprintf('template: %s', Globals::$db_engine->get(Globals::_RR."/template")));
             if (!Db::$engine->get(Globals::_RR . "/template")) {  # do blanket validation
                 $nonulls = array_filter(preg_replace('/^(.)/', 'id: $1', $ids));
                 if (empty($nonulls)) {
@@ -1001,9 +1001,9 @@ class Noid
                 continue;
             }
 
-            # Automatically reject ids starting with GloVal::_RR."/", unless it's an
+            # Automatically reject ids starting with Globals::_RR."/", unless it's an
             # "idmap", in which case automatically validate.  For an idmap,
-            # the $id should be of the form ".GloVal::_RR."/idmap/ElementName, with
+            # the $id should be of the form ".Globals::_RR."/idmap/ElementName, with
             # element, Idpattern, and value, ReplacementPattern.
             #
             if (strpos(Globals::_RR . "/", $id) === 0) {
@@ -1107,7 +1107,7 @@ class Noid
         }
 
         # yyy what makes sense in this case?
-        # if (! GloVal::$db_engine->get(GloVal::_RR."/template")) {
+        # if (! Globals::$db_engine->get(Globals::_RR."/template")) {
         #   Log::addmsg($noid,
         #       'error: holding makes no sense in a bind-only minter.');
         #   return 0;
