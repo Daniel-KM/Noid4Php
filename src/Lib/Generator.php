@@ -152,7 +152,7 @@ class Generator
         }
 
         switch (Noid::$random_generator) {    # pick a specific counter name
-        case 'Perl_Random':
+        case 'PerlRandom':
         default:
             Noid::$_perlRandom->srand($seed);
             $randn = Noid::$_perlRandom->int_rand($len);

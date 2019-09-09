@@ -147,7 +147,7 @@ from the C library stdlib.h in that order. Since 5.20.0, drand48() is
 implemented. In Php, rand() uses the underlying C library’s rand (see [rosettacode.org]).
 
 So, the process uses an emulator of the rand() function based on the ground of
-the C code (Perl_Random). The use of the Perl rand() is possible via the class
+the C code (PerlRandom). The use of the Perl rand() is possible via the class
 Noid. Anyway, the result will be the same.
 
 ### Database
@@ -242,7 +242,7 @@ and, more generally, to use and operate it in the same conditions of security.
 This Agreement may be freely reproduced and published, provided it is not
 altered, and that no provisions are either added or removed herefrom.
 
-* Contains Perl_Random, published under the [CeCILL-C v1.0].
+* Contains PerlRandom, published under the [CeCILL-C v1.0].
 
 
 Copyright

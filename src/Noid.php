@@ -67,14 +67,14 @@ use Noid\Lib\Generator;
 use Noid\Lib\Globals;
 use Noid\Lib\Helper;
 use Noid\Lib\Log;
-use Noid\Lib\Perl_Random;
+use Noid\Lib\PerlRandom;
 
 require_once 'Lib' . DIRECTORY_SEPARATOR . 'Generator.php';
 require_once 'Lib' . DIRECTORY_SEPARATOR . 'Helper.php';
 require_once 'Lib' . DIRECTORY_SEPARATOR . 'Db.php';
 require_once 'Lib' . DIRECTORY_SEPARATOR . 'Log.php';
 require_once 'Lib' . DIRECTORY_SEPARATOR . 'Globals.php';
-require_once 'Lib' . DIRECTORY_SEPARATOR . 'Perl_Random.php';
+require_once 'Lib' . DIRECTORY_SEPARATOR . 'PerlRandom.php';
 
 /**
  * Create and manage noids.
@@ -96,16 +96,16 @@ class Noid
      *
      * @todo Add this information inside the database.
      *
-     * @var string Can be "Perl_Random" (default), "perl rand()"; "php rand()"
+     * @var string Can be "PerlRandom" (default), "perl rand()"; "php rand()"
      * or "php mt_rand()" (recommended but incompatible with the default Perl
      * script).
      */
-    public static $random_generator = 'Perl_Random';
+    public static $random_generator = 'PerlRandom';
 
     /**
-     * Contains the randomizer when the id generator is "Perl_Random".
+     * Contains the randomizer when the id generator is "PerlRandom".
      *
-     * @var Perl_Random $_perlRandom
+     * @var PerlRandom $_perlRandom
      */
     public static $_perlRandom;
 
@@ -542,11 +542,11 @@ class Noid
         # Instead we have to generate one.
         #
 
-        // Prepare the id generator for Perl_Random: keep the specified one.
+        // Prepare the id generator for PerlRandom: keep the specified one.
         if (Db::$engine->get(Globals::_RR . "/generator_type") == 'random') {
             self::$random_generator = Db::$engine->get(Globals::_RR . "/generator_random") ? : self::$random_generator;
-            if (self::$random_generator == 'Perl_Random') {
-                self::$_perlRandom = Perl_Random::init();
+            if (self::$random_generator == 'PerlRandom') {
+                self::$_perlRandom = PerlRandom::init();
             }
         }
 

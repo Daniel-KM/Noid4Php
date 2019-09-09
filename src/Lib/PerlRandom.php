@@ -1,10 +1,10 @@
 <?php
 /**
- * @author Daniel Berthereau <daniel.github@berthereau.net>
- * @copyright Copyright (c) 2016 Daniel Berthereau
+ * @author Daniel Berthereau <daniel.gitlab@berthereau.net>
+ * @copyright Copyright (c) 2016-2019 Daniel Berthereau
  * @license CeCILL-C v1.0 http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.txt
- * @version 0.1.0
- * @package Perl_Random
+ * @version 0.1.1
+ * @package PerlRandom
  */
 
 /**
@@ -29,7 +29,7 @@
  *
  * This is a singleton so that the same sequence is available anywhere. Hence,
  * it should be initialized when needed:
- *     $perlRandom = Perl_Random::init();
+ *     $perlRandom = PerlRandom::init();
  * Then, for example:
  *     $perlRandom->srand(1234567890);
  *     $random = $perlRandom->int_rand(293);
@@ -43,7 +43,7 @@
  * On Perl, rand() creates stable sequences since 5.20.0.
  *
  * @todo Manage float random numbers from 8193 until 32 bits (Perl limit).
- * @see Perl_RandomTest
+ * @see PerlRandomTest
  *
  * @internal Require the BCMath extension (generally installed with php on main
  * distributions), because internal computations are greater than 64 bits.
@@ -57,12 +57,12 @@ namespace Noid\Lib;
 
 use Exception;
 
-class Perl_Random
+class PerlRandom
 {
     /**
      * The reference to the singleton instance of this class.
      *
-     * @var Perl_Random
+     * @var PerlRandom
      */
     private static $_instance;
 
@@ -75,18 +75,18 @@ class Perl_Random
     private $_random_state_48 = null;
 
     /**
-     * Perl_Random constructor.
+     * PerlRandom constructor.
      * @throws Exception
      */
     private function __construct()
     {
         if (PHP_INT_SIZE < 8) {
-            throw new Exception('Perl_Random requires a true 64-bit platform.');
+            throw new Exception('PerlRandom requires a true 64-bit platform.');
         }
 
         // Check if BCMath is installed.
         if (!extension_loaded('bcmath')) {
-            throw new Exception('Perl_Random requires the extension "BCMath".');
+            throw new Exception('PerlRandom requires the extension "BCMath".');
         }
     }
 
@@ -97,7 +97,7 @@ class Perl_Random
     public static function init()
     {
         if (is_null(self::$_instance)) {
-            self::$_instance = new Perl_Random();
+            self::$_instance = new PerlRandom();
         }
         return self::$_instance;
     }
