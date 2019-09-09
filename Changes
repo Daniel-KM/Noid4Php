@@ -1,5 +1,14 @@
 Revision history for noid script and Noid module.
 
+1.2.0-0.424-php	Improvements
+	Removed support of php 5.6 and php 7.0.
+	Restructured with namespaced classes.
+	Added support of composer and autoloading.
+	Added new storages: mysql/mariadb, sqlite, xml.
+	Improved tests.
+	Checked compatibility for php 7.1 to php 7.4 (phpunit 7.4).
+	Fixed deprecation notices.
+
 1.1.2-0.424-php	Fixes.
 	Cleaned code.
 	Checked compatibility from with phpunit 5.7 for php 5.6 to php 7.4.
