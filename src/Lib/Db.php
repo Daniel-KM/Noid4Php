@@ -80,7 +80,7 @@ class Db
         #
         if (empty($contact) || trim($contact) == '') {
             Log::addmsg($noid, sprintf(
-                'Error: contact (%s) must be non-empty.',
+                'error: contact (%s) must be non-empty.',
                 $contact
             ));
             return null;
@@ -89,7 +89,7 @@ class Db
         $term = $term ? : '-';
         if (!in_array($term, array('long', 'medium', 'short', '-'))) {
             Log::addmsg($noid, sprintf(
-                'Error: term (%s) must be either "long", "medium", "-", or "short".',
+                'error: term (%s) must be either "long", "medium", "-", or "short".',
                 $term
             ));
             return null;
@@ -103,7 +103,7 @@ class Db
             && (!strlen(trim($naan)) || !strlen(trim($naa)) || !strlen(trim($subnaa)))
         ) {
             Log::addmsg($noid, sprintf(
-                'Error: longterm identifiers require an NAA Number, NAA, and SubNAA.'
+                'error: longterm identifiers require an NAA Number, NAA, and SubNAA.'
             ));
             return null;
         }
@@ -112,7 +112,7 @@ class Db
         # yyy ARK only? why not DOI/handle?
         if ($term === 'long' && !preg_match('/\d\d\d\d\d/', $naan)) {
             Log::addmsg($noid, sprintf(
-                'Error: term of "long" requires a 5-digit NAAN (00000 if none), and non-empty string values for NAA and SubNAA.'
+                'error: term of "long" requires a 5-digit NAAN (00000 if none), and non-empty string values for NAA and SubNAA.'
             ));
             return null;
         }
@@ -122,7 +122,7 @@ class Db
         $noid = self::dbopen($settings, DatabaseInterface::DB_CREATE);
         if (!$noid) {
             Log::addmsg(null, sprintf(
-                'Error: a NOID database can not be created in: %1$s.' . PHP_EOL
+                'error: a NOID database can not be created in: %1$s.' . PHP_EOL
                 . "\t" . 'To permit creation of a new minter, rename' . PHP_EOL
                 . "\t" . 'or remove the entire %2$s subdirectory.',
                 $data_dir, dirname($data_dir)
@@ -399,7 +399,7 @@ NAAN:      $naan
         if (!is_dir($envhome) && !mkdir($envhome, 0755, true)) {
             $error = error_get_last();
             throw new Exception(sprintf(
-                'Error: couldn’t create database directory %1$s: %2$s',
+                'error: couldn’t create database directory %1$s: %2$s',
                 $envhome, isset($error) ? $error['message'] : '[no message]'
             ));
         }
@@ -605,7 +605,7 @@ NAAN:      $naan
     {
         if (!isset(Globals::$open_tab['database'][$noid])) {
             Log::addmsg($noid, sprintf(
-                'Error: Database "%s" is not opened.',
+                'error: Database "%s" is not opened.',
                 $noid
             ));
             return null;
@@ -613,7 +613,7 @@ NAAN:      $naan
         $db = Globals::$open_tab['database'][$noid];
         if (!is_resource($db) && !is_object($db)) {
             Log::addmsg($noid, sprintf(
-                'Error: Access to database "%s" failed.',
+                'error: Access to database "%s" failed.',
                 $noid
             ));
             return null;

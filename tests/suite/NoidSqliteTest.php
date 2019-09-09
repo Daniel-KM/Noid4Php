@@ -83,7 +83,7 @@ class NoidSqliteTest extends NoidTestCase
         $noid_output = explode(PHP_EOL, $output);
         foreach ($noid_output as &$no) {
             $no = trim($no);
-            $no = preg_replace('/^\s*Id:\s+/', '', $no);
+            $no = preg_replace('/^\s*id:\s+/', '', $no);
         }
         # If the last one is the null string, delete it.
         $noid_output = array_filter($noid_output, 'strlen');
@@ -101,10 +101,10 @@ class NoidSqliteTest extends NoidTestCase
         $cmd = "{$noid_cmd} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status, $errors);
-        # Remove leading "Id: ".
-        $noid = preg_replace('/^Id:\s+/', '', $output);
+        # Remove leading "id: ".
+        $noid = preg_replace('/^id:\s+/', '', $output);
         $this->assertNotEmpty($noid);
-        # echo '"Id: " precedes output of mint command for next to last noid';
+        # echo '"id: " precedes output of mint command for next to last noid';
         # Remove trailing white space.
         $noid = preg_replace('/\s+$/', '', $noid);
         $this->assertNotEmpty($noid);
@@ -122,7 +122,7 @@ class NoidSqliteTest extends NoidTestCase
 
         # Verify that it won't let me.
         $noidOutput0 = trim($output);
-        $noidOutput0 = preg_match('/^Error: a hold has been set for .* and must be released before the identifier can be queued for minting/', $noidOutput0);
+        $noidOutput0 = preg_match('/^error: a hold has been set for .* and must be released before the identifier can be queued for minting/', $noidOutput0);
         $this->assertNotEmpty($noidOutput0);
         # echo 'correctly disallowed queue before hold release';
 
@@ -145,7 +145,7 @@ class NoidSqliteTest extends NoidTestCase
         $noid_output = explode(PHP_EOL, $output);
         foreach ($noid_output as &$no) {
             $no = trim($no);
-            $no = preg_replace('/^\s*Id:\s+/', '', $no);
+            $no = preg_replace('/^\s*id:\s+/', '', $no);
         }
         # If the last one is the null string, delete it.
         $noid_output = array_filter($noid_output, 'strlen');
@@ -167,10 +167,10 @@ class NoidSqliteTest extends NoidTestCase
         $cmd = "{$noid_cmd} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status, $errors);
-        # Remove leading "Id: ".
-        $noid = preg_replace('/^Id:\s+/', '', $output);
+        # Remove leading "id: ".
+        $noid = preg_replace('/^id:\s+/', '', $output);
         $this->assertNotEmpty($noid);
-        # echo '"Id: " precedes output of mint command for last noid';
+        # echo '"id: " precedes output of mint command for last noid';
         # Remove trailing white space.
         $noid = preg_replace('/\s+$/', '', $noid);
         $this->assertNotEmpty($noid);
@@ -187,7 +187,7 @@ class NoidSqliteTest extends NoidTestCase
 
         # Clean up each line.
         $noidOutput0 = trim($output);
-        $noidOutput0 = preg_match('/^Error: identifiers exhausted/', $noidOutput0);
+        $noidOutput0 = preg_match('/^error: identifiers exhausted/', $noidOutput0);
         $this->assertNotEmpty($noidOutput0);
         # echo 'correctly disallowed minting after identifiers were exhausted';
     }
@@ -272,12 +272,12 @@ class NoidSqliteTest extends NoidTestCase
         # Check the contents of the lines.
         $this->assertEquals('Creating database for template "tst2.rde".', $log_lines[0]);
         # echo 'line 1 of "' . $this->noid_dir . 'log" correct';
-        $this->assertEquals('Note: id 13030/tst27h being queued before first minting (to be pre-cycled)', $log_lines[1]);
+        $this->assertEquals('note: id 13030/tst27h being queued before first minting (to be pre-cycled)', $log_lines[1]);
         # echo 'line 2 of "' . $this->noid_dir . 'log" correct';
         $regex = preg_quote('m: q|', '@') . '\d\d\d\d\d\d\d\d\d\d\d\d\d\d' . preg_quote('|', '@') . '[a-zA-Z0-9_-]*/[a-zA-Z0-9_-]*(?: \([a-zA-Z0-9_-]*/[a-zA-Z0-9_-]*\))?' . preg_quote('|0', '@');
         $this->assertTrue((bool) preg_match('@' . $regex . '@', $log_lines[2]));
         # echo 'line 3 of "' . $this->noid_dir . 'log" correct';
-        $this->assertTrue((bool) preg_match('/^Id: 13030\/tst27h added to queue under :\/q\//', $log_lines[3]));
+        $this->assertTrue((bool) preg_match('/^id: 13030\/tst27h added to queue under :\/q\//', $log_lines[3]));
         # echo 'line 4 of "' . $this->noid_dir . 'log" correct';
     }
 
@@ -348,7 +348,7 @@ class NoidSqliteTest extends NoidTestCase
 
         # Verify that it's the third one.
         $noid_output = trim($output);
-        $this->assertEquals('Id: 13030/tst394', $noid_output);
+        $this->assertEquals('id: 13030/tst394', $noid_output);
         # echo 'held two, minted one, got the third one';
     }
 
@@ -439,26 +439,26 @@ class NoidSqliteTest extends NoidTestCase
             'Wrong number of ids minted, stopped');
         # echo 'number of minted noids';
 
-        $this->assertEquals('Id: 13030/tst43m', $noid_output[0], 'Error in 1st minted noid');
-        $this->assertEquals('Id: 13030/tst47h', $noid_output[1], 'Error in 2nd minted noid');
-        $this->assertEquals('Id: 13030/tst44k', $noid_output[2], 'Error in 3rd minted noid');
-        $this->assertEquals('Id: 13030/tst48t', $noid_output[3], 'Error in 4th minted noid');
-        $this->assertEquals('Id: 13030/tst466', $noid_output[4], 'Error in 5th minted noid');
-        $this->assertEquals('Id: 13030/tst44x', $noid_output[5], 'Error in 6th minted noid');
-        $this->assertEquals('Id: 13030/tst42c', $noid_output[6], 'Error in 7th minted noid');
-        $this->assertEquals('Id: 13030/tst49s', $noid_output[7], 'Error in 8th minted noid');
-        $this->assertEquals('Id: 13030/tst48f', $noid_output[8], 'Error in 9th minted noid');
-        $this->assertEquals('Id: 13030/tst475', $noid_output[9], 'Error in 10th minted noid');
-        $this->assertEquals('Id: 13030/tst45v', $noid_output[10], 'Error in 11th minted noid');
-        $this->assertEquals('Id: 13030/tst439', $noid_output[11], 'Error in 12th minted noid');
-        $this->assertEquals('Id: 13030/tst40q', $noid_output[12], 'Error in 13th minted noid');
-        $this->assertEquals('Id: 13030/tst49f', $noid_output[13], 'Error in 14th minted noid');
-        $this->assertEquals('Id: 13030/tst484', $noid_output[14], 'Error in 15th minted noid');
-        $this->assertEquals('Id: 13030/tst46t', $noid_output[15], 'Error in 16th minted noid');
-        $this->assertEquals('Id: 13030/tst45h', $noid_output[16], 'Error in 17th minted noid');
-        $this->assertEquals('Id: 13030/tst447', $noid_output[17], 'Error in 18th minted noid');
-        $this->assertEquals('Id: 13030/tst42z', $noid_output[18], 'Error in 19th minted noid');
-        $this->assertEquals('Id: 13030/tst41n', $noid_output[19], 'Error in 20th minted noid');
+        $this->assertEquals('id: 13030/tst43m', $noid_output[0], 'Error in 1st minted noid');
+        $this->assertEquals('id: 13030/tst47h', $noid_output[1], 'Error in 2nd minted noid');
+        $this->assertEquals('id: 13030/tst44k', $noid_output[2], 'Error in 3rd minted noid');
+        $this->assertEquals('id: 13030/tst48t', $noid_output[3], 'Error in 4th minted noid');
+        $this->assertEquals('id: 13030/tst466', $noid_output[4], 'Error in 5th minted noid');
+        $this->assertEquals('id: 13030/tst44x', $noid_output[5], 'Error in 6th minted noid');
+        $this->assertEquals('id: 13030/tst42c', $noid_output[6], 'Error in 7th minted noid');
+        $this->assertEquals('id: 13030/tst49s', $noid_output[7], 'Error in 8th minted noid');
+        $this->assertEquals('id: 13030/tst48f', $noid_output[8], 'Error in 9th minted noid');
+        $this->assertEquals('id: 13030/tst475', $noid_output[9], 'Error in 10th minted noid');
+        $this->assertEquals('id: 13030/tst45v', $noid_output[10], 'Error in 11th minted noid');
+        $this->assertEquals('id: 13030/tst439', $noid_output[11], 'Error in 12th minted noid');
+        $this->assertEquals('id: 13030/tst40q', $noid_output[12], 'Error in 13th minted noid');
+        $this->assertEquals('id: 13030/tst49f', $noid_output[13], 'Error in 14th minted noid');
+        $this->assertEquals('id: 13030/tst484', $noid_output[14], 'Error in 15th minted noid');
+        $this->assertEquals('id: 13030/tst46t', $noid_output[15], 'Error in 16th minted noid');
+        $this->assertEquals('id: 13030/tst45h', $noid_output[16], 'Error in 17th minted noid');
+        $this->assertEquals('id: 13030/tst447', $noid_output[17], 'Error in 18th minted noid');
+        $this->assertEquals('id: 13030/tst42z', $noid_output[18], 'Error in 19th minted noid');
+        $this->assertEquals('id: 13030/tst41n', $noid_output[19], 'Error in 20th minted noid');
     }
 
     /**
@@ -527,7 +527,7 @@ class NoidSqliteTest extends NoidTestCase
         $this->assertGreaterThanOrEqual(1, count($noid_output));
         # echo 'at least one line of output from attempt to bind to an unminted id';
 
-        $msg = 'Error: 13030/tst594: "long" term disallows binding an unissued identifier unless a hold is first placed on it.';
+        $msg = 'error: 13030/tst594: "long" term disallows binding an unissued identifier unless a hold is first placed on it.';
         $this->assertEquals($msg, $noid_output[0]);
         # echo 'disallowed binding to unminted id';
     }
@@ -597,9 +597,9 @@ class NoidSqliteTest extends NoidTestCase
         $noid_output = array_map('trim', $noid_output);
         $noid_output = array_filter($noid_output, 'strlen');
 
-        $bound_noid = preg_replace('/^Id:\s+/', '', $noid_output[0]);
+        $bound_noid = preg_replace('/^id:\s+/', '', $noid_output[0]);
         $this->assertNotEmpty($bound_noid);
-        # echo '"Id: " preceded minted noid';
+        # echo '"id: " preceded minted noid';
         unset($noid_output);
 
         # Set up the elements and values that we'll bind to this noid.
@@ -648,7 +648,7 @@ class NoidSqliteTest extends NoidTestCase
         # echo 'there are 102 lines of output from the "fetch" command';
 
         # Check first line.
-        $regex = '/^Id:\s+' . preg_quote($bound_noid, '/') . '\s+hold\s*$/';
+        $regex = '/^id:\s+' . preg_quote($bound_noid, '/') . '\s+hold\s*$/';
         $this->assertEquals(1, preg_match($regex, $noid_output[0]));
         # echo 'line 1 of "fetch" output';
 
@@ -757,12 +757,12 @@ class NoidSqliteTest extends NoidTestCase
         # If the last line is empty, delete it.
         $noid_output = array_filter($noid_output, 'strlen');
 
-        $noid_output[0] = preg_replace('/^Id:\s+/', '', $noid_output[0]);
+        $noid_output[0] = preg_replace('/^id:\s+/', '', $noid_output[0]);
         $this->assertNotEmpty($noid_output[0]);
-        # echo 'first line:  "Id: " preceded minted noid';
-        $noid_output[1] = preg_replace('/^Id:\s+/', '', $noid_output[1]);
+        # echo 'first line:  "id: " preceded minted noid';
+        $noid_output[1] = preg_replace('/^id:\s+/', '', $noid_output[1]);
         $this->assertNotEmpty($noid_output[1]);
-        # echo 'second line:  "Id: " preceded minted noid';
+        # echo 'second line:  "id: " preceded minted noid';
         $bound_noid1 = $noid_output[0];
         $bound_noid2 = $noid_output[1];
         unset($noid_output);
@@ -833,7 +833,7 @@ class NoidSqliteTest extends NoidTestCase
         #echo 'there are 3 lines of output from the "fetch" command on noid 1';
 
         # Check first line.
-        $regex = '/^Id:\s+' . preg_quote($bound_noid1, '/') . '\s+hold\s*$/';
+        $regex = '/^id:\s+' . preg_quote($bound_noid1, '/') . '\s+hold\s*$/';
         $this->assertEquals(1, preg_match($regex, $noid_output[0]));
         # echo 'line 1 of "fetch" output for noid 1';
 
@@ -870,7 +870,7 @@ class NoidSqliteTest extends NoidTestCase
         #echo 'there are 12 lines of output from the "fetch" command on noid 1';
 
         # Check first line.
-        $regex = '/^Id:\s+' . preg_quote($bound_noid2, '/') . '\s+hold\s*$/';
+        $regex = '/^id:\s+' . preg_quote($bound_noid2, '/') . '\s+hold\s*$/';
         $this->assertEquals(1, preg_match($regex, $noid_output[0]));
         # echo 'line 1 of "fetch" output for noid 2';
 

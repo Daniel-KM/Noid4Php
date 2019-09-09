@@ -84,7 +84,7 @@ class Noid3Test extends NoidTestCase
 
         # Verify that it's the third one.
         $noid_output = trim($output);
-        $this->assertEquals('Id: 13030/tst394', $noid_output);
+        $this->assertEquals('id: 13030/tst394', $noid_output);
         # echo 'held two, minted one, got the third one';
     }
 }

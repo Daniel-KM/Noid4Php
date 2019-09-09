@@ -94,12 +94,12 @@ class Noid7Test extends NoidTestCase
         # If the last line is empty, delete it.
         $noid_output = array_filter($noid_output, 'strlen');
 
-        $noid_output[0] = preg_replace('/^Id:\s+/', '', $noid_output[0]);
+        $noid_output[0] = preg_replace('/^id:\s+/', '', $noid_output[0]);
         $this->assertNotEmpty($noid_output[0]);
-        # echo 'first line:  "Id: " preceded minted noid';
-        $noid_output[1] = preg_replace('/^Id:\s+/', '', $noid_output[1]);
+        # echo 'first line:  "id: " preceded minted noid';
+        $noid_output[1] = preg_replace('/^id:\s+/', '', $noid_output[1]);
         $this->assertNotEmpty($noid_output[1]);
-        # echo 'second line:  "Id: " preceded minted noid';
+        # echo 'second line:  "id: " preceded minted noid';
         $bound_noid1 = $noid_output[0];
         $bound_noid2 = $noid_output[1];
         unset($noid_output);
@@ -170,7 +170,7 @@ class Noid7Test extends NoidTestCase
         #echo 'there are 3 lines of output from the "fetch" command on noid 1';
 
         # Check first line.
-        $regex = '/^Id:\s+' . preg_quote($bound_noid1, '/') . '\s+hold\s*$/';
+        $regex = '/^id:\s+' . preg_quote($bound_noid1, '/') . '\s+hold\s*$/';
         $this->assertNotEmpty(preg_match($regex, $noid_output[0]));
         # echo 'line 1 of "fetch" output for noid 1';
 
@@ -207,7 +207,7 @@ class Noid7Test extends NoidTestCase
         #echo 'there are 12 lines of output from the "fetch" command on noid 1';
 
         # Check first line.
-        $regex = '/^Id:\s+' . preg_quote($bound_noid2, '/') . '\s+hold\s*$/';
+        $regex = '/^id:\s+' . preg_quote($bound_noid2, '/') . '\s+hold\s*$/';
         $this->assertNotEmpty(preg_match($regex, $noid_output[0]));
         # echo 'line 1 of "fetch" output for noid 2';
 

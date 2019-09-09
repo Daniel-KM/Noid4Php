@@ -83,7 +83,7 @@ class Noid5Test extends NoidTestCase
         $this->assertGreaterThanOrEqual(1, count($noid_output));
         # echo 'at least one line of output from attempt to bind to an unminted id';
 
-        $msg = 'Error: 13030/tst594: "long" term disallows binding an unissued identifier unless a hold is first placed on it.';
+        $msg = 'error: 13030/tst594: "long" term disallows binding an unissued identifier unless a hold is first placed on it.';
         $this->assertEquals($msg, $noid_output[0]);
         # echo 'disallowed binding to unminted id';
     }

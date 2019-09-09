@@ -82,7 +82,7 @@ class NoidBindTest extends NoidTestCase
 
         # Shouldn't have to release hold to queue it
         $result = Noid::queue($noid, $contact, 'now', $id);
-        $regex = "/Id: " . preg_quote($id, '/') . '/';
+        $regex = "/id: " . preg_quote($id, '/') . '/';
         $this->assertNotEmpty(preg_match($regex, $result[0]));
         # echo 'queue previously held';
 

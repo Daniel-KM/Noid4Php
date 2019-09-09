@@ -268,7 +268,7 @@ if(!class_exists('NoidApp')){
 
             $options = $this->getoptreq();
             if($options === FALSE){
-                print 'Error: GetOptions' . PHP_EOL;
+                print 'error: GetOptions' . PHP_EOL;
                 $this->usage(1, 1, 'intro');
                 return FALSE;
             }
@@ -279,7 +279,7 @@ if(!class_exists('NoidApp')){
             if(isset($options['locktest'])){
                 $locktest = (int)$options['locktest'];
                 if($locktest < 0){
-                    print 'Error: locktest value must be a positive number of seconds to sleep' . PHP_EOL;
+                    print 'error: locktest value must be a positive number of seconds to sleep' . PHP_EOL;
                     // NOTE Why exit 0 for an error in Perl script (and somewhere else)?
                     return FALSE;
                 }
@@ -318,12 +318,12 @@ if(!class_exists('NoidApp')){
                 }
                 if (file_exists($this->data_dir)) {
                     if (!is_readable($this->data_dir)) {
-                        print sprintf('Error: path %s is not readable.', $this->data_dir) . PHP_EOL;
+                        print sprintf('error: path %s is not readable.', $this->data_dir) . PHP_EOL;
                         return FALSE;
                     }
                     if (is_file($this->data_dir) && !is_dir($this->data_dir)) {
                         if (strtolower((string) pathinfo($this->data_dir, PATHINFO_EXTENSION)) !== 'php') {
-                            print sprintf('Error: path %s is not a php config file.', $this->data_dir) . PHP_EOL;
+                            print sprintf('error: path %s is not a php config file.', $this->data_dir) . PHP_EOL;
                             return FALSE;
                         }
                         $this->settings_file = $this->data_dir;
@@ -348,7 +348,7 @@ if(!class_exists('NoidApp')){
             if (empty($db_type_option)) {
                 $db_type_option = 'bdb';
             } else if (!in_array(strtolower($db_type_option), array_keys(Globals::DB_TYPES))) {
-                print 'Error: invalid DbType (database type).' . PHP_EOL;
+                print 'error: invalid DbType (database type).' . PHP_EOL;
                 $this->usage(1, 1, 'intro');
                 return FALSE;
             }
@@ -382,7 +382,7 @@ if(!class_exists('NoidApp')){
 
                 $this->data_dir = trim($this->data_dir);
                 if(empty($this->data_dir)){
-                    print 'Error: no database directory.' . PHP_EOL;
+                    print 'error: no database directory.' . PHP_EOL;
                     $this->usage(1, 1, 'intro');
                     return FALSE;
                 }
@@ -393,23 +393,23 @@ if(!class_exists('NoidApp')){
                 $this->data_dir = $matches[1];
             }
             else{
-                print('Error: bad database directory.' . PHP_EOL);
+                print('error: bad database directory.' . PHP_EOL);
                 $this->usage(1, 1, 'intro');
                 return FALSE;
             }
 
             if (file_exists($this->data_dir) && !is_dir($this->data_dir)) {
-                print sprintf('Error: path %s is not a directory.', $this->data_dir) . PHP_EOL;
+                print sprintf('error: path %s is not a directory.', $this->data_dir) . PHP_EOL;
                 return false;
             }
             if (file_exists($this->data_dir) && !is_readable($this->data_dir)) {
-                print sprintf('Error: path %s is not a readable.', $this->data_dir) . PHP_EOL;
+                print sprintf('error: path %s is not a readable.', $this->data_dir) . PHP_EOL;
                 return false;
             }
             if (!file_exists($this->data_dir)) {
                 $result = mkdir($this->data_dir, 0775, true);
                 if (!$result) {
-                    print sprintf('Error: cannot create directory %s.', $this->data_dir) . PHP_EOL;
+                    print sprintf('error: cannot create directory %s.', $this->data_dir) . PHP_EOL;
                     return false;
                 }
             }
@@ -467,19 +467,22 @@ if(!class_exists('NoidApp')){
                 && $command != 'help'
             ){
                 // if the database doesn't exist when it needs to
-                fwrite($this->stderr, sprintf('Error: no storage path (%s) -- use dbcreate?', $this->data_dir) . PHP_EOL . PHP_EOL);
+                fwrite($this->stderr, sprintf(
+                    'error: no storage path (%s) -- use dbcreate?',
+                    $this->data_dir
+                ) . PHP_EOL . PHP_EOL);
                 $this->usage(1, 1, 'intro');
                 return 0;
             }
             if(!in_array($command, self::VALID_COMMANDS)){
-                printf('Error: no such command: %1$s (%2$s).' . PHP_EOL,
+                printf('error: no such command: %1$s (%2$s).' . PHP_EOL,
                     $command, implode(' ', $args));
                 $this->usage(1, 1, 'intro');
                 return 0;
             }
             // Perform extra checks in $this->is_web case.
             if($this->is_web && $command == 'dbcreate'){
-                printf('Error: command "%s" not allowed in URL interface.' . PHP_EOL, $command);
+                printf('error: command "%s" not allowed in URL interface.' . PHP_EOL, $command);
                 $this->usage(1, 1, 'intro');
                 return 0;
             }
@@ -556,7 +559,7 @@ if(!class_exists('NoidApp')){
                     $total++;
                     if(strlen($elem) == 0){
                         Log::addmsg($noid, sprintf(
-                            'Error: %1$s: bad element associated with value "%2$s".',
+                            'error: %1$s: bad element associated with value "%2$s".',
                             $id, $value
                         ));
                         break;
@@ -605,14 +608,14 @@ if(!class_exists('NoidApp')){
 
                 // If we don't have any lines, there's a problem.
                 if(count($input_lines) == 0){
-                    fwrite($this->stderr, 'Error:  no non-blank, non-comment input.' . PHP_EOL);
+                    fwrite($this->stderr, 'error:  no non-blank, non-comment input.' . PHP_EOL);
                     Db::dbclose($noid);
                     return 0;
                 }
 
                 // There must be an element and a colon on the first line.
                 if(!preg_match('/^\s*(\w+)\s*:\s*(.*)$/', $input_lines[0], $matches)){
-                    fwrite($this->stderr, 'Error:  missing element or colon on first non-blank, non-comment line.' . PHP_EOL);
+                    fwrite($this->stderr, 'error:  missing element or colon on first non-blank, non-comment line.' . PHP_EOL);
                     Db::dbclose($noid);
                     return 0;
                 }
@@ -688,19 +691,19 @@ if(!class_exists('NoidApp')){
         public function dbimport($src_type)
         {
             if(!isset($src_type)){
-                print "Missing argument for dbimport. (xml/bdb/mysql)" . PHP_EOL;
+                print "error: missing argument for dbimport (bdb/mysql/sqlite/xml)." . PHP_EOL;
                 return 0;
             }
 
             $src_type = strtolower($src_type);
             if (!in_array($src_type, array_keys(Globals::DB_TYPES))) {
-                print 'Error: invalid source database type.' . PHP_EOL;
+                print 'error: invalid source database type.' . PHP_EOL;
                 return 0;
             }
 
             $db_type = $this->settings['db_type'];
             if(!strcmp($db_type, $src_type)){
-                print sprintf('The source db type (%1$s) must differ to the destination (%2$s).', $src_type, $db_type) . PHP_EOL;
+                print sprintf('error: the source db type (%1$s) must differ to the destination (%2$s).', $src_type, $db_type) . PHP_EOL;
                 return 0;
             }
 
@@ -947,7 +950,7 @@ if(!class_exists('NoidApp')){
                     Db::dbclose($noid);
                     return 0;
                 }
-                print "Id: $id" . PHP_EOL;
+                print "id: $id" . PHP_EOL;
             }
             Db::dbclose($noid);
             print PHP_EOL;
@@ -1013,7 +1016,7 @@ if(!class_exists('NoidApp')){
                 return stripos($v, 'error:') !== 0;
             });
             $n = count($n);
-            printf('Note: %1$d %2$s queued' . PHP_EOL, $n, $n == 1 ? 'identifier' : 'identifiers');
+            printf('note: %1$d %2$s queued' . PHP_EOL, $n, $n == 1 ? 'identifier' : 'identifiers');
             Db::dbclose($noid);
             return $retval;
         }

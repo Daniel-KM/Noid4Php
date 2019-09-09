@@ -110,7 +110,7 @@ class Generator
             if (Db::$engine->get(Globals::_RR."/longterm") || !Db::$engine->get(Globals::_RR."/wrap")) {
                 Db::_dbunlock();
                 $m = sprintf(
-                    'Error: identifiers exhausted (stopped at %1$s).',
+                    'error: identifiers exhausted (stopped at %1$s).',
                     Db::$engine->get(Globals::_RR."/oatop")
                 );
                 Log::addmsg($noid, $m);
@@ -149,7 +149,7 @@ class Generator
         if ($len < 1) {
             Db::_dbunlock();
             Log::addmsg($noid, sprintf(
-                'Error: no active counters panic, but %s identifiers left?',
+                'error: no active counters panic, but %s identifiers left?',
                 $oacounter
             ));
             return null;
@@ -168,7 +168,7 @@ class Generator
             if ($status != 0) {
                 Db::_dbunlock();
                 Log::addmsg($noid, sprintf(
-                    'Error: perl rand() is not available: %s.',
+                    'error: perl rand() is not available: %s.',
                     $errors
                 ));
                 return null;

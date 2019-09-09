@@ -89,9 +89,9 @@ class Noid6Test extends NoidTestCase
         $noid_output = array_map('trim', $noid_output);
         $noid_output = array_filter($noid_output, 'strlen');
 
-        $bound_noid = preg_replace('/^Id:\s+/', '', $noid_output[0]);
+        $bound_noid = preg_replace('/^id:\s+/', '', $noid_output[0]);
         $this->assertNotEmpty($bound_noid);
-        # echo '"Id: " preceded minted noid';
+        # echo '"id: " preceded minted noid';
         unset($noid_output);
 
         # Set up the elements and values that we'll bind to this noid.
@@ -140,7 +140,7 @@ class Noid6Test extends NoidTestCase
         # echo 'there are 102 lines of output from the "fetch" command';
 
         # Check first line.
-        $regex = '/^Id:\s+' . preg_quote($bound_noid, '/') . '\s+hold\s*$/';
+        $regex = '/^id:\s+' . preg_quote($bound_noid, '/') . '\s+hold\s*$/';
         $this->assertNotEmpty(preg_match($regex, $noid_output[0]));
         # echo 'line 1 of "fetch" output';
 
