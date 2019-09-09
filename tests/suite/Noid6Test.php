@@ -39,7 +39,7 @@ class Noid6Test extends NoidTestCase
 {
     const dbtype = 'bdb';
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         # Seed the random number generator.
@@ -51,7 +51,7 @@ class Noid6Test extends NoidTestCase
      */
     public function testNoid6()
     {
-        $noid_cmd = $this->cmd . ' -f ' . $this->data_dir . ' ' . ' -t ' . self::dbtype . ' ';
+        $noid_cmd = $this->cmd . ' -f ' . escapeshellarg($this->settings_file) . ' ' . ' -t ' . self::dbtype . ' ';
         # Start off by doing a dbcreate.
         # First, though, make sure that the BerkeleyDB files do not exist.
         $cmd = "{$this->rm_cmd} ; " .

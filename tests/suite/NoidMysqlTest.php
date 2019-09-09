@@ -47,7 +47,7 @@ class NoidMysqlTest extends NoidTestCase
      */
     public function testNoidMysql1()
     {
-        $noid_cmd = $this->cmd . ' -f ' . $this->data_dir . ' ' . ' -t ' . self::dbtype . ' ';
+        $noid_cmd = $this->cmd . ' -f ' . escapeshellarg($this->settings_file) . ' ' . ' -t ' . self::dbtype . ' ';
         # Start off by doing a dbcreate.
         # First, though, make sure that the BerkeleyDB files do not exist.
         $cmd = "{$this->rm_cmd} ; " .
@@ -216,7 +216,7 @@ class NoidMysqlTest extends NoidTestCase
      */
     public function testNoidMysql2()
     {
-        $noid_cmd = $this->cmd . ' -f ' . $this->data_dir . ' ' . ' -t ' . self::dbtype . ' ';
+        $noid_cmd = $this->cmd . ' -f ' . escapeshellarg($this->settings_file) . ' ' . ' -t ' . self::dbtype . ' ';
         # Start off by doing a dbcreate.
         # First, though, make sure that the BerkeleyDB files do not exist.
         $cmd = "{$this->rm_cmd} ; " .
@@ -301,7 +301,7 @@ class NoidMysqlTest extends NoidTestCase
      */
     public function testNoidMysql3()
     {
-        $noid_cmd = $this->cmd . ' -f ' . $this->data_dir . ' ' . ' -t ' . self::dbtype . ' ';
+        $noid_cmd = $this->cmd . ' -f ' . escapeshellarg($this->settings_file) . ' ' . ' -t ' . self::dbtype . ' ';
         # Start off by doing a dbcreate.
         # First, though, make sure that the BerkeleyDB files do not exist.
         $cmd = "{$this->rm_cmd} ; " .
@@ -370,7 +370,7 @@ class NoidMysqlTest extends NoidTestCase
      */
     public function testNoidMysql4()
     {
-        $noid_cmd = $this->cmd . ' -f ' . $this->data_dir . ' ' . ' -t ' . self::dbtype . ' ';
+        $noid_cmd = $this->cmd . ' -f ' . escapeshellarg($this->settings_file) . ' ' . ' -t ' . self::dbtype . ' ';
         # Start off by doing a dbcreate.
         # First, though, make sure that the BerkeleyDB files do not exist.
         $cmd = "{$this->rm_cmd} ; " .
@@ -473,7 +473,7 @@ class NoidMysqlTest extends NoidTestCase
      */
     public function testNoidMysql5()
     {
-        $noid_cmd = $this->cmd . ' -f ' . $this->data_dir . ' ' . ' -t ' . self::dbtype . ' ';
+        $noid_cmd = $this->cmd . ' -f ' . escapeshellarg($this->settings_file) . ' ' . ' -t ' . self::dbtype . ' ';
         # Start off by doing a dbcreate.
         # First, though, make sure that the BerkeleyDB files do not exist.
         $cmd = "{$this->rm_cmd} ; " .
@@ -540,7 +540,7 @@ class NoidMysqlTest extends NoidTestCase
      */
     public function testNoidMysql8()
     {
-        $noid_cmd = $this->cmd . ' -f ' . $this->data_dir . ' ' . ' -t ' . self::dbtype . ' ';
+        $noid_cmd = $this->cmd . ' -f ' . escapeshellarg($this->settings_file) . ' ' . ' -t ' . self::dbtype . ' ';
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate .rde long 13030 cdlib.org noidTest";
         $this->_executeCommand($cmd, $status, $output, $errors);

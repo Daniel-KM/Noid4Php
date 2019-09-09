@@ -12,6 +12,7 @@ use Exception;
 use Noid\Lib\Globals;
 use Noid\Lib\Db;
 use Noid\Lib\Log;
+use Noid\Storage\DatabaseInterface;
 
 /**
  * Common methods to test Noid
@@ -20,30 +21,105 @@ class NoidTestCase extends TestCase
 {
     const NOID_BIN = 'blib/script/noid';
 
+    /**
+     * Command for noid.
+     *
+     * @var string
+     */
     public $cmd;
+
+    /**
+     * Command to remove test files.
+     *
+     * @var string
+     */
     public $rm_cmd;
+
+    /**
+     * Dir for the datafiles (default "datafiles_test").
+     *
+     * @var string
+     */
     public $data_dir;
+
+    /**
+     * Dir for the specific database inside the main dir (default "datafiles_test/NOID").
+     *
+     * @var string
+     */
     public $noid_dir;
 
-    public function setUp()
+    /**
+     * path to the setting files.
+     *
+     * @var string
+     */
+    protected $settings_file = 'settings_test.php';
+
+    /**
+     * Checked and filled full settings.
+     *
+     * @var array
+     */
+    protected $settings = 'settings_test.php';
+
+    public function setUp(): void
     {
-        $this->data_dir = getcwd() . DIRECTORY_SEPARATOR . 'datafiles';
-        $this->rm_cmd = "rm -rf {$this->data_dir}/NOID > /dev/null 2>&1 ";
+        $this->settings_file = __DIR__ . DIRECTORY_SEPARATOR . $this->settings_file;
+        $this->settings = include $this->settings_file;
+        $this->settings['db_type'] = 'bdb';
+
+        $this->data_dir = $this->settings['storage']['bdb']['data_dir'];
+        if (!$this->data_dir) {
+            throw new Exception('A directory where to store databases is required.');
+        }
+        if (substr($this->data_dir, 0, 1) !== '/') {
+            $this->data_dir = dirname(__DIR__) . DIRECTORY_SEPARATOR . $this->data_dir;
+        }
+        if (file_exists($this->data_dir) && (!is_dir($this->data_dir) || !is_writeable($this->data_dir))) {
+            throw new Exception(sprintf(
+                '%s is not a writeable directory.',
+                $this->data_dir
+            ));
+        }
+        if (!file_exists($this->data_dir) && !is_writeable(dirname($this->data_dir))) {
+            throw new Exception(sprintf(
+                '%s is not a writeable directory. You may create the test dir manually or config it.',
+                dirname($this->data_dir)
+            ));
+        } elseif (!file_exists($this->data_dir)) {
+            mkdir($this->data_dir);
+        }
+
+        $db_type = $this->settings['db_type'];
+
+        if (empty($this->settings['storage'][$db_type]['db_name'])) {
+            throw new Exception(sprintf(
+                'The database name should be set in test settings.'
+            ));
+        }
+
+        $db_name = $this->settings['storage'][$db_type]['db_name'];
+
+        $this->noid_dir = $this->data_dir . DIRECTORY_SEPARATOR . $db_name . DIRECTORY_SEPARATOR;
+
+        // TODO Move to tear down.
+        $this->rm_cmd = sprintf('rm -rf %s > /dev/null 2>&1', escapeshellarg($this->noid_dir));
+
         if (is_executable(self::NOID_BIN)) {
             $this->cmd = self::NOID_BIN;
         } else {
             $this->cmd = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'noid';
             if (!is_executable($this->cmd)) {
-                $this->cmd = 'php ' . $this->cmd;
+                $this->cmd = 'php ' . escapeshellarg($this->cmd);
             }
         }
-        $this->noid_dir = $this->data_dir . DIRECTORY_SEPARATOR . 'NOID' . DIRECTORY_SEPARATOR;
     }
 
     /**
      * @throws Exception
      */
-    public function tearDown()
+    public function tearDown(): void
     {
     }
 
@@ -168,9 +244,7 @@ class NoidTestCase extends TestCase
      */
     protected function _short($template, $return = 'erc')
     {
-        Globals::$db_type = 'bdb';
-
-        $report = Db::dbcreate($this->data_dir, 'jak', $template, 'short');
+        $report = Db::dbcreate($this->settings, 'jak', $template, 'short');
         $errmsg = Log::errmsg(null, 1);
         if ($return == 'stdout' || $return == 'stderr') {
             $this->assertEmpty($report, sprintf('should output an error: %s', $errmsg));

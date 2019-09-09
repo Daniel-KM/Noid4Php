@@ -82,7 +82,7 @@ class NoidDbCreateTest extends NoidTestCase
         $this->assertNotEmpty(preg_match($regex, $erc));
         # echo '2-digit sequential';
 
-        $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_WRITE);
+        $noid = Db::dbopen($this->settings, DatabaseInterface::DB_WRITE);
         $contact = 'Fester Bestertester';
 
         $n = 1;
@@ -120,7 +120,7 @@ class NoidDbCreateTest extends NoidTestCase
         $this->assertNotEmpty(preg_match($regex, $erc));
         # echo '2-digit sequential';
 
-        $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_WRITE);
+        $noid = Db::dbopen($this->settings, DatabaseInterface::DB_WRITE);
         $contact = 'Fester Bestertester';
 
         $result = Log::note($noid, $contact, 'keynote', 'Value of the note');

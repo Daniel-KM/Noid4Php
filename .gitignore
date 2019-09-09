@@ -3,6 +3,7 @@
 /node_modules
 /NOID
 /tests/.phpunit.result.cache
+/tests/datafiles_test
 /vendor
 /.idea
 /.sass-cache

@@ -43,7 +43,7 @@ class Noid3Test extends NoidTestCase
      */
     public function testNoid3()
     {
-        $noid_cmd = $this->cmd . ' -f ' . $this->data_dir . ' ' . ' -t ' . self::dbtype . ' ';
+        $noid_cmd = $this->cmd . ' -f ' . escapeshellarg($this->settings_file) . ' ' . ' -t ' . self::dbtype . ' ';
         # Start off by doing a dbcreate.
         # First, though, make sure that the BerkeleyDB files do not exist.
         $cmd = "{$this->rm_cmd} ; " .
