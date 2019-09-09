@@ -5,6 +5,10 @@
  * @package Noid
  */
 
+namespace NoidTest;
+
+use Exception;
+
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
 
 /**
@@ -35,6 +39,8 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
  */
 class Noid6Test extends NoidTestCase
 {
+    const dbtype = 'bdb';
+
     public function setUp()
     {
         parent::setUp();
@@ -42,12 +48,16 @@ class Noid6Test extends NoidTestCase
         srand(time());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testNoid6()
     {
+        $noid_cmd = $this->cmd . ' -f ' . $this->dir . ' ' . ' -t ' . self::dbtype . ' ';
         # Start off by doing a dbcreate.
         # First, though, make sure that the BerkeleyDB files do not exist.
         $cmd = "{$this->rm_cmd} ; " .
-            "{$this->noid_cmd} dbcreate tst6.rde long 13030 cdlib.org noidTest >/dev/null";
+            "{$noid_cmd} dbcreate tst6.rde long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -73,7 +83,7 @@ class Noid6Test extends NoidTestCase
         # echo 'NOID/noid.bdb was created';
 
         # Mint one.
-        $cmd = "{$this->noid_cmd} mint 1";
+        $cmd = "{$noid_cmd} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -96,7 +106,7 @@ class Noid6Test extends NoidTestCase
 
         # Start the "bind set" command, so that we'll be able to "print" the
         # elements and values.
-        $cmd = "{$this->noid_cmd} bind set $bound_noid : >/dev/null";
+        $cmd = "{$noid_cmd} bind set $bound_noid : >/dev/null";
         // Save the bind stuff in a temp file in order to simulate STDIN.
         $stdinFilename = tempnam(sys_get_temp_dir(), 'noidtest');
         $stuff = '';
@@ -114,7 +124,7 @@ class Noid6Test extends NoidTestCase
         $this->assertEquals(0, $status, sprintf('open of "%s" failed, %s, stopped', $cmd, $errors));
 
         # Now, run the "fetch" command to get it all back.
-        $cmd = "{$this->noid_cmd} fetch $bound_noid";
+        $cmd = "{$noid_cmd} fetch $bound_noid";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 

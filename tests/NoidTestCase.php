@@ -4,44 +4,51 @@
  * @package Noid
  */
 
+namespace NoidTest;
+
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Noid.php';
+
 use PHPUnit\Framework\TestCase;
+
+use Exception;
+use Noid\Lib\Globals;
+use Noid\Lib\Db;
+use Noid\Lib\Log;
 
 /**
  * Common methods to test Noid
  */
 class NoidTestCase extends TestCase
 {
+    const NOID_BIN = 'blib/script/noid';
+
     public $dir;
     public $rm_cmd;
-    public $noid_cmd;
+    public $cmd;
     public $noid_dir;
 
     public function setUp()
     {
-        $this->dir = getcwd();
-        $this->rm_cmd = "/bin/rm -rf {$this->dir}/NOID > /dev/null 2>&1 ";
-        $noid_bin = 'blib/script/noid';
-        $cmd = null;
-        if (is_executable($noid_bin)) {
-            $cmd = $noid_bin;
+        $this->dir = getcwd() . DIRECTORY_SEPARATOR . 'datafiles';
+        $this->rm_cmd = "rm -rf {$this->dir}/NOID > /dev/null 2>&1 ";
+        if (is_executable(self::NOID_BIN)) {
+            $this->cmd = self::NOID_BIN;
         } else {
-            $cmd = $this->dir . DIRECTORY_SEPARATOR . 'noid';
-            if (!is_executable($cmd)) {
-                $cmd = 'php ' . $cmd;
+            $this->cmd = getcwd() . DIRECTORY_SEPARATOR . 'noid';
+            if (!is_executable($this->cmd)) {
+                $this->cmd = 'php ' . $this->cmd;
             }
         }
-        $this->noid_cmd = $cmd . ' -f ' . $this->dir . ' ';
         $this->noid_dir = $this->dir . DIRECTORY_SEPARATOR . 'NOID' . DIRECTORY_SEPARATOR;
 
-        require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'lib'. DIRECTORY_SEPARATOR . 'Noid.php';
+        require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Noid.php';
     }
 
+    /**
+     * @throws Exception
+     */
     public function tearDown()
     {
-        $dbname = $this->noid_dir . 'noid.bdb';
-        if (file_exists($dbname)) {
-            Noid::dbclose($dbname);
-        }
     }
 
     public function testReady()
@@ -50,6 +57,14 @@ class NoidTestCase extends TestCase
         $this->assertTrue(true);
     }
 
+    /**
+     * @param $cmd
+     * @param $status
+     * @param $output
+     * @param $errors
+     *
+     * @throws Exception
+     */
     protected function _executeCommand($cmd, &$status, &$output, &$errors)
     {
         // Using proc_open() instead of exec() avoids an issue: current working
@@ -75,7 +90,8 @@ class NoidTestCase extends TestCase
     /**
      * Subroutine to get the policy out of the README file.
      *
-     * @param string $filename
+     * @param string $file_name
+     *
      * @return string
      */
     protected function _get_policy($file_name)
@@ -85,7 +101,7 @@ class NoidTestCase extends TestCase
         $this->assertTrue(is_resource($fh),
             sprintf('open of "%s" failed, %s', $file_name, isset($error) ? $error['message'] : '[no message]'));
         if ($fh === false) {
-            return;
+            return null;
         }
 
         $regex = '/^Policy:\s+\(:((G|-)(R|-)(A|-)(N|-)(I|-)(T|-)(E|-))\)\s*$/';
@@ -97,6 +113,8 @@ class NoidTestCase extends TestCase
             }
         }
         fclose($fh);
+
+        return null;
     }
 
     /**
@@ -145,22 +163,24 @@ class NoidTestCase extends TestCase
         return $building_string;
     }
 
+    /**
+     * @param        $template
+     * @param string $return
+     *
+     * @return bool|string
+     * @throws Exception
+     */
     protected function _short($template, $return = 'erc')
     {
-        $cmd = $this->rm_cmd;
-        $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        Globals::$db_type = 'bdb';
 
-        $report = Noid::dbcreate('.', 'jak', $template, 'short');
-        $errmsg = Noid::errmsg(null, 1);
+        $report = Db::dbcreate($this->dir, 'jak', $template, 'short');
+        $errmsg = Log::errmsg(null, 1);
         if ($return == 'stdout' || $return == 'stderr') {
             $this->assertEmpty($report, sprintf('should output an error: %s', $errmsg));
             return $errmsg;
         }
-
         $this->assertNotEmpty($report, $errmsg);
-
-        Noid::dbclose($this->noid_dir . 'noid.bdb');
 
         // Return the erc.
         $isReadable = is_readable($this->noid_dir . 'README');

@@ -8,6 +8,7 @@
  */
 
 use PHPUnit\Framework\TestCase;
+use Noid\Lib\Perl_Random;
 
 /**
  * Tests for Perl_Random.
@@ -30,12 +31,14 @@ class Perl_RandomTest extends TestCase
         }
 
         require_once dirname(dirname(__DIR__))
-            . DIRECTORY_SEPARATOR . 'lib'
+            . DIRECTORY_SEPARATOR . 'src'
+            . DIRECTORY_SEPARATOR . 'Lib'
             . DIRECTORY_SEPARATOR . 'Perl_Random.php';
     }
 
     /**
      * Compare the perl int(rand()) and the Perl_Random->int_rand().
+     * @throws Exception
      */
     public function testIntRand()
     {
@@ -64,6 +67,7 @@ class Perl_RandomTest extends TestCase
      *
      * @internal The representation of the value may be different, but the real
      * internal value remains the same.
+     * @throws Exception
      */
     public function testRand1()
     {
@@ -72,6 +76,7 @@ class Perl_RandomTest extends TestCase
 
     /**
      * Compare the perl rand(8192) and the Perl_Random->rand(8192).
+     * @throws Exception
      */
     public function testRand8192()
     {
@@ -81,6 +86,7 @@ class Perl_RandomTest extends TestCase
     /**
      * @internal The representation of the value may be different for the last
      * digital, but the php internal value remains the same.
+     * @throws Exception
      */
     protected function _rand($length, $functionName)
     {
@@ -105,6 +111,7 @@ class Perl_RandomTest extends TestCase
 
     /**
      * Compare the perl rand() and the Perl_Random->rand().
+     * @throws Exception
      */
     public function testRand()
     {
@@ -130,6 +137,7 @@ class Perl_RandomTest extends TestCase
 
     /**
      * Compare the perl rand() and the Perl_Random->string_rand().
+     * @throws Exception
      */
     public function testStringRand()
     {

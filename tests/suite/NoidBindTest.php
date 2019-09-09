@@ -5,6 +5,14 @@
  * @package Noid
  */
 
+namespace NoidTest;
+
+use Exception;
+use Noid\Lib\Db;
+use Noid\Lib\Helper;
+use Noid\Noid;
+use Noid\Storage\DatabaseInterface;
+
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
 
 /**
@@ -12,8 +20,11 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
  */
 class NoidBindTest extends NoidTestCase
 {
+    const dbtype = 'bdb';
+
     /**
      * Bind tests -- short
+     * @throws Exception
      */
     public function testBind()
     {
@@ -22,11 +33,11 @@ class NoidBindTest extends NoidTestCase
         $this->assertNotEmpty(preg_match($regex, $erc));
         # echo '2-digit sequential';
 
-        $noid = Noid::dbopen($this->noid_dir . 'noid.bdb', 0);
+        $noid = Db::dbopen($this->dir, DatabaseInterface::DB_WRITE);
         $contact = 'Fester Bestertester';
 
-        $id = Noid::mint($noid, $contact, '');
-        $id = Noid::mint($noid, $contact, '');
+        Noid::mint($noid, $contact, 0);
+        $id = Noid::mint($noid, $contact, 0);
         $this->assertEquals('01', $id);
         # echo 'sequential mint verify';
 
@@ -42,11 +53,12 @@ class NoidBindTest extends NoidTestCase
         $this->assertNotEmpty(preg_match('/^myvalue$/', $result));
         # echo 'simple non-verbose (get) fetch';
 
-        Noid::dbclose($noid);
+        Db::dbclose($noid);
     }
 
     /**
      * Queue/hold tests -- short
+     * @throws Exception
      */
     public function testQueueHold()
     {
@@ -55,7 +67,7 @@ class NoidBindTest extends NoidTestCase
         $this->assertNotEmpty(preg_match($regex, $erc));
         # echo '2-digit sequential';
 
-        $noid = Noid::dbopen($this->noid_dir . 'noid.bdb', 0);
+        $noid = Db::dbopen($this->dir, DatabaseInterface::DB_WRITE);
         $contact = 'Fester Bestertester';
 
         $id = Noid::mint($noid, $contact, '');
@@ -84,7 +96,7 @@ class NoidBindTest extends NoidTestCase
         $this->assertEquals('03', $id);
         # echo 'mint next back to normal';
 
-        Noid::dbclose($noid);
+        Db::dbclose($noid);
     }
 
     # XXX
@@ -94,6 +106,7 @@ class NoidBindTest extends NoidTestCase
 
     /**
      * Validate tests -- short
+     * @throws Exception
      */
     public function testValidate()
     {
@@ -102,10 +115,10 @@ class NoidBindTest extends NoidTestCase
         $this->assertNotEmpty(preg_match($regex, $erc));
         # echo '4-digit random';
 
-        $noid = Noid::dbopen($this->noid_dir . 'noid.bdb', 0);
+        $noid = Db::dbopen($this->dir, DatabaseInterface::DB_WRITE);
         $contact = 'Fester Bestertester';
 
-        $id = Noid::mint($noid, $contact, '');
+        $id = Noid::mint($noid, $contact, 0);
         $this->assertEquals('fk491f', $id);
         # echo 'mint first';
 
@@ -124,11 +137,12 @@ class NoidBindTest extends NoidTestCase
         $this->assertEquals(1, preg_match($regex, $result[0]));
         # echo 'detect transposition';
 
-        Noid::dbclose($noid);
+        Db::dbclose($noid);
     }
 
     /**
      * Validate tests for unlimited sequences -- short
+     * @throws Exception
      */
     public function testValidateUnlimited()
     {
@@ -137,10 +151,10 @@ class NoidBindTest extends NoidTestCase
         $this->assertNotEmpty(preg_match($regex, $erc));
         # echo '4-digit random';
 
-        $noid = Noid::dbopen($this->noid_dir . 'noid.bdb', 0);
+        $noid = Db::dbopen($this->dir, DatabaseInterface::DB_WRITE);
         $contact = 'Fester Bestertester';
 
-        $id = Noid::mint($noid, $contact, '');
+        $id = Noid::mint($noid, $contact, 0);
         $this->assertEquals('fk00', $id);
         # echo 'mint first';
 
@@ -164,7 +178,7 @@ class NoidBindTest extends NoidTestCase
         $this->assertEquals(1, preg_match($regex, $result[0]));
         # echo 'detect transposition';
 
-        Noid::dbclose($noid);
+        Db::dbclose($noid);
     }
 
     /**
@@ -188,7 +202,7 @@ class NoidBindTest extends NoidTestCase
         );
 
         foreach ($tests as $template => $repertoire) {
-            $alphabet = Noid::get_alphabet($template);
+            $alphabet = Helper::getAlphabet($template);
             $this->assertEquals($repertoire, $alphabet,
                 sprintf('Thte template "%s" should have the character repertoire "%s", not "%s".',
                     $template, $repertoire, $alphabet));
@@ -197,6 +211,7 @@ class NoidBindTest extends NoidTestCase
 
     /**
      * Validate tests for various unlimited alphabets -- short
+     * @throws Exception
      */
     public function testValidateUnlimitedAlphabets()
     {
@@ -214,14 +229,14 @@ class NoidBindTest extends NoidTestCase
                 sprintf('Template "%s" is not unlimited.', $template));
             # echo '4-digit random';
 
-            $noid = Noid::dbopen($this->noid_dir . 'noid.bdb', 0);
+            $noid = Db::dbopen($this->dir, DatabaseInterface::DB_WRITE);
             $contact = 'Fester Bestertester';
 
-            $id = Noid::mint($noid, $contact, '');
+            $id = Noid::mint($noid, $contact, 0);
             $this->assertEquals($first, $id, sprintf('First is not "%s" for template "%s".', $first, $template));
             # echo 'mint first';
 
-            Noid::dbclose($noid);
+            Db::dbclose($noid);
         }
     }
 }

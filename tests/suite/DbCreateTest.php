@@ -5,6 +5,14 @@
  * @package Noid
  */
 
+namespace NoidTest;
+
+use Exception;
+use Noid\Lib\Db;
+use Noid\Lib\Log;
+use Noid\Noid;
+use Noid\Storage\DatabaseInterface;
+
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
 
 /**
@@ -18,6 +26,7 @@ class NoidDbCreateTest extends NoidTestCase
 {
     /**
      * Size tests
+     * @throws Exception
      */
     public function testSize()
     {
@@ -44,6 +53,7 @@ class NoidDbCreateTest extends NoidTestCase
 
     /**
      * Some template error tests
+     * @throws Exception
      */
     public function testTemplateError()
     {
@@ -65,6 +75,7 @@ class NoidDbCreateTest extends NoidTestCase
 
     /**
      * Set up a generator that we will test
+     * @throws Exception
      */
     public function testGenerator()
     {
@@ -73,7 +84,7 @@ class NoidDbCreateTest extends NoidTestCase
         $this->assertNotEmpty(preg_match($regex, $erc));
         # echo '2-digit sequential';
 
-        $noid = Noid::dbopen($this->noid_dir . 'noid.bdb', 0);
+        $noid = Db::dbopen($this->dir, DatabaseInterface::DB_WRITE);
         $contact = 'Fester Bestertester';
 
         $n = 1;
@@ -97,11 +108,12 @@ class NoidDbCreateTest extends NoidTestCase
         $this->assertEquals('8r900', $id);
         # echo 'sequential mint test wrap to first';
 
-        Noid::dbclose($noid);
+        Db::dbclose($noid);
     }
 
     /**
      * Test a user note.
+     * @throws Exception
      */
     public function testNote()
     {
@@ -110,21 +122,21 @@ class NoidDbCreateTest extends NoidTestCase
         $this->assertNotEmpty(preg_match($regex, $erc));
         # echo '2-digit sequential';
 
-        $noid = Noid::dbopen($this->noid_dir . 'noid.bdb', 0);
+        $noid = Db::dbopen($this->dir, DatabaseInterface::DB_WRITE);
         $contact = 'Fester Bestertester';
 
-        $result = Noid::note($noid, $contact, 'keynote', 'Value of the note');
+        $result = Log::note($noid, $contact, 'keynote', 'Value of the note');
         $this->assertNotEmpty($result);
 
-        $result = Noid::note($noid, $contact, 'keynote', 'Replacement value');
+        $result = Log::note($noid, $contact, 'keynote', 'Replacement value');
         $this->assertNotEmpty($result);
 
-        $value = Noid::get_note($noid, 'keynote');
+        $value = Log::get_note($noid, 'keynote');
         $this->assertEquals('Replacement value', $value);
 
-        $value = Noid::get_note($noid, 'otherkey');
+        $value = Log::get_note($noid, 'otherkey');
         $this->assertEmpty($value);
 
-        Noid::dbclose($noid);
+        Db::dbclose($noid);
     }
 }

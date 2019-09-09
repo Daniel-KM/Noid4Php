@@ -5,6 +5,10 @@
  * @package Noid
  */
 
+namespace NoidTest;
+
+use Exception;
+
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
 
 /**
@@ -19,9 +23,8 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
  * Function: To test the noid command.
  *
  * What Is Tested:
- * - Do a "dbcreate" using a variety of options to
- * - test that the various options in the policy can
- * - be turned on and off.
+ * - Do a "dbcreate" using a variety of options to test that the various options
+ *   in the policy can be turned on and off.
  *
  * Command line parameters:  none.
  *
@@ -34,16 +37,22 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
  */
 class Noid8Test extends NoidTestCase
 {
+    const dbtype = 'bdb';
+
+    /**
+     * @throws Exception
+     */
     public function testNoid8()
     {
+        $noid_cmd = $this->cmd . ' -f ' . $this->dir . ' ' . ' -t ' . self::dbtype . ' ';
         $cmd = "{$this->rm_cmd} ; " .
-            "{$this->noid_cmd} dbcreate .rde long 13030 cdlib.org noidTest";
+            "{$noid_cmd} dbcreate .rde long 13030 cdlib.org noidTest";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
         # Do dbcreate.
         $cmd = "{$this->rm_cmd} ; " .
-            "{$this->noid_cmd} dbcreate .rddk long 13030 cdlib.org noidTest";
+            "{$noid_cmd} dbcreate .rddk long 13030 cdlib.org noidTest";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -55,7 +64,7 @@ class Noid8Test extends NoidTestCase
 
         # Do dbcreate.
         $cmd = "{$this->rm_cmd} ; " .
-            "{$this->noid_cmd} dbcreate .rddk long 00000 cdlib.org noidTest >/dev/null";
+            "{$noid_cmd} dbcreate .rddk long 00000 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -67,7 +76,7 @@ class Noid8Test extends NoidTestCase
 
         # Do dbcreate.
         $cmd = "{$this->rm_cmd} ; " .
-            "{$this->noid_cmd} dbcreate .sddk long 13030 cdlib.org noidTest >/dev/null";
+            "{$noid_cmd} dbcreate .sddk long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -79,7 +88,7 @@ class Noid8Test extends NoidTestCase
 
         # Do dbcreate.
         $cmd = "{$this->rm_cmd} ; " .
-            "{$this->noid_cmd} dbcreate tst8.rdek long 13030 cdlib.org noidTest >/dev/null";
+            "{$noid_cmd} dbcreate tst8.rdek long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -91,7 +100,7 @@ class Noid8Test extends NoidTestCase
 
         # Do dbcreate.
         $cmd = "{$this->rm_cmd} ; " .
-            "{$this->noid_cmd} dbcreate .rddk medium 13030 cdlib.org noidTest >/dev/null";
+            "{$noid_cmd} dbcreate .rddk medium 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -103,7 +112,7 @@ class Noid8Test extends NoidTestCase
 
         # Do dbcreate.
         $cmd = "{$this->rm_cmd} ; " .
-            "{$this->noid_cmd} dbcreate r-r.rdd long 13030 cdlib.org noidTest >/dev/null";
+            "{$noid_cmd} dbcreate r-r.rdd long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -115,7 +124,7 @@ class Noid8Test extends NoidTestCase
 
         # Do dbcreate.
         $cmd = "{$this->rm_cmd} ; " .
-            "{$this->noid_cmd} dbcreate .rdd long 13030 cdlib.org noidTest >/dev/null";
+            "{$noid_cmd} dbcreate .rdd long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -127,7 +136,7 @@ class Noid8Test extends NoidTestCase
 
         # Do dbcreate.
         $cmd = "{$this->rm_cmd} ; " .
-            "{$this->noid_cmd} dbcreate a.rdd long 13030 cdlib.org noidTest >/dev/null";
+            "{$noid_cmd} dbcreate a.rdd long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -139,7 +148,7 @@ class Noid8Test extends NoidTestCase
 
         # Do dbcreate.
         $cmd = "{$this->rm_cmd} ; " .
-            "{$this->noid_cmd} dbcreate a-a.seeeeee medium 00000 cdlib.org noidTest >/dev/null";
+            "{$noid_cmd} dbcreate a-a.seeeeee medium 00000 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -148,5 +157,7 @@ class Noid8Test extends NoidTestCase
         $this->assertNotEmpty($policy, 'unable to get policy');
         $this->assertEquals('-------', $policy);
         # echo 'policy "-------"';
+
+        echo $output;
     }
 }

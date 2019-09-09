@@ -5,11 +5,13 @@
 /.idea
 /.sass-cache
 /.settings
+/tests/.phpunit.result.cache
 .buildpath
 .bundle
 .DS_Store
 .php_cs.cache
 .php-cs-fixer.cache
+.phpunit.result.cache
 .project
 composer.phar
 phpunit.phar

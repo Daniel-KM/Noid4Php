@@ -5,6 +5,10 @@
  * @package Noid
  */
 
+namespace NoidTest;
+
+use Exception;
+
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
 
 /**
@@ -38,6 +42,8 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
  */
 class Noid7Test extends NoidTestCase
 {
+    const dbtype = 'bdb';
+
     public function setUp()
     {
         parent::setUp();
@@ -45,12 +51,16 @@ class Noid7Test extends NoidTestCase
         srand(time());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testNoid7()
     {
+        $noid_cmd = $this->cmd . ' -f ' . $this->dir . ' ' . ' -t ' . self::dbtype . ' ';
         # Start off by doing a dbcreate.
         # First, though, make sure that the BerkeleyDB files do not exist.
         $cmd = "{$this->rm_cmd} ; " .
-            "{$this->noid_cmd} dbcreate tst7.rde long 13030 cdlib.org noidTest >/dev/null";
+            "{$noid_cmd} dbcreate tst7.rde long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -76,7 +86,7 @@ class Noid7Test extends NoidTestCase
         # echo 'NOID/noid.bdb was created';
 
         # Mint two.
-        $cmd = "{$this->noid_cmd} mint 2";
+        $cmd = "{$noid_cmd} mint 2";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -102,7 +112,7 @@ class Noid7Test extends NoidTestCase
 
         # Start the "bind set" command for noid number 1, so that we'll be
         # able to "print" the element/value.
-        $cmd = "{$this->noid_cmd} bind set $bound_noid1 :- >/dev/null";
+        $cmd = "{$noid_cmd} bind set $bound_noid1 :- >/dev/null";
         // Save the bind stuff in a temp file in order to simulate STDIN.
         $stdinFilename = tempnam(sys_get_temp_dir(), 'noidtest');
         $stuff = "$element1: $value1" . PHP_EOL;
@@ -128,7 +138,7 @@ class Noid7Test extends NoidTestCase
 
         # Start the "bind set" command for noid number 2, so that we'll be
         # able to "print" the element/value.
-        $cmd = "{$this->noid_cmd} bind set $bound_noid2 :- >/dev/null";
+        $cmd = "{$noid_cmd} bind set $bound_noid2 :- >/dev/null";
         // Save the bind stuff in a temp file in order to simulate STDIN.
         $stdinFilename = tempnam(sys_get_temp_dir(), 'noidtest');
         # Write the element/value pair.
@@ -145,7 +155,7 @@ class Noid7Test extends NoidTestCase
         $this->assertEquals(0, $status, sprintf('open of "%s" failed, %s, stopped', $cmd, $errors));
 
         # Now, run the "fetch" command on the noid number 1.
-        $cmd = "{$this->noid_cmd} fetch $bound_noid1";
+        $cmd = "{$noid_cmd} fetch $bound_noid1";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
         $noid_output = explode(PHP_EOL, $output);
@@ -181,7 +191,7 @@ class Noid7Test extends NoidTestCase
         $this->assertEquals($value1, $matches[2]);
         # echo 'line 3 of "fetch" output for noid 1';
 
-        $cmd = "{$this->noid_cmd} fetch $bound_noid2";
+        $cmd = "{$noid_cmd} fetch $bound_noid2";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 

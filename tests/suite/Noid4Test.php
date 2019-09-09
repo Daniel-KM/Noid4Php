@@ -5,6 +5,10 @@
  * @package Noid
  */
 
+namespace NoidTest;
+
+use Exception;
+
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
 
 /**
@@ -35,12 +39,18 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
  */
 class Noid4Test extends NoidTestCase
 {
+    const dbtype = 'bdb';
+
+    /**
+     * @throws Exception
+     */
     public function testNoid4()
     {
+        $noid_cmd = $this->cmd . ' -f ' . $this->dir . ' ' . ' -t ' . self::dbtype . ' ';
         # Start off by doing a dbcreate.
         # First, though, make sure that the BerkeleyDB files do not exist.
         $cmd = "{$this->rm_cmd} ; " .
-            "{$this->noid_cmd} dbcreate tst4.rde long 13030 cdlib.org noidTest >/dev/null";
+            "{$noid_cmd} dbcreate tst4.rde long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -66,22 +76,22 @@ class Noid4Test extends NoidTestCase
         # echo 'NOID/noid.bdb was created';
 
         # Mint 10.
-        $cmd = "{$this->noid_cmd} mint 10 > /dev/null";
+        $cmd = "{$noid_cmd} mint 10 > /dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
         # Queue 3.
-        $cmd = "{$this->noid_cmd} queue now 13030/tst43m 13030/tst47h 13030/tst44k >/dev/null";
+        $cmd = "{$noid_cmd} queue now 13030/tst43m 13030/tst47h 13030/tst44k >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
         # Hold 2.
-        $cmd = "{$this->noid_cmd} hold set 13030/tst412 13030/tst421 >/dev/null";
+        $cmd = "{$noid_cmd} hold set 13030/tst412 13030/tst421 >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
         # Mint 20, and check that they have come out in the correct order.
-        $cmd = "{$this->noid_cmd} mint 20";
+        $cmd = "{$noid_cmd} mint 20";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -91,7 +101,7 @@ class Noid4Test extends NoidTestCase
         # If the last one is the null string, delete it.
         $noid_output = array_filter($noid_output, 'strlen');
         $this->assertEquals(20, count($noid_output),
-        # If we don't have exactly 20, something is probably very wrong.
+            # If we don't have exactly 20, something is probably very wrong.
             'wrong number of ids minted, stopped');
         # echo 'number of minted noids';
 

@@ -5,6 +5,10 @@
  * @package Noid
  */
 
+namespace NoidTest;
+
+use Exception;
+
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
 
 /**
@@ -40,12 +44,18 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
  */
 class Noid1Test extends NoidTestCase
 {
+    const dbtype = 'bdb';
+
+    /**
+     * @throws Exception
+     */
     public function testNoid1()
     {
+        $noid_cmd = $this->cmd . ' -f ' . $this->dir . ' ' . ' -t ' . self::dbtype . ' ';
         # Start off by doing a dbcreate.
         # First, though, make sure that the BerkeleyDB files do not exist.
         $cmd = "{$this->rm_cmd} ; " .
-            "{$this->noid_cmd} dbcreate tst1.rde long 13030 cdlib.org noidTest >/dev/null";
+            "{$noid_cmd} dbcreate tst1.rde long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -71,7 +81,7 @@ class Noid1Test extends NoidTestCase
         # echo 'NOID/noid.bdb was created';
 
         # Mint all but the last two of 290.
-        $cmd = "{$this->noid_cmd} mint 288";
+        $cmd = "{$noid_cmd} mint 288";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -94,7 +104,7 @@ class Noid1Test extends NoidTestCase
         unset($noid_output);
 
         # Mint the next to last one.
-        $cmd = "{$this->noid_cmd} mint 1";
+        $cmd = "{$noid_cmd} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
         # Remove leading "id: ".
@@ -112,7 +122,7 @@ class Noid1Test extends NoidTestCase
 
         # Try to queue one of the 3.  It shouldn't let me, because the hold must
         # be released first.
-        $cmd = "{$this->noid_cmd} queue now $save_noid[0] 2>&1";
+        $cmd = "{$noid_cmd} queue now $save_noid[0] 2>&1";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -123,17 +133,17 @@ class Noid1Test extends NoidTestCase
         # echo 'correctly disallowed queue before hold release';
 
         # Release the hold on the 3 minted noids.
-        $cmd = "{$this->noid_cmd} hold release $save_noid[0] $save_noid[1] $save_noid[2] > /dev/null";
+        $cmd = "{$noid_cmd} hold release $save_noid[0] $save_noid[1] $save_noid[2] > /dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
         # Queue those 3.
-        $cmd = "{$this->noid_cmd} queue now $save_noid[0] $save_noid[1] $save_noid[2] > /dev/null";
+        $cmd = "{$noid_cmd} queue now $save_noid[0] $save_noid[1] $save_noid[2] > /dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
         # Mint them.
-        $cmd = "{$this->noid_cmd} mint 3";
+        $cmd = "{$noid_cmd} mint 3";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -160,7 +170,7 @@ class Noid1Test extends NoidTestCase
         unset($noid_output);
 
         # Mint the last one.
-        $cmd = "{$this->noid_cmd} mint 1";
+        $cmd = "{$noid_cmd} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
         # Remove leading "id: ".
@@ -177,7 +187,7 @@ class Noid1Test extends NoidTestCase
         # echo 'last noid was "13030/tst17p"';
 
         # Try to mint another, after they are exhausted.
-        $cmd = "{$this->noid_cmd} mint 1 2>&1";
+        $cmd = "{$noid_cmd} mint 1 2>&1";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 

@@ -4,6 +4,13 @@
  * @package Noid
  */
 
+namespace NoidTest;
+
+use Exception;
+use Noid\Lib\Db;
+use Noid\Noid;
+use Noid\Storage\DatabaseInterface;
+
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
 
 /**
@@ -12,14 +19,20 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
  */
 class TemplateLongTest extends NoidTestCase
 {
+    const dbtype = 'bdb';
+
+    /**
+     * @throws Exception
+     */
     public function testLong()
     {
+        $noid_cmd = $this->cmd . ' -f ' . $this->dir . ' ' . ' -t ' . self::dbtype . ' ';
         $total = 3721;
 
         # Start off by doing a dbcreate.
         # First, though, make sure that the BerkeleyDB files do not exist.
         $cmd = "{$this->rm_cmd} ; " .
-            "{$this->noid_cmd} dbcreate b.rllk long 99999 example.org noidTest >/dev/null";
+            "{$noid_cmd} dbcreate b.rllk long 99999 example.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
@@ -44,7 +57,7 @@ class TemplateLongTest extends NoidTestCase
         $this->assertFileExists($this->noid_dir . 'noid.bdb', 'minter initialization failed, stopped');
         # echo 'NOID/noid.bdb was created';
 
-        $noid = Noid::dbopen($this->noid_dir . 'noid.bdb', 0);
+        $noid = Db::dbopen($this->dir, DatabaseInterface::DB_WRITE);
         $contact = 'Fester Bestertester';
 
         $ids = array();
