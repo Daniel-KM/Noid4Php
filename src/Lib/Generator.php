@@ -156,6 +156,8 @@ class Generator
         }
 
         switch (Noid::$random_generator) {    # pick a specific counter name
+        case 'Perl_Random':
+            // Kept for compatibility with old config.
         case 'PerlRandom':
         default:
             Noid::$_perlRandom->srand($seed);

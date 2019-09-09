@@ -580,7 +580,10 @@ class Noid
         // Prepare the id generator for PerlRandom: keep the specified one.
         if (Db::$engine->get(Globals::_RR . "/generator_type") == 'random') {
             self::$random_generator = Db::$engine->get(Globals::_RR . "/generator_random") ? : self::$random_generator;
-            if (self::$random_generator == 'PerlRandom') {
+            if (self::$random_generator == 'PerlRandom'
+                // Kept for compatibility with old config.
+                || self::$random_generator == 'Perl_Random'
+            ) {
                 self::$_perlRandom = PerlRandom::init();
             }
         }
