@@ -169,21 +169,13 @@ class MysqlDB implements DatabaseInterface
             return false;
         }
 
-        $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
-
-        $res = $this->handle->query(sprintf('SELECT `v` FROM `%1$s` WHERE `k` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
-        if ($res) {
-            $row = $res->fetch_array(MYSQLI_NUM);
-            if ($row === null) {
-                return false;
-            }
-            $ret_val = $row[0];
-            $res->free();
-
-            return htmlspecialchars_decode($ret_val, ENT_QUOTES | ENT_HTML401);
-        }
-
-        return false;
+        $stmt = $this->handle->prepare(sprintf('SELECT `v` FROM `%s` WHERE `k` = ?', DatabaseInterface::TABLE_NAME));
+        $stmt->bind_param('s', $key);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_array(MYSQLI_NUM);
+        $result->free();
+        return $row ? $row[0] : false;
     }
 
     /**
@@ -199,11 +191,9 @@ class MysqlDB implements DatabaseInterface
             return false;
         }
 
-        $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
-        $value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML401);
-
-        $qry = sprintf('INSERT INTO `%1$s` (`k`, `v`) VALUES ("%2$s", "%3$s") ON DUPLICATE KEY UPDATE `v` = "%3$s"', DatabaseInterface::TABLE_NAME, $key, $value);
-        return $this->handle->query($qry);
+        $stmt = $this->handle->prepare(sprintf('INSERT INTO `%s` (`k`, `v`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `v` = ?', DatabaseInterface::TABLE_NAME));
+        $stmt->bind_param('sss', $key, $value, $value);
+        return $stmt->execute();
     }
 
     /**
@@ -217,10 +207,9 @@ class MysqlDB implements DatabaseInterface
         if (!($this->handle instanceof mysqli)) {
             return false;
         }
-
-        $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
-
-        return $this->handle->query(sprintf('DELETE FROM `%1$s` WHERE `k` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
+        $stmt = $this->handle->prepare(sprintf('DELETE FROM `%s` WHERE `k` = ?', DatabaseInterface::TABLE_NAME));
+        $stmt->bind_param('s', $key);
+        return $stmt->execute();
     }
 
     /**
@@ -235,14 +224,13 @@ class MysqlDB implements DatabaseInterface
             return false;
         }
 
-        $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
-
-        /** @var mysqli_result $res */
-        $res = $this->handle->query(sprintf('SELECT `k` FROM `%1$s` WHERE `k` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
-        if ($res) {
-            return $res->num_rows > 0;
-        }
-        return false;
+        $stmt = $this->handle->prepare(sprintf('SELECT `k` FROM `%s` WHERE `k` = ?', DatabaseInterface::TABLE_NAME));
+        $stmt->bind_param('s', $key);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $output = $result->num_rows > 0;
+        $result->free();
+        return $output;
     }
 
     /**
@@ -260,20 +248,21 @@ class MysqlDB implements DatabaseInterface
         }
         $results = array();
 
-        /** @var mysqli_result $res */
-        $pattern = htmlspecialchars($pattern, ENT_QUOTES | ENT_HTML401);
-
-        $res = $this->handle->query(sprintf('SELECT `k`, `v` FROM `%1$s` WHERE `k` LIKE "%2$s"', DatabaseInterface::TABLE_NAME, "%$pattern%"));
-        if ($res) {
-            while ($row = $res->fetch_array(MYSQLI_NUM)) {
-                $key = htmlspecialchars_decode($row[0], ENT_QUOTES | ENT_HTML401);
-                $value = htmlspecialchars_decode($row[1], ENT_QUOTES | ENT_HTML401);
-                $results[$key] = $value;
-            }
-        }
+        $patternLike = "%$pattern%";
 
         // @internal Ordered by default with Berkeley database.
-        ksort($results);
+        $stmt = $this->handle->prepare(sprintf('SELECT `k`, `v` FROM `%s` WHERE `k` LIKE ? ORDER BY `id`', DatabaseInterface::TABLE_NAME));
+        $stmt->bind_param('s', $patternLike);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $results = array();
+        // Use fetch_all and array_column?
+        while ($row = $result->fetch_array(MYSQLI_NUM)) {
+            $results[$row[0]] = $row[1];
+        }
+        $result->free();
+
         return $results;
     }
 

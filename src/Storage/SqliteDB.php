@@ -129,15 +129,13 @@ class SqliteDB implements DatabaseInterface
             return false;
         }
 
-        $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
-
-        $res = $this->handle->query(sprintf('SELECT `v` FROM `%1$s` WHERE `k` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
-        if ($row = $res->fetchArray(SQLITE3_NUM)) {
-            $res->finalize();
-            return htmlspecialchars_decode($row[0], ENT_QUOTES | ENT_HTML401);
-        }
-        $res->finalize();
-        return false;
+        $stmt = $this->handle->prepare(sprintf('SELECT `v` FROM `%s` WHERE `k` = :k', DatabaseInterface::TABLE_NAME));
+        $stmt->bindParam(':k', $key, SQLITE3_TEXT);
+        $result = $stmt->execute();
+        $row = $result->fetchArray(SQLITE3_NUM);
+        $result->finalize();
+        $stmt->reset();
+        return $row ? $row[0] : false;
     }
 
     /**
@@ -153,11 +151,12 @@ class SqliteDB implements DatabaseInterface
             return false;
         }
 
-        $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
-        $value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML401);
-
-        $qry = sprintf('REPLACE INTO `%1$s` (`k`, `v`) VALUES ("%2$s", "%3$s")', DatabaseInterface::TABLE_NAME, $key, $value);
-        return $this->handle->exec($qry);
+        $stmt = $this->handle->prepare(sprintf('REPLACE INTO `%s` (`k`, `v`) VALUES (:k, :v)', DatabaseInterface::TABLE_NAME));
+        $stmt->bindParam(':k', $key, SQLITE3_TEXT);
+        $stmt->bindParam(':v', $value, SQLITE3_TEXT);
+        $result = (bool) $stmt->execute();
+        $stmt->reset();
+        return $result;
     }
 
     /**
@@ -172,9 +171,11 @@ class SqliteDB implements DatabaseInterface
             return false;
         }
 
-        $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
-
-        return $this->handle->query(sprintf('DELETE FROM `%1$s` WHERE `k` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
+        $stmt = $this->handle->prepare(sprintf('DELETE FROM `%s` WHERE `k` = :k', DatabaseInterface::TABLE_NAME));
+        $stmt->bindParam(':k', $key, SQLITE3_TEXT);
+        $result = (bool) $stmt->execute();
+        $stmt->reset();
+        return $result;
     }
 
     /**
@@ -189,16 +190,13 @@ class SqliteDB implements DatabaseInterface
             return false;
         }
 
-        $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
-
-        /** @var SQLite3Result $res */
-        $res = $this->handle->query(sprintf('SELECT `k` FROM `%1$s` WHERE `k` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
-        if ($res->fetchArray(SQLITE3_NUM)) {
-            $res->finalize();
-            return true;
-        }
-        $res->finalize();
-        return false;
+        $stmt = $this->handle->prepare(sprintf('SELECT `k` FROM `%s` WHERE `k` = :k', DatabaseInterface::TABLE_NAME));
+        $stmt->bindParam(':k', $key, SQLITE3_TEXT);
+        $result = $stmt->execute();
+        $row = $result->fetchArray(SQLITE3_NUM);
+        $result->finalize();
+        $stmt->reset();
+        return (bool) $row;
     }
 
     /**
@@ -214,21 +212,21 @@ class SqliteDB implements DatabaseInterface
         if (is_null($pattern) || is_null($this->handle) || !($this->handle instanceof SQLite3)) {
             return null;
         }
-        $results = array();
 
-        /** @var SQLite3Result $res */
-        $pattern = htmlspecialchars($pattern, ENT_QUOTES | ENT_HTML401);
-
-        $res = $this->handle->query(sprintf('SELECT `k`, `v` FROM `%1$s` WHERE `k` LIKE "%2$s"', DatabaseInterface::TABLE_NAME, "%$pattern%"));
-        while ($row = $res->fetchArray(SQLITE3_NUM)) {
-            $key = htmlspecialchars_decode($row[0], ENT_QUOTES | ENT_HTML401);
-            $value = htmlspecialchars_decode($row[1], ENT_QUOTES | ENT_HTML401);
-            $results[$key] = $value;
-        }
-        $res->finalize();
+        $patternLike = "%$pattern%";
 
         // @internal Ordered by default with Berkeley database.
-        ksort($results);
+        $stmt = $this->handle->prepare(sprintf('SELECT `k`, `v` FROM `%s` WHERE `k` LIKE :pattern ORDER BY `id`', DatabaseInterface::TABLE_NAME));
+        $stmt->bindParam(':pattern', $patternLike, SQLITE3_TEXT);
+        $result = $stmt->execute();
+
+        $results = array();
+        while ($row = $result->fetchArray(SQLITE3_NUM)) {
+            $results[$row[0]] = $row[1];
+        }
+        $result->finalize();
+        $stmt->reset();
+
         return $results;
     }
 
