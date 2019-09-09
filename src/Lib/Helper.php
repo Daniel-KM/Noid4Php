@@ -144,13 +144,13 @@ class Helper
         // "E has no "0"…), so a full check is needed.
         $allCharacters = $prefix;
         foreach (str_split(substr($mask, 1, strlen($mask) - 2)) as $c) {
-            $allCharacters .= Globals::$alphabets[Globals::$alphabetChecks[$c]];
+            $allCharacters .= Globals::$alphabets[Globals::$alphabet_checks[$c]];
         }
         // Deduplicate characters.
         $allCharacters = count_chars($allCharacters, 3);
 
         // Get the smallest repertoire with all characters.
-        foreach (array_unique(Globals::$alphabetChecks) as $repertoire) {
+        foreach (array_unique(Globals::$alphabet_checks) as $repertoire) {
             if (preg_match('/^[' . preg_quote(Globals::$alphabets[$repertoire], '/') . ']+$/', $allCharacters)) {
                 return $repertoire;
             }
@@ -193,7 +193,7 @@ class Helper
         $template = preg_replace('|[/\s]+$|', '', $template);       # strip final spaces or slashes
         preg_match('|^(.*/)?([^/]+)$|', $template, $matches);
 
-//            $dirname = isset($matches[1]) ? $matches[1] : '';  # make sure $dirname is defined
+        // $dirname = isset($matches[1]) ? $matches[1] : '';  # make sure $dirname is defined
         $template = isset($matches[2]) ? $matches[2] : '';
 
         if (empty($template) || $template === '-') {
@@ -305,12 +305,12 @@ class Helper
         // Using proc_open() instead of exec() avoids an issue: current working
         // directory cannot be set properly via exec().  Note that exec() works
         // fine when executing in the web environment but fails in CLI.
-        $descriptorSpec = array(
+        $descriptor_spec = array(
             0 => array('pipe', 'r'), //STDIN
             1 => array('pipe', 'w'), //STDOUT
             2 => array('pipe', 'w'), //STDERR
         );
-        if ($proc = proc_open($cmd, $descriptorSpec, $pipes, getcwd())) {
+        if ($proc = proc_open($cmd, $descriptor_spec, $pipes, getcwd())) {
             $output = stream_get_contents($pipes[1]);
             $errors = stream_get_contents($pipes[2]);
             foreach ($pipes as $pipe) {

@@ -67,27 +67,27 @@ class DbConvertTest extends NoidTestCase
         $errors = array();
 
         // create source db newly.
-        $cmd = "{$this->cmd} -f {$this->dir} -t {$src_type} dbcreate >/dev/null";
+        $cmd = "{$this->cmd} -f {$this->data_dir} -t {$src_type} dbcreate >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
         // Mint 10 ids (0-9) in source db.
-        $cmd = "{$this->cmd} -f {$this->dir} -t {$src_type} mint 10";
+        $cmd = "{$this->cmd} -f {$this->data_dir} -t {$src_type} mint 10";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
         // create destination db.
-        $cmd = "{$this->cmd} -f {$this->dir} -t {$dst_type} dbcreate >/dev/null";
+        $cmd = "{$this->cmd} -f {$this->data_dir} -t {$dst_type} dbcreate >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
         // import all data into destination db from source.
-        $cmd = "{$this->cmd} -f {$this->dir} -t {$dst_type} dbimport {$src_type} >/dev/null";
+        $cmd = "{$this->cmd} -f {$this->data_dir} -t {$dst_type} dbimport {$src_type} >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
 
         // Mint one more in destination db, and check its value.
-        $cmd = "{$this->cmd} -f {$this->dir} -t {$dst_type} mint 1";
+        $cmd = "{$this->cmd} -f {$this->data_dir} -t {$dst_type} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
         $this->assertEquals(0, $status);
         # Remove leading "Id: ".

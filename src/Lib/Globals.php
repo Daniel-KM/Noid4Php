@@ -11,15 +11,17 @@ class Globals
     const SEQNUM_MAX = 1000000;
 
     /**
+     * Prefix for global top level of admin db variables.
+     *
      * The database must hold nearly arbitrary user-level identifiers
      * alongside various admin variables.  In order not to conflict, we
      * require all admin variables to start with ":/", eg, ":/oacounter".
      * We use "{_RR}/" frequently as our "reserved root" prefix.
      *
-     * Prefix for global top level of admin db variables
-     *
      * @internal This is a constant unavailable from outside.
-     * @const    string _RR standing "Reserved Root".
+     * _RR standing "Reserved Root".
+     *
+     * @var string
      */
     const _RR = ':';
 
@@ -51,15 +53,15 @@ class Globals
      * @var array $open_tab
      */
     public static $open_tab = array(
-        // Reference to opened databases.
+        // References to opened databases.
         'database' => array(
             '' => null,
         ),
+        // Allow to save messages when a noid is not opened.
         'msg' => array(
-            // Allow to save messages when a noid is not opened.
             '' => '',
         ),
-        // Reference to opened log files.
+        // References to opened log files.
         'log' => array(
             '' => '',
         ),
@@ -132,9 +134,9 @@ class Globals
      * The order is important, because the check character is the shortest
      * alphabet with all the characters of the prefix and the mask.
      *
-     * @var array $alphabetChecks
+     * @var array $alphabet_checks
      */
-    public static $alphabetChecks = array(
+    public static $alphabet_checks = array(
         // For compatibility purpose with Perl script, the check character is
         // "e" for masks with "d" or "e", whatever the prefix (so vowels and "l"
         // are not allowed in the prefix when there is a check character).

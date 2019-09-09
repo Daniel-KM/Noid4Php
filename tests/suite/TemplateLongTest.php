@@ -26,7 +26,7 @@ class TemplateLongTest extends NoidTestCase
      */
     public function testLong()
     {
-        $noid_cmd = $this->cmd . ' -f ' . $this->dir . ' ' . ' -t ' . self::dbtype . ' ';
+        $noid_cmd = $this->cmd . ' -f ' . $this->data_dir . ' ' . ' -t ' . self::dbtype . ' ';
         $total = 3721;
 
         # Start off by doing a dbcreate.
@@ -57,7 +57,7 @@ class TemplateLongTest extends NoidTestCase
         $this->assertFileExists($this->noid_dir . 'noid.bdb', 'Minter initialization failed, stopped');
         # echo 'NOID/noid.bdb was created';
 
-        $noid = Db::dbopen($this->dir, DatabaseInterface::DB_WRITE);
+        $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_WRITE);
         $contact = 'Fester Bestertester';
 
         $ids = array();

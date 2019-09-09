@@ -12,5 +12,5 @@ class MysqlConf
     public static $mysql_passwd = '';
     public static $mysql_dbname = 'noid';
     public static $mysql_port = 3306;
-//    static public $mysql_socket = '';
+    // static public $mysql_socket = '';
 }

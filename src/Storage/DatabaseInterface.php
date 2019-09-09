@@ -61,7 +61,7 @@ interface DatabaseInterface
      * 2. get data from source db by its get_range() invocation.
      * 3. insert 'em all here.
      *
-     * @attention when do this, the original data is erased.
+     * @warning when do this, the original data is erased.
      *
      * @param DatabaseInterface $src_db
      *

@@ -44,7 +44,7 @@ class Noid8Test extends NoidTestCase
      */
     public function testNoid8()
     {
-        $noid_cmd = $this->cmd . ' -f ' . $this->dir . ' ' . ' -t ' . self::dbtype . ' ';
+        $noid_cmd = $this->cmd . ' -f ' . $this->data_dir . ' ' . ' -t ' . self::dbtype . ' ';
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate .rde long 13030 cdlib.org noidTest";
         $this->_executeCommand($cmd, $status, $output, $errors);

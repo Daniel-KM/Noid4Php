@@ -4,7 +4,7 @@
  * Noid class's db-related functions(open/close/read/write/...) will
  * be replaced with the functions of this class.
  *
- * @Attention: we use the <string>base64-encoding</strong> here, because the keys and values may contain the special chars which is not allowed in SQL queries.
+ * @warning: we use the <string>base64-encoding</strong> here, because the keys and values may contain the special chars which is not allowed in SQL queries.
  */
 
 namespace Noid\Storage;
@@ -88,7 +88,7 @@ class MysqlDB implements DatabaseInterface
             // select the database `noid`.
             $this->handle->select_db($database);
 
-            // If the table is not exist, create it.
+            // If the table does not exist, create it.
             $this->handle->query("CREATE TABLE IF NOT EXISTS `" . DatabaseInterface::TABLE_NAME . "` (  `_key` VARCHAR(512) NOT NULL, `_value` VARCHAR(4096) DEFAULT NULL, PRIMARY KEY (`_key`))");
 
             // when create db
@@ -246,7 +246,7 @@ class MysqlDB implements DatabaseInterface
      * 2. get data from source db by its get_range() invocation.
      * 3. insert 'em all here.
      *
-     * @attention when do this, the original data is erased.
+     * @warning when do this, the original data is erased.
      *
      * @param DatabaseInterface $src_db
      *

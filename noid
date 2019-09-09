@@ -98,7 +98,7 @@ if(!class_exists('NoidApp')){
     /**
      * Main class - NoidApp
      *
-     * @attention function run()
+     * @warning function run()
      */
     class NoidApp{
         /**
@@ -106,25 +106,36 @@ if(!class_exists('NoidApp')){
          *
          * @const array OPTS
          */
-        private const OPTS = [
+        private const OPTS = array(
             'd' => 'debug', // flag
             'l:' => 'locktest:', // flag
             'f:' => 'fdbdir:', // filesystem directory name
-            't:' => 'type:', // db type - bdb, mysql, xml, json, ...
+            't:' => 'type:', // db type - bdb, mysql, xml, json…
             'v' => 'version', // flag
             'h' => 'help', // flag
-        ];
+        );
 
         /**
          * List of valid noid commands.
          *
          * @const array VALID_COMMANDS
          */
-        private const VALID_COMMANDS = [
-            'bind', 'dbinfo', 'dbcreate', 'dbimport', 'fetch', 'get',
-            'hello', 'help', 'hold', 'mint', 'note', 'peppermint',
-            'queue', 'validate',
-        ];
+        private const VALID_COMMANDS = array(
+            'bind',
+            'dbinfo',
+            'dbcreate',
+            'dbimport',
+            'fetch',
+            'get',
+            'hello',
+            'help',
+            'hold',
+            'mint',
+            'note',
+            'peppermint',
+            'queue',
+            'validate',
+        );
 
         /**
          * List of valid help topics.
@@ -133,9 +144,11 @@ if(!class_exists('NoidApp')){
          *
          * @var array
          */
-        private $_valid_help_topics = [
-            'intro', 'all', 'templates',
-        ];
+        private $_valid_help_topics = array(
+            'intro',
+            'all',
+            'templates',
+        );
 
         /**
          * Content of help topics.
@@ -147,10 +160,10 @@ if(!class_exists('NoidApp')){
         private $_info;
 
         /**
-         * @var string $dbdir where bdb/log files are placed.
+         * @var string $data_dir where bdb/log files are placed.
          *                    though mysql mode, it is used for logging.
          */
-        private $dbdir;
+        private $data_dir;
 
         /**
          * @var resource $stderr Redirect errors for web (redirect stderr to standard output).
@@ -176,7 +189,7 @@ if(!class_exists('NoidApp')){
          */
         public function run($argv)
         {
-            // this setting is just for the function strftime() in Helper::getTemper().
+            // The default date timezone allows to normalize all dates.
             date_default_timezone_set('UTC');
 
             $this->is_web = FALSE;
@@ -289,35 +302,35 @@ if(!class_exists('NoidApp')){
                 return FALSE;
             }
 
-            $this->dbdir = isset($options['fdbdir']) ? $options['fdbdir'] : NULL;
+            $this->data_dir = isset($options['fdbdir']) ? $options['fdbdir'] : NULL;
 
             // Now try to find a database directory string.
             // In the special case of dbcreate, we may create
             // and name the directory on behalf of the user.
-            if(empty($this->dbdir)){
+            if(empty($this->data_dir)){
                 if(getenv('NOID')){ // is NOID env variable defined?
-                    $this->dbdir = getenv('NOID');
+                    $this->data_dir = getenv('NOID');
                 }
                 // Executable link reveals dbdir?
                 else if(preg_match('|_([^/]+)$|', $args[0], $matches)){
-                    $this->dbdir = $matches[1];
+                    $this->data_dir = $matches[1];
                 }
                 // Else try current directory.
                 else{
-                    $this->dbdir = getcwd();
+                    $this->data_dir = __DIR__;
                 }
 
-                $this->dbdir = trim($this->dbdir);
-                if(empty($this->dbdir)){
+                $this->data_dir = trim($this->db_dir);
+                if(empty($this->data_dir)){
                     print 'Error: no DbDir' . PHP_EOL;
                     $this->usage(1, 1, 'intro');
                     return FALSE;
                 }
             }
 
-            // Now check the validity of $this->dbdir. yyy we can do better?
-            if(preg_match('|^(.*)$|', $this->dbdir, $matches)){
-                $this->dbdir = $matches[1];
+            // Now check the validity of $this->data_dir. yyy we can do better?
+            if(preg_match('|^(.*)$|', $this->data_dir, $matches)){
+                $this->data_dir = $matches[1];
             }
             else{
                 print('Error: bad DbDir' . PHP_EOL);
@@ -382,12 +395,12 @@ if(!class_exists('NoidApp')){
                 $this->usage(1, 1, 'intro');
                 return 0;
             }
-            if(!is_dir($this->dbdir)
+            if(!is_dir($this->data_dir)
                 && $command != 'dbcreate'
                 && $command != 'help'
             ){
                 // if the database doesn't exist when it needs to
-                fwrite($this->stderr, sprintf('Error: no storage path (%s) -- use dbcreate?', $this->dbdir) . PHP_EOL . PHP_EOL);
+                fwrite($this->stderr, sprintf('Error: no storage path (%s) -- use dbcreate?', $this->data_dir) . PHP_EOL . PHP_EOL);
                 $this->usage(1, 1, 'intro');
                 return 0;
             }
@@ -429,7 +442,7 @@ if(!class_exists('NoidApp')){
         public function bind($how = NULL, $id = NULL, $elem = NULL, $value = NULL)
         {
             $validate = 1;
-            $noid = Db::dbopen($this->dbdir, DatabaseInterface::DB_WRITE);
+            $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_WRITE);
             if(!$noid){
                 fwrite($this->stderr, Log::errmsg($noid));
                 return 0;
@@ -590,7 +603,7 @@ if(!class_exists('NoidApp')){
          */
         public function dbcreate($template = NULL, $policy = NULL, $naan = NULL, $naa = NULL, $subnaa = NULL)
         {
-            $dbreport = Db::dbcreate($this->dbdir, $this->contact, $template, $policy,
+            $dbreport = Db::dbcreate($this->data_dir, $this->contact, $template, $policy,
                 $naan, $naa, $subnaa);
             if(!$dbreport){
                 print Log::errmsg() . PHP_EOL;
@@ -625,7 +638,7 @@ if(!class_exists('NoidApp')){
             }
 
             print sprintf('Importing from %1$s to %2$s… ', $src_type, Globals::$db_type);
-            if(!Db::dbimport($this->dbdir, $src_type)){
+            if(!Db::dbimport($this->data_dir, $src_type)){
                 print "[failed]" . PHP_EOL;
                 return 0;
             }
@@ -646,7 +659,7 @@ if(!class_exists('NoidApp')){
             if(empty($level)){
                 $level = 'brief';
             }
-            $noid = Db::dbopen($this->dbdir, DatabaseInterface::DB_RDONLY);
+            $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_RDONLY);
             if(!$noid){
                 print Log::errmsg($noid);
                 return 0;
@@ -706,7 +719,7 @@ if(!class_exists('NoidApp')){
          */
         private function _getfetch($verbose, $id, $elems)
         {
-            $noid = Db::dbopen($this->dbdir, DatabaseInterface::DB_RDONLY);
+            $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_RDONLY);
             if(!$noid){
                 fwrite($this->stderr, Log::errmsg($noid));
                 return 0;
@@ -735,7 +748,7 @@ if(!class_exists('NoidApp')){
          */
         public function get_note($key)
         {
-            $noid = Db::dbopen($this->dbdir, DatabaseInterface::DB_RDONLY);
+            $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_RDONLY);
             if(!$noid){
                 fwrite($this->stderr, Log::errmsg($noid));
                 return 0;
@@ -797,7 +810,7 @@ if(!class_exists('NoidApp')){
                 array_shift($ids);
             }
 
-            $noid = Db::dbopen($this->dbdir, DatabaseInterface::DB_WRITE);
+            $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_WRITE);
             if(!$noid){
                 fwrite($this->stderr, Log::errmsg($noid));
                 return 0;
@@ -854,7 +867,7 @@ if(!class_exists('NoidApp')){
                 $this->usage(1, 1, 'mint');
                 return 0;
             }
-            $noid = Db::dbopen($this->dbdir, DatabaseInterface::DB_WRITE);
+            $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_WRITE);
 
             if(!$noid){
                 print Log::errmsg($noid);
@@ -891,7 +904,7 @@ if(!class_exists('NoidApp')){
                 $this->usage(1, 1, 'note');
                 return 0;
             }
-            $noid = Db::dbopen($this->dbdir, DatabaseInterface::DB_WRITE);
+            $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_WRITE);
             if(!Log::note($noid, $this->contact, $key, $value)){
                 print Log::errmsg($noid);
             }
@@ -915,7 +928,7 @@ if(!class_exists('NoidApp')){
                 array_shift($ids);
             }
 
-            $noid = Db::dbopen($this->dbdir, DatabaseInterface::DB_WRITE);
+            $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_WRITE);
             if(!$noid){
                 fwrite($this->stderr, Log::errmsg($noid));
                 return 0;
@@ -954,7 +967,7 @@ if(!class_exists('NoidApp')){
                 array_shift($ids);
             }
 
-            $noid = Db::dbopen($this->dbdir, DatabaseInterface::DB_RDONLY);
+            $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_RDONLY);
             if(!$noid){
                 print Log::errmsg($noid);
                 return 0;
@@ -1077,7 +1090,7 @@ if(!class_exists('NoidApp')){
                     foreach(Globals::DB_TYPES as $key => $item){
                         $msg .= "{$key}, ";
                     }
-                    $msg .= ' ...';
+                    $msg .= '…';
                     $this->_bprint($out, $msg);
                     print(PHP_EOL . PHP_EOL);
                     return 1;

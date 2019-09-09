@@ -22,24 +22,24 @@ class NoidTestCase extends TestCase
 {
     const NOID_BIN = 'blib/script/noid';
 
-    public $dir;
-    public $rm_cmd;
     public $cmd;
+    public $rm_cmd;
+    public $data_dir;
     public $noid_dir;
 
     public function setUp()
     {
-        $this->dir = getcwd() . DIRECTORY_SEPARATOR . 'datafiles';
-        $this->rm_cmd = "rm -rf {$this->dir}/NOID > /dev/null 2>&1 ";
+        $this->data_dir = getcwd() . DIRECTORY_SEPARATOR . 'datafiles';
+        $this->rm_cmd = "rm -rf {$this->data_dir}/NOID > /dev/null 2>&1 ";
         if (is_executable(self::NOID_BIN)) {
             $this->cmd = self::NOID_BIN;
         } else {
-            $this->cmd = getcwd() . DIRECTORY_SEPARATOR . 'noid';
+            $this->cmd = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'noid';
             if (!is_executable($this->cmd)) {
                 $this->cmd = 'php ' . $this->cmd;
             }
         }
-        $this->noid_dir = $this->dir . DIRECTORY_SEPARATOR . 'NOID' . DIRECTORY_SEPARATOR;
+        $this->noid_dir = $this->data_dir . DIRECTORY_SEPARATOR . 'NOID' . DIRECTORY_SEPARATOR;
 
         require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Noid.php';
     }
@@ -174,7 +174,7 @@ class NoidTestCase extends TestCase
     {
         Globals::$db_type = 'bdb';
 
-        $report = Db::dbcreate($this->dir, 'jak', $template, 'short');
+        $report = Db::dbcreate($this->data_dir, 'jak', $template, 'short');
         $errmsg = Log::errmsg(null, 1);
         if ($return == 'stdout' || $return == 'stderr') {
             $this->assertEmpty($report, sprintf('should output an error: %s', $errmsg));

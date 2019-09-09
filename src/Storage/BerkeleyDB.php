@@ -62,15 +62,15 @@ class BerkeleyDB implements DatabaseInterface
     }
 
     /**
-     * @param string $db_dir
+     * @param string $data_dir
      * @param string $mode
      *
      * @return resource|FALSE
      * @throws Exception
      */
-    public function open($db_dir, $mode)
+    public function open($data_dir, $mode)
     {
-        $path = $db_dir . DIRECTORY_SEPARATOR . DatabaseInterface::DATABASE_NAME;
+        $path = $data_dir . DIRECTORY_SEPARATOR . DatabaseInterface::DATABASE_NAME;
         $file_path = $path . DIRECTORY_SEPARATOR . DatabaseInterface::TABLE_NAME . '.' . self::FILE_EXT;
 
         $envflags = self::BDB_INIT_LOCK | self::BDB_INIT_TXN | self::BDB_INIT_MPOOL;
@@ -78,12 +78,12 @@ class BerkeleyDB implements DatabaseInterface
         // In create mode, if file existed, fail.
         if (strpos(strtolower($mode), DatabaseInterface::DB_CREATE) !== false) {
             if (file_exists($file_path)) {
-                $descriptorSpec = array(
+                $descriptor_spec = array(
                     0 => array('pipe', 'r'), //STDIN
                     1 => array('pipe', 'w'), //STDOUT
                     2 => array('pipe', 'w'), //STDERR
                 );
-                if ($proc = proc_open('rm -f ' . $file_path . ' > /dev/null 2>&1', $descriptorSpec, $pipes, getcwd())) {
+                if ($proc = proc_open('rm -f ' . $file_path . ' > /dev/null 2>&1', $descriptor_spec, $pipes, getcwd())) {
                     $output = stream_get_contents($pipes[1]);
                     $errors = stream_get_contents($pipes[2]);
                     foreach ($pipes as $pipe) {
@@ -240,7 +240,7 @@ class BerkeleyDB implements DatabaseInterface
      * 2. get data from source db by its get_range() invocation.
      * 3. insert 'em all here.
      *
-     * @attention when do this, the original data is erased.
+     * @warning when do this, the original data is erased.
      *
      * @param DatabaseInterface $src_db
      *

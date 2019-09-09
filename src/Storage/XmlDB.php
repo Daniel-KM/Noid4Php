@@ -64,15 +64,15 @@ class XmlDB implements DatabaseInterface
     }
 
     /**
-     * @param string $db_dir
+     * @param string $data_dir
      * @param string $mode
      *
      * @return SimpleXMLElement|FALSE
      * @throws Exception
      */
-    public function open($db_dir, $mode)
+    public function open($data_dir, $mode)
     {
-        $path = $db_dir . DIRECTORY_SEPARATOR . DatabaseInterface::DATABASE_NAME;
+        $path = $data_dir . DIRECTORY_SEPARATOR . DatabaseInterface::DATABASE_NAME;
         $this->file_path = $path . DIRECTORY_SEPARATOR . DatabaseInterface::TABLE_NAME . '.' . self::FILE_EXT;
 
         // create mode
@@ -246,7 +246,7 @@ class XmlDB implements DatabaseInterface
      * 2. get data from source db by its get_range() invocation.
      * 3. insert 'em all here.
      *
-     * @attention when do this, the original data is erased.
+     * @warning when do this, the original data is erased.
      *
      * @param DatabaseInterface $src_db
      *

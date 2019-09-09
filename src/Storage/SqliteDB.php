@@ -4,7 +4,7 @@
  * Noid class's db-related functions(open/close/read/write/...) will
  * be replaced with the functions of this class.
  *
- * @Attention: we use the <string>base64-encoding</strong> here, because the keys and values may contain the special chars which is not allowed in SQL queries.
+ * @warning: we use the <string>base64-encoding</strong> here, because the keys and values may contain the special chars which is not allowed in SQL queries.
  */
 
 namespace Noid\Storage;
@@ -45,15 +45,15 @@ class SqliteDB implements DatabaseInterface
     }
 
     /**
-     * @param string $db_dir
+     * @param string $data_dir
      * @param string $mode
      *
      * @return SQLite3|FALSE
      * @throws Exception
      */
-    public function open($db_dir, $mode)
+    public function open($data_dir, $mode)
     {
-        $path = $db_dir . DIRECTORY_SEPARATOR . DatabaseInterface::DATABASE_NAME;
+        $path = $data_dir . DIRECTORY_SEPARATOR . DatabaseInterface::DATABASE_NAME;
         $file_path = $path . DIRECTORY_SEPARATOR . DatabaseInterface::TABLE_NAME . '.' . self::FILE_EXT;
 
         if (!is_null($this->handle) && $this->handle instanceof SQLite3) {
@@ -63,7 +63,7 @@ class SqliteDB implements DatabaseInterface
         $this->handle = new SQLite3($file_path);
         // create mode
         if (strpos(strtolower($mode), DatabaseInterface::DB_CREATE) !== false) {
-            // If the table is not exist, create it.
+            // If the table does not exist, create it.
             $this->handle->exec("CREATE TABLE IF NOT EXISTS `" . DatabaseInterface::TABLE_NAME . "` (  `_key` VARCHAR(512) NOT NULL, `_value` VARCHAR(4096) DEFAULT NULL, PRIMARY KEY (`_key`))");
 
             // if create mode, truncate the table records.
@@ -208,7 +208,7 @@ class SqliteDB implements DatabaseInterface
      * 2. get data from source db by its get_range() invocation.
      * 3. insert 'em all here.
      *
-     * @attention when do this, the original data is erased.
+     * @warning when do this, the original data is erased.
      *
      * @param DatabaseInterface $src_db
      *

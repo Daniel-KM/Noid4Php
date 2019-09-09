@@ -33,7 +33,7 @@ class NoidBindTest extends NoidTestCase
         $this->assertNotEmpty(preg_match($regex, $erc));
         # echo '2-digit sequential';
 
-        $noid = Db::dbopen($this->dir, DatabaseInterface::DB_WRITE);
+        $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_WRITE);
         $contact = 'Fester Bestertester';
 
         Noid::mint($noid, $contact, 0);
@@ -67,7 +67,7 @@ class NoidBindTest extends NoidTestCase
         $this->assertNotEmpty(preg_match($regex, $erc));
         # echo '2-digit sequential';
 
-        $noid = Db::dbopen($this->dir, DatabaseInterface::DB_WRITE);
+        $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_WRITE);
         $contact = 'Fester Bestertester';
 
         $id = Noid::mint($noid, $contact, '');
@@ -115,7 +115,7 @@ class NoidBindTest extends NoidTestCase
         $this->assertNotEmpty(preg_match($regex, $erc));
         # echo '4-digit random';
 
-        $noid = Db::dbopen($this->dir, DatabaseInterface::DB_WRITE);
+        $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_WRITE);
         $contact = 'Fester Bestertester';
 
         $id = Noid::mint($noid, $contact, 0);
@@ -151,7 +151,7 @@ class NoidBindTest extends NoidTestCase
         $this->assertNotEmpty(preg_match($regex, $erc));
         # echo '4-digit random';
 
-        $noid = Db::dbopen($this->dir, DatabaseInterface::DB_WRITE);
+        $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_WRITE);
         $contact = 'Fester Bestertester';
 
         $id = Noid::mint($noid, $contact, 0);
@@ -229,7 +229,7 @@ class NoidBindTest extends NoidTestCase
                 sprintf('Template "%s" is not unlimited.', $template));
             # echo '4-digit random';
 
-            $noid = Db::dbopen($this->dir, DatabaseInterface::DB_WRITE);
+            $noid = Db::dbopen($this->data_dir, DatabaseInterface::DB_WRITE);
             $contact = 'Fester Bestertester';
 
             $id = Noid::mint($noid, $contact, 0);

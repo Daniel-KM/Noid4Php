@@ -38,7 +38,7 @@ class Db
     /**
      * Returns a short printable message on success, null on error.
      *
-     * @param string $dbdir
+     * @param string $data_dir
      * @param string $contact
      * @param string $template
      * @param string $term
@@ -49,7 +49,7 @@ class Db
      * @return string
      * @throws Exception
      */
-    public static function dbcreate($dbdir, $contact, $template = null, $term = '-', $naan = '', $naa = '', $subnaa = '')
+    public static function dbcreate($data_dir, $contact, $template = null, $term = '-', $naan = '', $naa = '', $subnaa = '')
     {
         Noid::init();
 
@@ -116,19 +116,21 @@ class Db
             return null;
         }
 
-        $noid = self::dbopen($dbdir, DatabaseInterface::DB_CREATE);
+        $noid = self::dbopen($data_dir, DatabaseInterface::DB_CREATE);
         if (!$noid) {
             Log::addmsg(null, sprintf(
                 'Error: a NOID database can not be created in: %1$s.' . PHP_EOL
                 . "\t" . 'To permit creation of a new minter, rename' . PHP_EOL
                 . "\t" . 'or remove the entire %2$s subdirectory.',
-                $dbdir, DatabaseInterface::DATABASE_NAME
+                $data_dir, DatabaseInterface::DATABASE_NAME
             ));
             return null;
         }
 
         # Create a log file from scratch and make them writable
-        $db_path = ($dbdir == '.' ? getcwd() : $dbdir) . DIRECTORY_SEPARATOR . DatabaseInterface::DATABASE_NAME;
+        $db_path = ($data_dir === '.'
+            ? dirname(dirname(__DIR__))
+            : $data_dir) . DIRECTORY_SEPARATOR . DatabaseInterface::DATABASE_NAME;
         if (!file_put_contents("$db_path/log", ' ') || !chmod("$db_path/log", 0666)) {
             Log::addmsg(null, sprintf(
                 'Couldn’t chmod log file: %s/log',
@@ -252,9 +254,9 @@ class Db
         #
         $host = gethostname();
 
-        $cwd = $dbdir;   # by default, assuming $dbdir is absolute path
-        if (substr($dbdir, 0, 1) !== '/') {
-            $cwd = getcwd() . '/' . $dbdir;
+        $cwd = $data_dir;   # by default, assuming $db_dir is absolute path
+        if (substr($data_dir, 0, 1) !== '/') {
+            $cwd = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . $data_dir;
         }
 
         # Adjust some empty values for short-term display purposes.
@@ -296,6 +298,7 @@ class Db
         $erc =
             "# Creation record for the identifier generator by " . str_replace('\\', '.', get_class(self::$engine)) . ".
 # All the logs are placed in " . $db_path . ".
+#
 erc:
 who:       $contact
 what:      $what
@@ -351,7 +354,7 @@ NAAN:      $naan
      * @internal The Perl script returns noid: a listref.
      * @todo     Berkeley specific environment flags are not supported.
      *
-     * @param string $dbdir
+     * @param string $data_dir
      * @param string $flags
      * Can be DB_RDONLY, DB_CREATE, or DB_WRITE (the default).
      * Support for perl script: DB_RDONLY, DB_CREAT and DB_RDWR, without bit
@@ -360,7 +363,7 @@ NAAN:      $naan
      * @return string
      * @throws Exception
      */
-    public static function dbopen($dbdir, $flags = DatabaseInterface::DB_WRITE)
+    public static function dbopen($data_dir, $flags = DatabaseInterface::DB_WRITE)
     {
         Noid::init();
 
@@ -378,7 +381,7 @@ NAAN:      $naan
             return null;
         }
 
-        $envhome = $dbdir . DIRECTORY_SEPARATOR . DatabaseInterface::DATABASE_NAME . DIRECTORY_SEPARATOR;
+        $envhome = $data_dir . DIRECTORY_SEPARATOR . DatabaseInterface::DATABASE_NAME . DIRECTORY_SEPARATOR;
         if (!is_dir($envhome) && !mkdir($envhome, 0755, true)) {
             $error = error_get_last();
             throw new Exception(sprintf(
@@ -389,11 +392,11 @@ NAAN:      $naan
 
         $mode = $flags . self::$_db_lock;
 
-        $db = @self::$engine->open($dbdir, $mode);
+        $db = @self::$engine->open($data_dir, $mode);
         if ($db === false) {
             Log::addmsg(null, sprintf(
                 'Failed to open database in directory "%s".',
-                $dbdir
+                $data_dir
             ));
             return null;
         }
@@ -420,7 +423,7 @@ NAAN:      $naan
         $log_opened = $logfhandle !== false;
         # yyy should we complain if can't open log file?
 
-        $noid = $dbdir;
+        $noid = $data_dir;
 
         # yyy how to set error code or return string?
         #   or die("Can't open database file: $!\n");
@@ -464,21 +467,22 @@ NAAN:      $naan
     /**
      * Import data from other source.
      *
-     * @param string $dbdir
+     * Assume followings
+     * - both source and destination db are placed in same directory.
+     * - their db names are same, and the table name (for Mysql) and file name
+     *   (for Berkeley or XML) too.
+     *
+     * @param string $data_dir
      * @param string $src_type
      *
      * @return bool
      * @throws Exception
      */
-    public static function dbimport($dbdir, $src_type)
+    public static function dbimport($data_dir, $src_type)
     {
-        // Assume followings
-        // 1. both source and destination db are placed in same directory.
-        // 2. their db names are same, and the table name (for Mysql) and file name (for Berkeley or XML) too.
-
         // initialize this database.
         Noid::init();
-        if (!self::$engine->open($dbdir, DatabaseInterface::DB_WRITE)) {
+        if (!self::$engine->open($data_dir, DatabaseInterface::DB_WRITE)) {
             throw new Exception(
                 'The destination database does not exist.'
             );
@@ -490,10 +494,10 @@ NAAN:      $naan
         require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Storage' . DIRECTORY_SEPARATOR . $db_class_file . '.php';
         /** @var DatabaseInterface $src_engine */
         $src_engine = new $db_class();
-        if (!$src_engine->open($dbdir, DatabaseInterface::DB_RDONLY)) {
+        if (!$src_engine->open($data_dir, DatabaseInterface::DB_RDONLY)) {
             throw new Exception(sprintf(
                 'The source database does not exist in %s.',
-                $dbdir
+                $data_dir
             ));
         }
 
@@ -691,7 +695,7 @@ NAAN:      $naan
         }
         self::$engine->set(Globals::_RR . "/saclist", $saclist);
         self::$engine->set(Globals::_RR . "/siclist", '');
-//            $n--; // commented by Daniel Berthereau
+        $n--;
 
         self::_dbunlock();
     }
