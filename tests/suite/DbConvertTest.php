@@ -8,10 +8,50 @@ class DbConvertTest extends NoidTestCase
 {
     public function testPhpExtensions()
     {
-        $this->assertEquals(true, extension_loaded('dba'));
-        $this->assertEquals(true, extension_loaded('mysqli') && class_exists('mysqli'));
-        $this->assertEquals(true, extension_loaded('sqlite3') && class_exists('SQLite3'));
-        $this->assertEquals(true, extension_loaded('xml'));
+        $this->assertEquals(true, extension_loaded('dba'), 'Extension "dba" unavailable: no BerkeleyDB.');
+        $this->assertEquals(true, class_exists('mysqli'), 'Extension "mysql" or "mysqli" unavailable: no mysql.');
+        $this->assertEquals(true, class_exists('SQLite3'), 'Extension "sqlite3" unavailable: no sqlite3.');
+        $this->assertEquals(true, extension_loaded('xml'), 'Extension "xml" unavailable: no xml.');
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function testDatabaseConvertingBerkeley()
+    {
+        $this->atomicConverting('bdb', 'mysql');
+        $this->atomicConverting('bdb', 'sqlite');
+        $this->atomicConverting('bdb', 'xml');
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function testDatabaseConvertingMysql()
+    {
+        $this->atomicConverting('mysql', 'bdb');
+        $this->atomicConverting('mysql', 'sqlite');
+        $this->atomicConverting('mysql', 'xml');
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function testDatabaseConvertingSqlite()
+    {
+        $this->atomicConverting('sqlite', 'bdb');
+        $this->atomicConverting('sqlite', 'mysql');
+        $this->atomicConverting('sqlite', 'xml');
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function testDatabaseConvertingXml()
+    {
+        $this->atomicConverting('xml', 'bdb');
+        $this->atomicConverting('xml', 'sqlite');
+        $this->atomicConverting('xml', 'mysql');
     }
 
     /**
@@ -20,8 +60,12 @@ class DbConvertTest extends NoidTestCase
      *
      * @throws \Exception
      */
-    public function testAtomicConverting($src_type = 'bdb', $dst_type = 'mysql')
+    protected function atomicConverting($src_type = 'bdb', $dst_type = 'mysql')
     {
+        $status = 0;
+        $output = '';
+        $errors = array();
+
         // create source db newly.
         $cmd = "{$this->cmd} -f {$this->dir} -t {$src_type} dbcreate >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
@@ -56,23 +100,5 @@ class DbConvertTest extends NoidTestCase
         #is($noid, "10", "last noid was \"9\"");
         $this->assertEquals('10', $noid);
         # echo 'last noid was "10"';
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function testDatabaseConverting()
-    {
-        // Convert from berkeley to others.
-        $this->testAtomicConverting('bdb', 'mysql');
-        $this->testAtomicConverting('bdb', 'sqlite');
-
-        // Convert from mysql to others.
-        $this->testAtomicConverting('mysql', 'bdb');
-        $this->testAtomicConverting('mysql', 'sqlite');
-
-        // Convert from sqlite to others.
-        $this->testAtomicConverting('sqlite', 'bdb');
-        $this->testAtomicConverting('sqlite', 'mysql');
     }
 }
