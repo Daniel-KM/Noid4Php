@@ -254,14 +254,22 @@ class SqliteDB implements DatabaseInterface
 
         // 2. get data from source database.
         $imported_data = $src_db->get_range('');
-        if (count($imported_data) == 0) {
+        if (count($imported_data) === 0) {
             return false;
         }
 
         // 3. write 'em all into this database.
-        foreach ($imported_data as $k => $v) {
-            $this->set($k, $v);
+        // The database is empty and the input is an associative array, so no
+        // need to check via $this->set().
+        $key = '';
+        $value = '';
+        $stmt = $this->handle->prepare(sprintf('REPLACE INTO `%s` (`k`, `v`) VALUES (:k, :v)', DatabaseInterface::TABLE_NAME));
+        $stmt->bindParam(':k', $key, SQLITE3_TEXT);
+        $stmt->bindParam(':v', $value, SQLITE3_TEXT);
+        foreach ($imported_data as $key => $value) {
+            $stmt->execute();
         }
+        $stmt->reset();
 
         return true;
     }

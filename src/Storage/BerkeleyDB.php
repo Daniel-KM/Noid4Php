@@ -295,8 +295,10 @@ class BerkeleyDB implements DatabaseInterface
         }
 
         // 3. write 'em all into this database.
-        foreach ($imported_data as $k => $v) {
-            $this->set($k, $v);
+        // The database is empty and the input is an associative array, so no
+        // need to check via $this->set().
+        foreach ($imported_data as $key => $value) {
+            dba_replace($key, (string) $value, $this->handle);
         }
 
         return true;
