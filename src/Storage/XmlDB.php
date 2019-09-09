@@ -19,15 +19,13 @@ use SimpleXMLElement;
 class XmlDB implements DatabaseInterface
 {
     /**
-     * XML-formatted storage:
+     * XML-formatted storage of stored items:
      *
+     * ```xml
      * <noid>
-     *    <item k='key string encoded by base64'>
-     *        <v>value string encoded by base64</v>
-     *    </item>
+     *    <i k="key">value</i>
      * </noid>
-     *
-     * we use the base64-encoding for the key and value, cos it's safe and familiar to XML.
+     * ```
      */
 
     /**
@@ -142,15 +140,12 @@ class XmlDB implements DatabaseInterface
      */
     public function get($key)
     {
-        // internally, the encoded key is used.
-        $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
-
         // xml xpath searching...
-        $item = $this->handle->xpath('//noid/item[@k="' . $key . '"]');
+        $item = $this->handle->xpath('//noid/i[@k="' . $key . '"]');
 
         // found it.
         if (count($item) > 0) {
-            return htmlspecialchars_decode($item[0][0]->v, ENT_QUOTES | ENT_HTML401);
+            return (string) $item[0][0];
         }
 
         return false; // oh, no.
@@ -165,10 +160,7 @@ class XmlDB implements DatabaseInterface
      */
     public function set($key, $value)
     {
-        $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
-        $value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML401);
-
-        $item = $this->handle->xpath('//noid/item[@k="' . $key . '"]');
+        $item = $this->handle->xpath('//noid/i[@k="' . $key . '"]');
 
         // if it exists, remove it... for unique keying.
         if (count($item) > 0) {
@@ -179,9 +171,8 @@ class XmlDB implements DatabaseInterface
         /**
          * @var SimpleXMLElement $item_node
          */
-        $item_node = $this->handle->addChild('item');
+        $item_node = $this->handle->addChild('i', $value);
         $item_node->addAttribute('k', $key);
-        $item_node->addChild('v', $value);
 
         return true;
     }
@@ -194,10 +185,8 @@ class XmlDB implements DatabaseInterface
      */
     public function delete($key)
     {
-        $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
-
         // refer to: set()
-        $item = $this->handle->xpath('//noid/item[@k="' . $key . '"]');
+        $item = $this->handle->xpath('//noid/i[@k="' . $key . '"]');
 
         // found it.
         if (count($item) > 0) {
@@ -218,11 +207,9 @@ class XmlDB implements DatabaseInterface
      */
     public function exists($key)
     {
-        $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
-
         // find
 
-        $item = $this->handle->xpath('//noid/item[@k="' . $key . '"]');
+        $item = $this->handle->xpath('//noid/i[@k="' . $key . '"]');
 
         // found it.
         if (count($item) > 0) {
@@ -249,20 +236,14 @@ class XmlDB implements DatabaseInterface
         // a variable to be returned.
         $results = array();
 
-        $pattern = htmlspecialchars($pattern, ENT_QUOTES | ENT_HTML401);
-
         // find all the records contained the specific pattern.
-        $items = $this->handle->xpath("//noid/item[contains(@k, '" . $pattern . "')]");
+        $items = $this->handle->xpath("//noid/i[contains(@k, '" . $pattern . "')]");
 
         // keep 'em all.
         foreach ($items as $item) {
             if (isset($item['k'])) {
-                $key = htmlspecialchars_decode($item['k'], ENT_QUOTES | ENT_HTML401);
-                if (isset($item->v)) {
-                    $value = htmlspecialchars_decode($item->v, ENT_QUOTES | ENT_HTML401);
-                } else {
-                    $value = '';
-                }
+                $key = (string) $item['k'];
+                $value = (string) $item;
                 $results[$key] = $value;
             }
         }
