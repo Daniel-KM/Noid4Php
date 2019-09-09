@@ -46,13 +46,13 @@ class Noid8Test extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate .rde long 13030 cdlib.org noidTest";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Do dbcreate.
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate .rddk long 13030 cdlib.org noidTest";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
@@ -64,7 +64,7 @@ class Noid8Test extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate .rddk long 00000 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
@@ -76,7 +76,7 @@ class Noid8Test extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate .sddk long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
@@ -88,7 +88,7 @@ class Noid8Test extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate tst8.rdek long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
@@ -100,7 +100,7 @@ class Noid8Test extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate .rddk medium 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
@@ -112,7 +112,7 @@ class Noid8Test extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate r-r.rdd long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
@@ -124,7 +124,7 @@ class Noid8Test extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate .rdd long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
@@ -136,7 +136,7 @@ class Noid8Test extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate a.rdd long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
@@ -148,7 +148,7 @@ class Noid8Test extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate a-a.seeeeee medium 00000 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');

@@ -49,7 +49,7 @@ class Noid5Test extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate tst5.rde long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Check that the "NOID" subdirectory was created.
         $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
@@ -75,7 +75,7 @@ class Noid5Test extends NoidTestCase
         # Try binding the 3rd identifier to be minted.
         $cmd = "{$noid_cmd} bind set 13030/tst594 element value 2>&1";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         $noid_output = explode(PHP_EOL, $output);
         $noid_output = array_map('trim', $noid_output);

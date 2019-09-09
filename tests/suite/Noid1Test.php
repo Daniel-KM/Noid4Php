@@ -55,7 +55,7 @@ class Noid1Test extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate tst1.rde long 13030 cdlib.org noidTest > /dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Check that the "NOID" subdirectory was created.
         $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
@@ -81,7 +81,7 @@ class Noid1Test extends NoidTestCase
         # Mint all but the last two of 290.
         $cmd = "{$noid_cmd} mint 288";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Clean up each output line.
         $noid_output = explode(PHP_EOL, $output);
@@ -104,7 +104,7 @@ class Noid1Test extends NoidTestCase
         # Mint the next to last one.
         $cmd = "{$noid_cmd} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
         # Remove leading "Id: ".
         $noid = preg_replace('/^Id:\s+/', '', $output);
         $this->assertNotEmpty($noid);
@@ -122,7 +122,7 @@ class Noid1Test extends NoidTestCase
         # be released first.
         $cmd = "{$noid_cmd} queue now $save_noid[0] 2>&1";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Verify that it won't let me.
         $noidOutput0 = trim($output);
@@ -133,17 +133,17 @@ class Noid1Test extends NoidTestCase
         # Release the hold on the 3 minted noids.
         $cmd = "{$noid_cmd} hold release $save_noid[0] $save_noid[1] $save_noid[2] > /dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Queue those 3.
         $cmd = "{$noid_cmd} queue now $save_noid[0] $save_noid[1] $save_noid[2] > /dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Mint them.
         $cmd = "{$noid_cmd} mint 3";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Clean up each line.
         $noid_output = explode(PHP_EOL, $output);
@@ -170,7 +170,7 @@ class Noid1Test extends NoidTestCase
         # Mint the last one.
         $cmd = "{$noid_cmd} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
         # Remove leading "Id: ".
         $noid = preg_replace('/^Id:\s+/', '', $output);
         $this->assertNotEmpty($noid);
@@ -187,7 +187,7 @@ class Noid1Test extends NoidTestCase
         # Try to mint another, after they are exhausted.
         $cmd = "{$noid_cmd} mint 1 2>&1";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Clean up each line.
         $noidOutput0 = trim($output);

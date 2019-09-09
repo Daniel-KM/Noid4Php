@@ -57,7 +57,7 @@ class Noid6Test extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate tst6.rde long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Check that the "NOID" subdirectory was created.
         $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
@@ -83,7 +83,7 @@ class Noid6Test extends NoidTestCase
         # Mint one.
         $cmd = "{$noid_cmd} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         $noid_output = explode(PHP_EOL, $output);
         $noid_output = array_map('trim', $noid_output);
@@ -124,7 +124,7 @@ class Noid6Test extends NoidTestCase
         # Now, run the "fetch" command to get it all back.
         $cmd = "{$noid_cmd} fetch $bound_noid";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         $noid_output = explode(PHP_EOL, $output);
         $this->assertGreaterThanOrEqual(1, count($noid_output));

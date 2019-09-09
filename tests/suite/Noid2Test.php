@@ -49,7 +49,7 @@ class Noid2Test extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate tst2.rde long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Check that the "NOID" subdirectory was created.
         $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
@@ -75,7 +75,7 @@ class Noid2Test extends NoidTestCase
         # Try to queue one.
         $cmd = "{$noid_cmd} queue now 13030/tst27h >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Examine the contents of the log.
         $fh = fopen($this->noid_dir . 'log', 'r');

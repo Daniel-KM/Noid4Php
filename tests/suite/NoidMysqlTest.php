@@ -53,7 +53,7 @@ class NoidMysqlTest extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate tst1.rde long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Check that the "NOID" subdirectory was created.
         $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
@@ -73,7 +73,7 @@ class NoidMysqlTest extends NoidTestCase
         # Mint all but the last two of 290.
         $cmd = "{$noid_cmd} mint 288";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Clean up each output line.
         $noid_output = explode(PHP_EOL, $output);
@@ -96,7 +96,7 @@ class NoidMysqlTest extends NoidTestCase
         # Mint the next to last one.
         $cmd = "{$noid_cmd} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
         # Remove leading "Id: ".
         $noid = preg_replace('/^Id:\s+/', '', $output);
         $this->assertNotEmpty($noid);
@@ -114,7 +114,7 @@ class NoidMysqlTest extends NoidTestCase
         # be released first.
         $cmd = "{$noid_cmd} queue now $save_noid[0] 2>&1";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Verify that it won't let me.
         $noidOutput0 = trim($output);
@@ -125,17 +125,17 @@ class NoidMysqlTest extends NoidTestCase
         # Release the hold on the 3 minted noids.
         $cmd = "{$noid_cmd} hold release $save_noid[0] $save_noid[1] $save_noid[2] > /dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Queue those 3.
         $cmd = "{$noid_cmd} queue now $save_noid[0] $save_noid[1] $save_noid[2] > /dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Mint them.
         $cmd = "{$noid_cmd} mint 3";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Clean up each line.
         $noid_output = explode(PHP_EOL, $output);
@@ -162,7 +162,7 @@ class NoidMysqlTest extends NoidTestCase
         # Mint the last one.
         $cmd = "{$noid_cmd} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
         # Remove leading "Id: ".
         $noid = preg_replace('/^Id:\s+/', '', $output);
         $this->assertNotEmpty($noid);
@@ -179,7 +179,7 @@ class NoidMysqlTest extends NoidTestCase
         # Try to mint another, after they are exhausted.
         $cmd = "{$noid_cmd} mint 1 2>&1";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Clean up each line.
         $noidOutput0 = trim($output);
@@ -222,7 +222,7 @@ class NoidMysqlTest extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate tst2.rde long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Check that the "NOID" subdirectory was created.
         $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
@@ -242,7 +242,7 @@ class NoidMysqlTest extends NoidTestCase
         # Try to queue one.
         $cmd = "{$noid_cmd} queue now 13030/tst27h >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Examine the contents of the log.
         $fh = fopen($this->noid_dir . 'log', 'r');
@@ -307,7 +307,7 @@ class NoidMysqlTest extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate tst3.rde long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Check that the "NOID" subdirectory was created.
         $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
@@ -327,12 +327,12 @@ class NoidMysqlTest extends NoidTestCase
         # Hold first and second identifiers.
         $cmd = "{$noid_cmd} hold set 13030/tst31q 13030/tst30f > /dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Mint 1.
         $cmd = "{$noid_cmd} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Verify that it's the third one.
         $noid_output = trim($output);
@@ -376,7 +376,7 @@ class NoidMysqlTest extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate tst4.rde long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Check that the "NOID" subdirectory was created.
         $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
@@ -396,22 +396,22 @@ class NoidMysqlTest extends NoidTestCase
         # Mint 10.
         $cmd = "{$noid_cmd} mint 10 > /dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Queue 3.
         $cmd = "{$noid_cmd} queue now 13030/tst43m 13030/tst47h 13030/tst44k >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Hold 2.
         $cmd = "{$noid_cmd} hold set 13030/tst412 13030/tst421 >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Mint 20, and check that they have come out in the correct order.
         $cmd = "{$noid_cmd} mint 20";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Remove trailing newlines, and delete the last line if it's empty.
         $noid_output = explode(PHP_EOL, $output);
@@ -479,7 +479,7 @@ class NoidMysqlTest extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate tst5.rde long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Check that the "NOID" subdirectory was created.
         $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
@@ -499,7 +499,7 @@ class NoidMysqlTest extends NoidTestCase
         # Try binding the 3rd identifier to be minted.
         $cmd = "{$noid_cmd} bind set 13030/tst594 element value 2>&1";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         $noid_output = explode(PHP_EOL, $output);
         $noid_output = array_map('trim', $noid_output);
@@ -544,13 +544,13 @@ class NoidMysqlTest extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate .rde long 13030 cdlib.org noidTest";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Do dbcreate.
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate .rddk long 13030 cdlib.org noidTest";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
@@ -562,7 +562,7 @@ class NoidMysqlTest extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate .rddk long 00000 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
@@ -574,7 +574,7 @@ class NoidMysqlTest extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate .sddk long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
@@ -586,7 +586,7 @@ class NoidMysqlTest extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate tst8.rdek long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
@@ -598,7 +598,7 @@ class NoidMysqlTest extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate .rddk medium 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
@@ -610,7 +610,7 @@ class NoidMysqlTest extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate r-r.rdd long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
@@ -622,7 +622,7 @@ class NoidMysqlTest extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate .rdd long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
@@ -634,7 +634,7 @@ class NoidMysqlTest extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate a.rdd long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');
@@ -646,7 +646,7 @@ class NoidMysqlTest extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate a-a.seeeeee medium 00000 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Get and check the policy.
         $policy = $this->_get_policy($this->noid_dir . 'README');

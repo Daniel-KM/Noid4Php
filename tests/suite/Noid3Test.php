@@ -49,7 +49,7 @@ class Noid3Test extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate tst3.rde long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Check that the "NOID" subdirectory was created.
         $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
@@ -75,12 +75,12 @@ class Noid3Test extends NoidTestCase
         # Hold first and second identifiers.
         $cmd = "{$noid_cmd} hold set 13030/tst31q 13030/tst30f > /dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Mint 1.
         $cmd = "{$noid_cmd} mint 1";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Verify that it's the third one.
         $noid_output = trim($output);

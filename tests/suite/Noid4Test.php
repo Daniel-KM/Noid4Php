@@ -50,7 +50,7 @@ class Noid4Test extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate tst4.rde long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Check that the "NOID" subdirectory was created.
         $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
@@ -76,22 +76,22 @@ class Noid4Test extends NoidTestCase
         # Mint 10.
         $cmd = "{$noid_cmd} mint 10 > /dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Queue 3.
         $cmd = "{$noid_cmd} queue now 13030/tst43m 13030/tst47h 13030/tst44k >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Hold 2.
         $cmd = "{$noid_cmd} hold set 13030/tst412 13030/tst421 >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Mint 20, and check that they have come out in the correct order.
         $cmd = "{$noid_cmd} mint 20";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Remove trailing newlines, and delete the last line if it's empty.
         $noid_output = explode(PHP_EOL, $output);

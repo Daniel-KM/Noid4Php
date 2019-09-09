@@ -60,7 +60,7 @@ class Noid7Test extends NoidTestCase
         $cmd = "{$this->rm_cmd} ; " .
             "{$noid_cmd} dbcreate tst7.rde long 13030 cdlib.org noidTest >/dev/null";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Check that the "NOID" subdirectory was created.
         $this->assertFileExists($this->noid_dir, 'No minter directory created, stopped');
@@ -86,7 +86,7 @@ class Noid7Test extends NoidTestCase
         # Mint two.
         $cmd = "{$noid_cmd} mint 2";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         # Remove all newlines.
         $noid_output = explode(PHP_EOL, $output);
@@ -155,7 +155,7 @@ class Noid7Test extends NoidTestCase
         # Now, run the "fetch" command on the noid number 1.
         $cmd = "{$noid_cmd} fetch $bound_noid1";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
         $noid_output = explode(PHP_EOL, $output);
         $this->assertGreaterThan(0, count($noid_output));
         # echo '"fetch" command on noid 1 generated some output';
@@ -191,7 +191,7 @@ class Noid7Test extends NoidTestCase
 
         $cmd = "{$noid_cmd} fetch $bound_noid2";
         $this->_executeCommand($cmd, $status, $output, $errors);
-        $this->assertEquals(0, $status);
+        $this->assertEquals(0, $status, $errors);
 
         $noid_output = explode(PHP_EOL, $output);
         $this->assertGreaterThan(0, count($noid_output));
