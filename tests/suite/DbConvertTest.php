@@ -6,6 +6,14 @@ require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'NoidTestCase.php';
 
 class DbConvertTest extends NoidTestCase
 {
+    public function testPhpExtensions()
+    {
+        $this->assertEquals(true, extension_loaded('dba'));
+        $this->assertEquals(true, extension_loaded('mysqli') && class_exists('mysqli'));
+        $this->assertEquals(true, extension_loaded('sqlite3') && class_exists('SQLite3'));
+        $this->assertEquals(true, extension_loaded('xml'));
+    }
+
     /**
      * @param string $src_type type of source database
      * @param string $dst_type type of destination database
