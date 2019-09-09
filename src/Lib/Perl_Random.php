@@ -52,6 +52,11 @@
  * @link http://wellington.pm.org/archive/200704/randomness/
  * @link https://rosettacode.org/wiki/Random_number_generator_%28included%29#Perl
  */
+
+namespace Noid\Lib;
+
+use Exception;
+
 class Perl_Random
 {
     /**
@@ -64,25 +69,30 @@ class Perl_Random
     /**
      * Store the seed as a 48-bit integer.
      *
-     * @see Perl_Random::srand48()
+     * @see self::srand48()
      * @var int
      */
     private $_random_state_48 = null;
 
+    /**
+     * Perl_Random constructor.
+     * @throws Exception
+     */
     private function __construct()
     {
         if (PHP_INT_SIZE < 8) {
-            throw new RuntimeException('Perl_Random requires a true 64-bit platform.');
+            throw new Exception('Perl_Random requires a true 64-bit platform.');
         }
 
         // Check if BCMath is installed.
         if (!extension_loaded('bcmath')) {
-            throw new RuntimeException('Perl_Random requires the extension "BCMath".');
+            throw new Exception('Perl_Random requires the extension "BCMath".');
         }
     }
 
     /**
      * This class is a singleton.
+     * @throws Exception
      */
     public static function init()
     {
@@ -116,18 +126,21 @@ class Perl_Random
     /**
      * Alias of srand48().
      *
-     * @uses Perl_Random::srand48()
+     * @uses self::srand48()
+     *
+     * @param int $seed
+     *
      * @return void.
      */
     public function srand($seed = null)
     {
-        return $this->srand48($seed);
+        $this->srand48($seed);
     }
 
     /**
      * Get a pseudo-random integer (48-bit).
      *
-     * @uses Perl_Random::srand48()
+     * @uses self::srand48()
      * @return int 48-bit pseudo-random integer.
      */
     public function rand48()
@@ -136,8 +149,7 @@ class Perl_Random
         if (is_null($this->_random_state_48)) {
             $this->srand48();
         }
-        $this->_random_state_48 = (int)
-            bcmod(bcadd(bcmul('25214903917', (string) $this->_random_state_48, 0), '11', 0), '281474976710656');
+        $this->_random_state_48 = (int) bcmod(bcadd(bcmul('25214903917', (string) $this->_random_state_48, 0), '11', 0), '281474976710656');
         return $this->_random_state_48;
     }
 
@@ -147,7 +159,7 @@ class Perl_Random
      * This method doesn't cast to float as Perl (15 digits). If needed, rand(1)
      * can be used.
      *
-     * @uses Perl_Random::rand48()
+     * @uses self::rand48()
      * @return float Pseudo-random float.
      */
     public function drand48()
@@ -160,8 +172,10 @@ class Perl_Random
      *
      * This function has been checked until 8192 only.
      *
-     * @uses Perl_Random::_string_rand64()
+     * @uses self::_string_rand64()
+     *
      * @param int $len Max exclusive returned value.
+     *
      * @return float Pseudo-random float.
      */
     public function rand($len = 1)
@@ -172,8 +186,10 @@ class Perl_Random
     /**
      * Get a pseudo-random integer to emulate the perl function int(rand()).
      *
-     * @uses Perl_Random::_string_rand64()
+     * @uses self::_string_rand64()
+     *
      * @param int $len Max exclusive returned value.
+     *
      * @return int Pseudo-random integer.
      */
     public function int_rand($len = 1)
@@ -188,8 +204,10 @@ class Perl_Random
      * @todo This function is under development and doesn't return the same
      * string (last decimal may differ).
      *
-     * @uses Perl_Random::_string_rand64()
+     * @uses self::_string_rand64()
+     *
      * @param int $len Max exclusive returned value.
+     *
      * @return string Pseudo-random float as a string with 15 digits max.
      */
     public function string_rand($len = 1)
@@ -205,8 +223,10 @@ class Perl_Random
      * rand(). Here, the drand48() is emulated, so it is always used, like in Perl
      * above 5.20.0 and like in standard implementations before.
      *
-     * @uses Perl_Random::drand48()
+     * @uses self::drand48()
+     *
      * @param int $len Max exclusive returned value.
+     *
      * @return string Pseudo-random float as a string with 64 digits.
      */
     private function _string_rand64($len = 1)
@@ -225,6 +245,7 @@ class Perl_Random
      * @internal Mode is PHP_ROUND_HALF_UP (default).
      *
      * @param string $bcNumber A bc number.
+     *
      * @return string
      */
     private function _significant15($bcNumber)
@@ -287,6 +308,7 @@ class Perl_Random
      * Remove the trailing zeros.
      *
      * @param string $bcNumber A bc number.
+     *
      * @return string
      */
     private function _removeTrailingZeros($bcNumber)
