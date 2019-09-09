@@ -92,9 +92,9 @@ class SqliteDB implements DatabaseInterface
             // If the table does not exist, create it.
             $this->handle->exec(sprintf('
                 CREATE TABLE IF NOT EXISTS `%s` (
-                    `_key` VARCHAR(512) NOT NULL,
-                    `_value` VARCHAR(4096) DEFAULT NULL,
-                    PRIMARY KEY (`_key`)
+                    `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    `k` VARCHAR(512) NOT NULL UNIQUE,
+                    `v` VARCHAR(4096) DEFAULT NULL
                 )', DatabaseInterface::TABLE_NAME));
 
             // if create mode, truncate the table records.
@@ -131,7 +131,7 @@ class SqliteDB implements DatabaseInterface
 
         $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
 
-        $res = $this->handle->query(sprintf('SELECT `_value` FROM `%1$s` WHERE `_key` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
+        $res = $this->handle->query(sprintf('SELECT `v` FROM `%1$s` WHERE `k` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
         if ($row = $res->fetchArray(SQLITE3_NUM)) {
             $res->finalize();
             return htmlspecialchars_decode($row[0], ENT_QUOTES | ENT_HTML401);
@@ -156,7 +156,7 @@ class SqliteDB implements DatabaseInterface
         $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
         $value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML401);
 
-        $qry = sprintf('REPLACE INTO `%1$s` (`_key`, `_value`) VALUES ("%2$s", "%3$s")', DatabaseInterface::TABLE_NAME, $key, $value);
+        $qry = sprintf('REPLACE INTO `%1$s` (`k`, `v`) VALUES ("%2$s", "%3$s")', DatabaseInterface::TABLE_NAME, $key, $value);
         return $this->handle->exec($qry);
     }
 
@@ -174,7 +174,7 @@ class SqliteDB implements DatabaseInterface
 
         $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
 
-        return $this->handle->query(sprintf('DELETE FROM `%1$s` WHERE `_key` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
+        return $this->handle->query(sprintf('DELETE FROM `%1$s` WHERE `k` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
     }
 
     /**
@@ -192,7 +192,7 @@ class SqliteDB implements DatabaseInterface
         $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
 
         /** @var SQLite3Result $res */
-        $res = $this->handle->query(sprintf('SELECT `_key` FROM `%1$s` WHERE `_key` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
+        $res = $this->handle->query(sprintf('SELECT `k` FROM `%1$s` WHERE `k` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
         if ($res->fetchArray(SQLITE3_NUM)) {
             $res->finalize();
             return true;
@@ -219,7 +219,7 @@ class SqliteDB implements DatabaseInterface
         /** @var SQLite3Result $res */
         $pattern = htmlspecialchars($pattern, ENT_QUOTES | ENT_HTML401);
 
-        $res = $this->handle->query(sprintf('SELECT `_key`, `_value` FROM `%1$s` WHERE `_key` LIKE "%2$s"', DatabaseInterface::TABLE_NAME, "%$pattern%"));
+        $res = $this->handle->query(sprintf('SELECT `k`, `v` FROM `%1$s` WHERE `k` LIKE "%2$s"', DatabaseInterface::TABLE_NAME, "%$pattern%"));
         while ($row = $res->fetchArray(SQLITE3_NUM)) {
             $key = htmlspecialchars_decode($row[0], ENT_QUOTES | ENT_HTML401);
             $value = htmlspecialchars_decode($row[1], ENT_QUOTES | ENT_HTML401);

@@ -124,10 +124,12 @@ class MysqlDB implements DatabaseInterface
         // If the table does not exist, create it.
         $this->handle->query(sprintf('
             CREATE TABLE IF NOT EXISTS `%s` (
-                `_key` VARCHAR(512) NOT NULL,
-                `_value` VARCHAR(4096) DEFAULT NULL,
-                PRIMARY KEY (`_key`)
-            )',
+                `id` INT AUTO_INCREMENT NOT NULL,
+                `k` VARCHAR(512) NOT NULL,
+                `v` VARCHAR(4096) DEFAULT NULL,
+                PRIMARY KEY (`id`),
+                UNIQUE `k` (`k`)
+        )',
             DatabaseInterface::TABLE_NAME));
 
         // when create db
@@ -169,7 +171,7 @@ class MysqlDB implements DatabaseInterface
 
         $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
 
-        $res = $this->handle->query(sprintf('SELECT `_value` FROM `%1$s` WHERE `_key` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
+        $res = $this->handle->query(sprintf('SELECT `v` FROM `%1$s` WHERE `k` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
         if ($res) {
             $row = $res->fetch_array(MYSQLI_NUM);
             if ($row === null) {
@@ -200,7 +202,7 @@ class MysqlDB implements DatabaseInterface
         $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
         $value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML401);
 
-        $qry = sprintf('INSERT INTO `%1$s` (`_key`, `_value`) VALUES ("%2$s", "%3$s") ON DUPLICATE KEY UPDATE `_value` = "%3$s"', DatabaseInterface::TABLE_NAME, $key, $value);
+        $qry = sprintf('INSERT INTO `%1$s` (`k`, `v`) VALUES ("%2$s", "%3$s") ON DUPLICATE KEY UPDATE `v` = "%3$s"', DatabaseInterface::TABLE_NAME, $key, $value);
         return $this->handle->query($qry);
     }
 
@@ -218,7 +220,7 @@ class MysqlDB implements DatabaseInterface
 
         $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
 
-        return $this->handle->query(sprintf('DELETE FROM `%1$s` WHERE `_key` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
+        return $this->handle->query(sprintf('DELETE FROM `%1$s` WHERE `k` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
     }
 
     /**
@@ -236,7 +238,7 @@ class MysqlDB implements DatabaseInterface
         $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
 
         /** @var mysqli_result $res */
-        $res = $this->handle->query(sprintf('SELECT `_key` FROM `%1$s` WHERE `_key` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
+        $res = $this->handle->query(sprintf('SELECT `k` FROM `%1$s` WHERE `k` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
         if ($res) {
             return $res->num_rows > 0;
         }
@@ -261,7 +263,7 @@ class MysqlDB implements DatabaseInterface
         /** @var mysqli_result $res */
         $pattern = htmlspecialchars($pattern, ENT_QUOTES | ENT_HTML401);
 
-        $res = $this->handle->query(sprintf('SELECT `_key`, `_value` FROM `%1$s` WHERE `_key` LIKE "%2$s"', DatabaseInterface::TABLE_NAME, "%$pattern%"));
+        $res = $this->handle->query(sprintf('SELECT `k`, `v` FROM `%1$s` WHERE `k` LIKE "%2$s"', DatabaseInterface::TABLE_NAME, "%$pattern%"));
         if ($res) {
             while ($row = $res->fetch_array(MYSQLI_NUM)) {
                 $key = htmlspecialchars_decode($row[0], ENT_QUOTES | ENT_HTML401);
