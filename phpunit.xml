@@ -1,20 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE phpunit>
-<phpunit
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/7.4/phpunit.xsd"
-    bootstrap="tests/bootstrap.php"
-    colors="true"
-    backupGlobals="false"
-    defaultTestSuite="Noid Test Suite"
-    >
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/7.4/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         failOnWarning="true"
+         failOnRisky="true"
+         forceCoversAnnotation="true"
+         beStrictAboutCoversAnnotation="true"
+         beStrictAboutOutputDuringTests="true"
+         beStrictAboutTodoAnnotatedTests="true"
+         colors="true"
+         verbose="true"
+         defaultTestSuite="default"
+         >
+   <php>
+        <ini name="display_errors" value="On"/>
+        <ini name="error_reporting" value="-1"/>
+   </php>
     <testsuites>
-        <testsuite name="Noid Test Suite">
-            <directory>tests/suite</directory>
-            <exclude>tests/NoidTestCase.php</exclude>
+        <testsuite name="default">
+            <directory suffix="Test.php">tests/suite</directory>
         </testsuite>
-        <testsuite name="Perl Random Test Suite">
-            <directory>tests/PerlRandom</directory>
+        <testsuite name="perl_random">
+            <directory suffix="Test.php">tests/PerlRandom</directory>
         </testsuite>
     </testsuites>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">src</directory>
+        </whitelist>
+    </filter>
 </phpunit>
