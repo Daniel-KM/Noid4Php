@@ -90,10 +90,15 @@ class SqliteDB implements DatabaseInterface
         // create mode
         if (strpos(strtolower($mode), DatabaseInterface::DB_CREATE) !== false) {
             // If the table does not exist, create it.
-            $this->handle->exec("CREATE TABLE IF NOT EXISTS `" . DatabaseInterface::TABLE_NAME . "` (  `_key` VARCHAR(512) NOT NULL, `_value` VARCHAR(4096) DEFAULT NULL, PRIMARY KEY (`_key`))");
+            $this->handle->exec(sprintf('
+                CREATE TABLE IF NOT EXISTS `%s` (
+                    `_key` VARCHAR(512) NOT NULL,
+                    `_value` VARCHAR(4096) DEFAULT NULL,
+                    PRIMARY KEY (`_key`)
+                )', DatabaseInterface::TABLE_NAME));
 
             // if create mode, truncate the table records.
-            $this->handle->exec("DELETE FROM `" . DatabaseInterface::TABLE_NAME . "`");
+            $this->handle->exec(sprintf('DELETE FROM `%s`', DatabaseInterface::TABLE_NAME));
         }
 
         return $this->handle;
@@ -126,7 +131,7 @@ class SqliteDB implements DatabaseInterface
 
         $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
 
-        $res = $this->handle->query("SELECT `_value` FROM `" . DatabaseInterface::TABLE_NAME . "` WHERE `_key` = '{$key}'");
+        $res = $this->handle->query(sprintf('SELECT `_value` FROM `%1$s` WHERE `_key` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
         if ($row = $res->fetchArray(SQLITE3_NUM)) {
             $res->finalize();
             return htmlspecialchars_decode($row[0], ENT_QUOTES | ENT_HTML401);
@@ -151,7 +156,7 @@ class SqliteDB implements DatabaseInterface
         $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
         $value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML401);
 
-        $qry = "REPLACE INTO `" . DatabaseInterface::TABLE_NAME . "` (`_key`, `_value`) VALUES ('{$key}', '{$value}')";
+        $qry = sprintf('REPLACE INTO `%1$s` (`_key`, `_value`) VALUES ("%2$s", "%3$s")', DatabaseInterface::TABLE_NAME, $key, $value);
         return $this->handle->exec($qry);
     }
 
@@ -169,7 +174,7 @@ class SqliteDB implements DatabaseInterface
 
         $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
 
-        return $this->handle->exec("DELETE FROM `" . DatabaseInterface::TABLE_NAME . "` WHERE `_key` = '{$key}'");
+        return $this->handle->query(sprintf('DELETE FROM `%1$s` WHERE `_key` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
     }
 
     /**
@@ -187,8 +192,8 @@ class SqliteDB implements DatabaseInterface
         $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
 
         /** @var SQLite3Result $res */
-        $res = $this->handle->query("SELECT `_key` FROM `" . DatabaseInterface::TABLE_NAME . "` WHERE `_key` = '{$key}'");
-        if ($row = $res->fetchArray(SQLITE3_NUM)) {
+        $res = $this->handle->query(sprintf('SELECT `_key` FROM `%1$s` WHERE `_key` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
+        if ($res->fetchArray(SQLITE3_NUM)) {
             $res->finalize();
             return true;
         }
@@ -214,8 +219,7 @@ class SqliteDB implements DatabaseInterface
         /** @var SQLite3Result $res */
         $pattern = htmlspecialchars($pattern, ENT_QUOTES | ENT_HTML401);
 
-        $res = $this->handle->query("SELECT `_key`, `_value` FROM `" . DatabaseInterface::TABLE_NAME . "` WHERE `_key` LIKE '%{$pattern}%'");
-
+        $res = $this->handle->query(sprintf('SELECT `_key`, `_value` FROM `%1$s` WHERE `_key` LIKE "%2$s"', DatabaseInterface::TABLE_NAME, "%$pattern%"));
         while ($row = $res->fetchArray(SQLITE3_NUM)) {
             $key = htmlspecialchars_decode($row[0], ENT_QUOTES | ENT_HTML401);
             $value = htmlspecialchars_decode($row[1], ENT_QUOTES | ENT_HTML401);
@@ -248,7 +252,7 @@ class SqliteDB implements DatabaseInterface
         }
 
         // 1. erase all data. this step depends on database implementation.
-        $this->handle->exec("DELETE FROM `" . DatabaseInterface::TABLE_NAME . "`");
+        $this->handle->exec(sprintf('DELETE FROM `%s`', DatabaseInterface::TABLE_NAME));
 
         // 2. get data from source database.
         $imported_data = $src_db->get_range('');

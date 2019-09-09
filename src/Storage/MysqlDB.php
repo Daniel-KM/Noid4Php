@@ -116,22 +116,28 @@ class MysqlDB implements DatabaseInterface
         }
 
         // It's time for checking the db existence. If not exists, will create it.
-        $this->handle->query("CREATE DATABASE IF NOT EXISTS `" . $db_name . "`");
+        $this->handle->query(sprintf('CREATE DATABASE IF NOT EXISTS `%s`', $db_name));
 
         // select the database `NOID`.
         $this->handle->select_db($db_name);
 
         // If the table does not exist, create it.
-        $this->handle->query("CREATE TABLE IF NOT EXISTS `" . DatabaseInterface::TABLE_NAME . "` (  `_key` VARCHAR(512) NOT NULL, `_value` VARCHAR(4096) DEFAULT NULL, PRIMARY KEY (`_key`))");
+        $this->handle->query(sprintf('
+            CREATE TABLE IF NOT EXISTS `%s` (
+                `_key` VARCHAR(512) NOT NULL,
+                `_value` VARCHAR(4096) DEFAULT NULL,
+                PRIMARY KEY (`_key`)
+            )',
+            DatabaseInterface::TABLE_NAME));
 
         // when create db
         if (strpos(strtolower($mode), DatabaseInterface::DB_CREATE) !== false) {
             // if create mode, truncate the table records.
-            $this->handle->query("TRUNCATE TABLE `" . DatabaseInterface::TABLE_NAME . "`");
+            $this->handle->query(sprintf('TRUNCATE TABLE `%s`', DatabaseInterface::TABLE_NAME));
         }
 
         // Optimize the table for better performance.
-        $this->handle->query("OPTIMIZE TABLE `" . DatabaseInterface::TABLE_NAME . "`");
+        $this->handle->query(sprintf('OPTIMIZE TABLE `%s`', DatabaseInterface::TABLE_NAME));
 
         return $this->handle;
     }
@@ -163,7 +169,8 @@ class MysqlDB implements DatabaseInterface
 
         $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
 
-        if ($res = $this->handle->query("SELECT `_value` FROM `" . DatabaseInterface::TABLE_NAME . "` WHERE `_key` = '{$key}'")) {
+        $res = $this->handle->query(sprintf('SELECT `_value` FROM `%1$s` WHERE `_key` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
+        if ($res) {
             $row = $res->fetch_array(MYSQLI_NUM);
             if ($row === null) {
                 return false;
@@ -193,7 +200,7 @@ class MysqlDB implements DatabaseInterface
         $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
         $value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML401);
 
-        $qry = "INSERT INTO `" . DatabaseInterface::TABLE_NAME . "` (`_key`, `_value`) VALUES ('{$key}', '{$value}') ON DUPLICATE KEY UPDATE `_value` = '{$value}'";
+        $qry = sprintf('INSERT INTO `%1$s` (`_key`, `_value`) VALUES ("%2$s", "%3$s") ON DUPLICATE KEY UPDATE `_value` = "%3$s"', DatabaseInterface::TABLE_NAME, $key, $value);
         return $this->handle->query($qry);
     }
 
@@ -211,7 +218,7 @@ class MysqlDB implements DatabaseInterface
 
         $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
 
-        return $this->handle->query("DELETE FROM `" . DatabaseInterface::TABLE_NAME . "` WHERE `_key` = '{$key}'");
+        return $this->handle->query(sprintf('DELETE FROM `%1$s` WHERE `_key` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
     }
 
     /**
@@ -229,12 +236,9 @@ class MysqlDB implements DatabaseInterface
         $key = htmlspecialchars($key, ENT_QUOTES | ENT_HTML401);
 
         /** @var mysqli_result $res */
-        if ($res = $this->handle->query("SELECT `_key` FROM `" . DatabaseInterface::TABLE_NAME . "` WHERE `_key` = '{$key}'")) {
-            if ($res->num_rows > 0) {
-                return true;
-            } else {
-                return false;
-            }
+        $res = $this->handle->query(sprintf('SELECT `_key` FROM `%1$s` WHERE `_key` = "%2$s"', DatabaseInterface::TABLE_NAME, $key));
+        if ($res) {
+            return $res->num_rows > 0;
         }
         return false;
     }
@@ -257,7 +261,8 @@ class MysqlDB implements DatabaseInterface
         /** @var mysqli_result $res */
         $pattern = htmlspecialchars($pattern, ENT_QUOTES | ENT_HTML401);
 
-        if ($res = $this->handle->query("SELECT `_key`, `_value` FROM `" . DatabaseInterface::TABLE_NAME . "` WHERE `_key` LIKE '%{$pattern}%'")) {
+        $res = $this->handle->query(sprintf('SELECT `_key`, `_value` FROM `%1$s` WHERE `_key` LIKE "%2$s"', DatabaseInterface::TABLE_NAME, "%$pattern%"));
+        if ($res) {
             while ($row = $res->fetch_array(MYSQLI_NUM)) {
                 $key = htmlspecialchars_decode($row[0], ENT_QUOTES | ENT_HTML401);
                 $value = htmlspecialchars_decode($row[1], ENT_QUOTES | ENT_HTML401);
@@ -290,7 +295,7 @@ class MysqlDB implements DatabaseInterface
         }
 
         // 1. erase all data. this step depends on database implementation.
-        $this->handle->query("TRUNCATE TABLE `" . DatabaseInterface::TABLE_NAME . "`");
+        $this->handle->query(sprintf('TRUNCATE TABLE `%s`', DatabaseInterface::TABLE_NAME));
 
         // 2. get data from source database.
         $imported_data = $src_db->get_range('');
