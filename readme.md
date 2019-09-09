@@ -57,14 +57,28 @@ of available [commands].
 Installation
 ------------
 
-This tool requires the php extension "dba", that is installed by default with
-Php, and the BerkeleyDB library, that is installed by default too on standard
-web servers and any Linux distribution (package libdb5.3 on Debian), because it
-is used in many basic tools.
+Since version 1.2.0, the tool is a library managed by composer, so just install
+it via `composer require daniel-km/noid4php` and add `require_once "vendor/autoload.php`
+to your project.
 
-Simply include the file "lib/Noid.php" in your project and the class "Noid" will
-be available. The command line tool is available via "noid.php" or the symbolic
-link "noid", but is not required.
+Else, simply include the file "lib/Noid.php" in your project and the class "Noid"
+will be available. The command line tool is available via "noid.php" or the
+symbolic link "noid", but is not required.
+
+Since version 1.2.0, the data can be stored in a selected base:
+
+- **Berkeley database**, that is the native base of this tool. It requires the
+  php extension "dba", that is installed by default with Php, and the BerkeleyDB
+  library, that is installed by default too on standard web servers and any
+  Linux distribution (package libdb5.3 on Debian), because it is used in many
+  basic tools.
+- **mysql/mariadb**, that requires the php extension "mysql" or "mysqli".
+- **sqlite**, that requires the php extension "sqlite3", that stores the data in
+  a single file.
+- **xml**, that requires the php extension "xml", that is a readable file.
+
+The config can be set when instantiating a class or passing it via the option -f
+of noid with the path to the config file (default is config/settings.php).
 
 ### Perl and php
 
@@ -89,18 +103,15 @@ php methods and  perl ones for many seeds.
 If you don’t have phpunit, you can do:
 
 ```sh
-wget https://phar.phpunit.de/phpunit-5.7.phar
-wget https://phar.phpunit.de/phpunit-6.5.phar
 wget https://phar.phpunit.de/phpunit-7.4.phar
-# Quick tests with php 5.6 to php 7.4.
-php phpunit-5.7.phar
-# Quick tests with php 7.0 to php 7.4.
-php phpunit-6.5.phar
 # Quick tests with php 7.1 to php 7.4.
 php phpunit-7.4.phar
 # Full tests (fail for float numbers above 8192).
-php phpunit-7.4.phar tests
+php phpunit-7.4.phar tests/PerlRandom
 ```
+
+The version 1.1.2 is compatible from php 5.6 to php 7.4.
+The version 1.2.0 is compatible from php 7.1 to php 7.4.
 
 
 Enhancements
@@ -171,10 +182,13 @@ Noid. Anyway, the result will be the same.
 
 ### To do
 
-  - [ ] Optimize structure and process, but keep inputs, calls, and outputs.
-  - [ ] Seperate creation of noids and management of bindings.
-  - [ ] Use other standard or flat db engines (mysql and simple file).
-  - [ ] See other todo in the perl or php scripts.
+- [x] Optimize structure and process, but keep inputs, calls, and outputs.
+- [ ] Seperate creation of noids and management of bindings.
+- [x] Use other standard or flat db engines (mysql and simple file).
+- [ ] See other todo in the perl or php scripts.
+- [ ] Normalize classes (no false, but null, args, return types, etc.)
+- [ ] Make bin noid as composer
+- [ ] Better xml format and sql table (no reserved root, separate type, date, owner and value, etc.)
 
 
 Warning
