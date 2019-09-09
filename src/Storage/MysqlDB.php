@@ -126,7 +126,7 @@ class MysqlDB implements DatabaseInterface
             CREATE TABLE IF NOT EXISTS `%s` (
                 `id` INT AUTO_INCREMENT NOT NULL,
                 `k` VARCHAR(512) NOT NULL,
-                `v` VARCHAR(4096) DEFAULT NULL,
+                `v` LONGTEXT DEFAULT NULL,
                 PRIMARY KEY (`id`),
                 UNIQUE `k` (`k`)
         )',

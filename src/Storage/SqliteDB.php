@@ -94,7 +94,7 @@ class SqliteDB implements DatabaseInterface
                 CREATE TABLE IF NOT EXISTS `%s` (
                     `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                     `k` VARCHAR(512) NOT NULL UNIQUE,
-                    `v` VARCHAR(4096) DEFAULT NULL
+                    `v` LONGTEXT DEFAULT NULL
                 )', DatabaseInterface::TABLE_NAME));
 
             // if create mode, truncate the table records.
