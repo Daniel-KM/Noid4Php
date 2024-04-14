@@ -28,7 +28,7 @@
         "noid",
         "tool"
     ],
-    "homepage": "https://github.com/Daniel-KM/Noid4Php",
+    "homepage": "https://gitlab.com/Daniel-KM/Noid4Php",
     "autoload": {
         "psr-4": {
             "Noid\\": "src"
