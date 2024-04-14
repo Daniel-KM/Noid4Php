@@ -1,5 +1,8 @@
 Revision history for noid script and Noid module.
 
+1.2.1-0.424-php	Composer update
+	Updated composer for php version and url.
+
 1.2.0-0.424-php	Improvements
 	Removed support of php 5.6 and php 7.0.
 	Restructured with namespaced classes.
