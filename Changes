@@ -1,5 +1,9 @@
 Revision history for noid script and Noid module.
 
+1.2.2-0.424-php	Fixes and compatibility wrap
+	Added a wrapper for compatibility with version 1.1.2.
+	Fixes some issues and messages.
+
 1.2.1-0.424-php	Composer update
 	Updated composer for php version and url.
 
