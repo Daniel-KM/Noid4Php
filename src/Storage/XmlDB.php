@@ -36,6 +36,46 @@ class XmlDB implements DatabaseInterface
     const FILE_EXT = 'xml';
 
     /**
+     * Escape a string for safe use in XPath queries.
+     *
+     * Handles strings containing quotes by using the concat() function.
+     *
+     * @param string $value The value to escape.
+     *
+     * @return string The escaped value safe for XPath.
+     */
+    private function escapeXPath($value)
+    {
+        // If no quotes, wrap in double quotes
+        if (strpos($value, '"') === false) {
+            return '"' . $value . '"';
+        }
+        // If no single quotes, wrap in single quotes
+        if (strpos($value, "'") === false) {
+            return "'" . $value . "'";
+        }
+        // Contains both: use concat()
+        $parts = array();
+        $current = '';
+        for ($i = 0; $i < strlen($value); $i++) {
+            $char = $value[$i];
+            if ($char === '"') {
+                if ($current !== '') {
+                    $parts[] = '"' . $current . '"';
+                    $current = '';
+                }
+                $parts[] = "'\"'";
+            } else {
+                $current .= $char;
+            }
+        }
+        if ($current !== '') {
+            $parts[] = '"' . $current . '"';
+        }
+        return 'concat(' . implode(',', $parts) . ')';
+    }
+
+    /**
      * @var string $file_path
      */
     private $file_path;
@@ -80,7 +120,7 @@ class XmlDB implements DatabaseInterface
         $storage = $settings['storage']['xml'];
 
         if (empty($storage['data_dir'])) {
-            throw new Exception('A directory where to store BerkeleyDB is required.');
+            throw new Exception('A directory where to store the XML database is required.');
         }
 
         $data_dir = $storage['data_dir'];
@@ -141,7 +181,7 @@ class XmlDB implements DatabaseInterface
     public function get($key)
     {
         // xml xpath searching...
-        $item = $this->handle->xpath('//noid/i[@k="' . $key . '"]');
+        $item = $this->handle->xpath('//noid/i[@k=' . $this->escapeXPath($key) . ']');
 
         // found it.
         if (count($item) > 0) {
@@ -160,7 +200,7 @@ class XmlDB implements DatabaseInterface
      */
     public function set($key, $value)
     {
-        $item = $this->handle->xpath('//noid/i[@k="' . $key . '"]');
+        $item = $this->handle->xpath('//noid/i[@k=' . $this->escapeXPath($key) . ']');
 
         // if it exists, remove it... for unique keying.
         if (count($item) > 0) {
@@ -186,7 +226,7 @@ class XmlDB implements DatabaseInterface
     public function delete($key)
     {
         // refer to: set()
-        $item = $this->handle->xpath('//noid/i[@k="' . $key . '"]');
+        $item = $this->handle->xpath('//noid/i[@k=' . $this->escapeXPath($key) . ']');
 
         // found it.
         if (count($item) > 0) {
@@ -208,8 +248,7 @@ class XmlDB implements DatabaseInterface
     public function exists($key)
     {
         // find
-
-        $item = $this->handle->xpath('//noid/i[@k="' . $key . '"]');
+        $item = $this->handle->xpath('//noid/i[@k=' . $this->escapeXPath($key) . ']');
 
         // found it.
         if (count($item) > 0) {
@@ -237,7 +276,7 @@ class XmlDB implements DatabaseInterface
         $results = array();
 
         // find all the records contained the specific pattern.
-        $items = $this->handle->xpath("//noid/i[contains(@k, '" . $pattern . "')]");
+        $items = $this->handle->xpath('//noid/i[contains(@k, ' . $this->escapeXPath($pattern) . ')]');
 
         // keep 'em all.
         foreach ($items as $item) {
