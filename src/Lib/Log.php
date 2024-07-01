@@ -100,7 +100,7 @@ class Log
                 . ($status ? '' : ' -- note failed'));
         }
         if (!$status) {
-            self::addmsg($noid, 'Globals::$db_engine->set() error unknown.');
+            self::addmsg($noid, 'Db::$engine->set() error unknown.');
             return 0;
         }
         return 1;

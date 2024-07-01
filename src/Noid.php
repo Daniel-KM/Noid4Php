@@ -548,7 +548,7 @@ class Noid
             }
             if (preg_match('/^([^q])/', $circ_svec, $matches)) {
                 Log::logmsg($noid, sprintf(
-                    'error: id %1$s found in queue has an unknown circ status (%s) -- circ record is %2$s',
+                    'error: id %1$s found in queue has an unknown circ status (%2$s) -- circ record is %3$s',
                     $id, $matches[1], Db::$engine->get("$id\t" . Globals::_RR . "/c")
                 ));
                 continue;
