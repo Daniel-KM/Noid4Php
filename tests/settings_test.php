@@ -2,8 +2,9 @@
 
 return array(
     // The type of database may be bdb, mysql, sqlite or xml.
-    // The default is bdb.
-    'db_type' => '',
+    // Set to empty string '' to use 'bdb' (requires BerkeleyDB extension).
+    // Use 'sqlite' or 'xml' for portable testing without external dependencies.
+    'db_type' => 'sqlite',
     // Default storage in mainconfig is the root folder datafiles/.
     // It may be relative to the root.
     // Don't overwrite production dir!

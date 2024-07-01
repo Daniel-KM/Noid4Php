@@ -67,9 +67,14 @@ class NoidTestCase extends TestCase
     {
         $this->settings_file = __DIR__ . DIRECTORY_SEPARATOR . $this->settings_file;
         $this->settings = include $this->settings_file;
-        $this->settings['db_type'] = 'bdb';
 
-        $this->data_dir = $this->settings['storage']['bdb']['data_dir'];
+        // Use db_type from settings, default to 'bdb' if empty.
+        if (empty($this->settings['db_type'])) {
+            $this->settings['db_type'] = 'bdb';
+        }
+        $db_type = $this->settings['db_type'];
+
+        $this->data_dir = $this->settings['storage'][$db_type]['data_dir'];
         if (!$this->data_dir) {
             throw new Exception('A directory where to store databases is required.');
         }
@@ -90,8 +95,6 @@ class NoidTestCase extends TestCase
         } elseif (!file_exists($this->data_dir)) {
             mkdir($this->data_dir);
         }
-
-        $db_type = $this->settings['db_type'];
 
         if (empty($this->settings['storage'][$db_type]['db_name'])) {
             throw new Exception(sprintf(
