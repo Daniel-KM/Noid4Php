@@ -112,7 +112,8 @@ class BerkeleyDB implements DatabaseInterface
                     1 => array('pipe', 'w'), //STDOUT
                     2 => array('pipe', 'w'), //STDERR
                 );
-                if ($proc = proc_open('rm -f ' . $file_path . ' > /dev/null 2>&1', $descriptor_spec, $pipes, getcwd())) {
+                $cmd = 'rm -f ' . $file_path . ' > /dev/null 2>&1';
+                if ($proc = proc_open($cmd, $descriptor_spec, $pipes, getcwd())) {
                     $output = stream_get_contents($pipes[1]);
                     $errors = stream_get_contents($pipes[2]);
                     foreach ($pipes as $pipe) {
