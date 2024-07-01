@@ -1289,7 +1289,7 @@ class Noid
             && Db::$engine->get(Globals::_RR . "/held") > Db::$engine->get(Globals::_RR . "/oatop")
         ) {
             $m = sprintf(
-                'error: hold count (%1$s) exceeding total possible on id %2£s',
+                'error: hold count (%1$s) exceeding total possible on id %2$s',
                 Db::$engine->get(Globals::_RR . "/held"), $id
             );
             Log::addmsg($noid, $m);
