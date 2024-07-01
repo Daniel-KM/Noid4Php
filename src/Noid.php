@@ -688,7 +688,7 @@ class Noid
             if (preg_match('/^([^iqu])/', $circ_svec, $matches)) {
                 Log::logmsg($noid, sprintf(
                     'error: id %1$s has unknown circulation status (%2$s), circ_rec %3$s',
-                    $id, $matches[1], Db::$engine->get("$id\\t" . Globals::_RR . "/c")
+                    $id, $matches[1], Db::$engine->get("$id\t" . Globals::_RR . "/c")
                 ));
                 continue;
             }
