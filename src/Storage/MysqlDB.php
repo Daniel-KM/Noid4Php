@@ -246,9 +246,11 @@ class MysqlDB implements DatabaseInterface
         if (is_null($pattern) || !($this->handle instanceof mysqli)) {
             return null;
         }
-        $results = array();
 
-        $patternLike = "%$pattern%";
+        // Use prefix matching (pattern%) to match BerkeleyDB behavior.
+        // Escape special LIKE characters in the pattern.
+        $patternEscaped = str_replace(array('%', '_'), array('\\%', '\\_'), $pattern);
+        $patternLike = "$patternEscaped%";
 
         // @internal Ordered by default with Berkeley database.
         $stmt = $this->handle->prepare(sprintf('SELECT `k`, `v` FROM `%s` WHERE `k` LIKE ? ORDER BY `id`', DatabaseInterface::TABLE_NAME));
@@ -257,7 +259,6 @@ class MysqlDB implements DatabaseInterface
         $result = $stmt->get_result();
 
         $results = array();
-        // Use fetch_all and array_column?
         while ($row = $result->fetch_array(MYSQLI_NUM)) {
             $results[$row[0]] = $row[1];
         }

@@ -213,10 +213,13 @@ class SqliteDB implements DatabaseInterface
             return null;
         }
 
-        $patternLike = "%$pattern%";
+        // Use prefix matching (pattern%) to match BerkeleyDB behavior.
+        // Escape special LIKE characters in the pattern.
+        $patternEscaped = str_replace(array('%', '_'), array('\\%', '\\_'), $pattern);
+        $patternLike = "$patternEscaped%";
 
         // @internal Ordered by default with Berkeley database.
-        $stmt = $this->handle->prepare(sprintf('SELECT `k`, `v` FROM `%s` WHERE `k` LIKE :pattern ORDER BY `id`', DatabaseInterface::TABLE_NAME));
+        $stmt = $this->handle->prepare(sprintf('SELECT `k`, `v` FROM `%s` WHERE `k` LIKE :pattern ESCAPE \'\\\' ORDER BY `id`', DatabaseInterface::TABLE_NAME));
         $stmt->bindParam(':pattern', $patternLike, SQLITE3_TEXT);
         $result = $stmt->execute();
 

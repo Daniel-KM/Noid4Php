@@ -275,8 +275,9 @@ class XmlDB implements DatabaseInterface
         // a variable to be returned.
         $results = array();
 
-        // find all the records contained the specific pattern.
-        $items = $this->handle->xpath('//noid/i[contains(@k, ' . $this->escapeXPath($pattern) . ')]');
+        // Find all records where key starts with the pattern (prefix matching).
+        // Use starts-with() to match BerkeleyDB behavior.
+        $items = $this->handle->xpath('//noid/i[starts-with(@k, ' . $this->escapeXPath($pattern) . ')]');
 
         // keep 'em all.
         foreach ($items as $item) {
