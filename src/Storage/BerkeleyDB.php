@@ -128,7 +128,7 @@ class BerkeleyDB implements DatabaseInterface
             }
 
             $envflags |= self::BDB_CREATE;
-            $_GLOBAL['envargs']['-Flags'] = $envflags;
+            $GLOBALS['envargs']['-Flags'] = $envflags;
 
             # Create a logbdb file from scratch and make them writable
             $logbdb = $path . DIRECTORY_SEPARATOR . 'logbdb';
@@ -137,7 +137,7 @@ class BerkeleyDB implements DatabaseInterface
                 return false;
             }
             if (is_writable($logbdb)) {
-                $_GLOBAL['envargs']['-ErrFile'] = $logbdb;
+                $GLOBALS['envargs']['-ErrFile'] = $logbdb;
             }
         }
 

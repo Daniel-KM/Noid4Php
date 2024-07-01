@@ -425,10 +425,10 @@ NAAN:      $naan
         }
 
         # yyy probably these envflags are overkill right now
-        $_GLOBAL['envargs'] = array();
+        $GLOBALS['envargs'] = array();
         if ($flags == DatabaseInterface::DB_CREATE) {
-            $_GLOBAL['envargs']['-Home'] = $envhome;
-            $_GLOBAL['envargs']['-Verbose'] = 1;
+            $GLOBALS['envargs']['-Home'] = $envhome;
+            $GLOBALS['envargs']['-Verbose'] = 1;
         }
 
         # If it exists and is writable, use log file to inscribe the errors.
