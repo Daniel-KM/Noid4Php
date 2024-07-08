@@ -67,15 +67,21 @@ symbolic link "noid", but is not required.
 
 Since version 1.2.0, the data can be stored in a selected base:
 
-- **Berkeley database**, that is the native base of this tool. It requires the
-  php extension "dba", that is installed by default with Php, and the BerkeleyDB
-  library, that is installed by default too on standard web servers and any
-  Linux distribution (package libdb5.3 on Debian), because it is used in many
-  basic tools.
-- **mysql/mariadb**, that requires the php extension "mysql" or "mysqli".
+- **lmdb** (Lightning Memory-Mapped Database), that requires the php extension
+  "dba" with the "lmdb" handler. **This is the new default since version 1.3.**
+  LMDB is the recommended replacement for BerkeleyDB and is available on all
+  modern Linux distributions (Debian 10+, Redhat and their derivatives).
 - **sqlite**, that requires the php extension "sqlite3", that stores the data in
-  a single file.
-- **xml**, that requires the php extension "xml", that is a readable file.
+  a single file. Good for portable installations.
+- **xml**, that requires the php extension "xml", that is a human-readable file.
+  Suitable for long-term storage, easy backup, and data export/import between
+  systems.
+- **mysql/mariadb**, that requires the php extension "mysql" or "mysqli".
+- **Berkeley database** (bdb), that was the original native base of this tool.
+  It requires the php extension "dba" with the "db4" handler. **Note:** The db4
+  handler is no longer available on most modern Linux distributions (see
+  [BerkeleyDB/db4 deprecation](#berkeleydbdb4-deprecation) below). Use only on
+  older systems.
 
 The config can be set when instantiating a class or passing it via the option -f
 of noid with the path to the config file (default is config/settings.php).
@@ -112,6 +118,218 @@ php phpunit-7.4.phar tests/PerlRandom
 
 The version 1.1.2 is compatible from php 5.6 to php 7.4.
 The version 1.2.0 is compatible from php 7.1 to php 7.4.
+
+### BerkeleyDB/db4 deprecation
+
+The original Noid tool uses BerkeleyDB as its native database, accessed through
+PHP's DBA extension with the "db4" handler. However, **the db4 handler is being
+phased out on recent Linux distributions**.
+
+**Why db4 is being removed:**
+
+In 2013, Oracle changed the BerkeleyDB license from the Sleepycat License (a
+permissive open-source license) to the GNU Affero General Public License (AGPL).
+This license change had significant implications for Linux distributions and
+software that embedded BerkeleyDB, leading to its gradual removal.
+
+**Debian/Ubuntu status:**
+
+The db4 handler was removed starting with **PHP 8.x packages** in Debian
+Bookworm. If you are running Debian 11 Bullseye with PHP 7.4, the db4 handler
+is available from the official Debian repositories. Next versions from Debian 12
+does not support db4, because php is compiled without argument `--with-db4`.
+
+**Note:** The [Sury repository](https://deb.sury.org) (deb.sury.org), which
+provides newer PHP versions for Debian, compiles PHP 8.x **without db4
+support**. Installing php8.x-dba from Sury does not provide the db4 handler.
+
+**LMDB on Debian:** The LMDB handler is compiled by default (`--with-lmdb`) in
+php-dba since Debian 10 Buster (PHP 7.3). All Debian versions (10, 11, 12) include
+`liblmdb0` as a dependency of php-dba, so LMDB is directly usable without any
+additional configuration.
+
+You can check available handlers with:
+`php -r "print_r(dba_handlers());"`
+
+**Red Hat/CentOS/RHEL:** The libdb package is deprecated in RHEL 9 and removed
+in RHEL 10. More importantly, the official RHEL php-dba package is compiled
+**without** the `--with-db4` flag, so the db4 handler is not available even on
+systems where libdb is present. However, LMDB (`--with-lmdb`) is enabled by
+default in RHEL's php-dba. Fedora includes both db4 and lmdb handlers.
+
+Verify available handlers on your system with:
+`php -r "print_r(dba_handlers());"`
+
+**Available alternatives:**
+
+1. **LMDB**: Recommended replacement for BerkeleyDB. Fast key-value store with
+   similar performance characteristics. Available by default in php-dba on
+   Debian (since 10), RHEL, and Fedora - no additional packages required.
+   Set `'db_type' => 'lmdb'` in your settings.
+
+2. **SQLite**: Portable, no external dependencies, works on all platforms.
+   Set `'db_type' => 'sqlite'` in your settings.
+
+3. **XML**: Human-readable format, suitable for long-term storage, easy backup,
+   and data export/import between systems.
+   Set `'db_type' => 'xml'` in your settings.
+
+4. **PDO (MySQL, PostgreSQL, SQLite)**: Unified SQL backend using PDO extension.
+   More portable than mysqli, supports multiple database engines.
+   Set `'db_type' => 'pdo'` and configure the `driver` option in your settings:
+   ```php
+   'pdo' => [
+       'driver' => 'mysql',  // or 'pgsql', 'sqlite'
+       'data_dir' => '/path/to/data',
+       'host' => 'localhost',
+       'user' => 'noid',
+       'password' => 'secret',
+       'db_name' => 'noid',
+   ],
+   ```
+
+5. **MySQL/MariaDB (deprecated)**: Legacy backend using mysqli extension.
+   Use PDO instead (`'db_type' => 'pdo'` with `'driver' => 'mysql'`).
+
+6. **Compile PHP with db4**: If you specifically need BerkeleyDB support, you
+   must compile PHP from source with the `--with-db4` flag and install
+   libdb5.3-dev package. Or use a distribution that uses this argument by
+   default.
+
+### Migration from BerkeleyDB to LMDB
+
+If you have existing Noid databases in BerkeleyDB format, there are two
+approaches to migrate to LMDB depending on your situation.
+
+#### Method 1: Using `noid dbimport` (db4 handler still available)
+
+If your system still has the db4 handler available (e.g., Debian 11 before
+upgrading), use the built-in migration command:
+
+```bash
+# 1. Create the destination LMDB database
+./noid -t lmdb dbcreate .zd
+
+# 2. Import data from BerkeleyDB to LMDB
+./noid -t lmdb dbimport bdb
+
+# 3. Verify the migration
+./noid -t lmdb dbinfo
+
+# 4. Update your settings.php to use 'db_type' => 'lmdb'
+```
+
+**Note:** The `dbimport` command requires:
+- The destination database to exist (created with `dbcreate`)
+- The PHP db4 handler to read the source database
+
+#### Method 2: Using migration scripts (db4 handler NOT available)
+
+If your system no longer has the db4 handler (Debian 12+, RHEL 10+), use the
+migration scripts provided in the `scripts/` directory. These scripts read
+BerkeleyDB files using system tools (not PHP) and restore them to LMDB.
+
+**Scripts provided:**
+
+| Script                   | Language | Description                               |
+|--------------------------|----------|-------------------------------------------|
+| `import_from_dump.php`   | PHP      | Restores LMDB from db_dump output or JSON |
+| `export_bdb_to_json.py`  | Python   | Exports BerkeleyDB to JSON                |
+| `export_bdb_to_json.pl`  | Perl     | Exports BerkeleyDB to JSON                |
+
+**Option A: Using db_dump (recommended)**
+
+The `db_dump` utility from the `db-util` package can read BerkeleyDB files
+without PHP:
+
+```bash
+# 1. Install db-util
+sudo apt install db-util          # Debian/Ubuntu
+sudo dnf install libdb-utils      # RHEL/Fedora
+
+# 2. Create a text dump of your database
+db_dump -p /path/to/datafiles/NOID/noid.bdb > noid_dump.txt
+
+# 3. Check system requirements
+php scripts/import_from_dump.php --check
+
+# 4. Restore to LMDB (creates noid.lmdb automatically)
+php scripts/import_from_dump.php noid_dump.txt /path/to/datafiles/NOID
+
+# 5. Update your settings.php to use 'db_type' => 'lmdb'
+```
+
+**Option B: Using Python**
+
+If `db_dump` doesn't work (version mismatch), use Python with bsddb3:
+
+```bash
+# 1. Install Python bsddb3
+sudo apt install python3-bsddb3   # Debian/Ubuntu
+pip3 install bsddb3               # Or via pip
+
+# 2. Export to JSON
+python3 scripts/export_bdb_to_json.py /path/to/noid.bdb noid_data.json
+
+# 3. Restore to LMDB
+php scripts/import_from_dump.php --json noid_data.json /path/to/datafiles/NOID
+```
+
+**Option C: Using Perl**
+
+```bash
+# 1. Install Perl modules
+sudo apt install libberkeleydb-perl libjson-perl   # Debian/Ubuntu
+
+# 2. Export to JSON
+perl scripts/export_bdb_to_json.pl /path/to/noid.bdb noid_data.json
+
+# 3. Restore to LMDB
+php scripts/import_from_dump.php --json noid_data.json /path/to/datafiles/NOID
+```
+
+**Option D: Using Docker**
+
+If none of the above work, use a Docker container with an older Debian:
+
+```bash
+# Run a Debian 11 container with your data mounted
+docker run -it --rm -v /path/to/datafiles:/data debian:bullseye bash
+
+# Inside the container
+apt update && apt install -y php-cli php-dba
+cd /data/NOID
+
+# Use Method 1 (dbimport) inside the container
+```
+
+#### Key differences between methods
+
+| Aspect                 | `noid dbimport`          | `import_from_dump.php`          |
+|------------------------|--------------------------|---------------------------------|
+| Creates destination DB | No (requires `dbcreate`) | **Yes** (creates automatically) |
+| Requires db4 handler   | **Yes**                  | No                              |
+| Input source           | PHP db4 handler          | Text file (dump/JSON)           |
+| Works on Debian 12+    | No                       | **Yes**                         |
+
+#### Migration script options
+
+```bash
+# Check system requirements
+php scripts/import_from_dump.php --check
+
+# Show help for creating dump files
+php scripts/import_from_dump.php --dump-help
+
+# Dry run (parse file without importing)
+php scripts/import_from_dump.php -n noid_dump.txt /path/to/NOID
+
+# Verbose mode
+php scripts/import_from_dump.php -v noid_dump.txt /path/to/NOID
+
+# Import from JSON file
+php scripts/import_from_dump.php --json noid_data.json /path/to/NOID
+```
 
 
 Enhancements
