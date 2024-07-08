@@ -1,9 +1,10 @@
 <?php
 
 return array(
-    // The type of database may be bdb, lmdb, mysql, sqlite or xml.
-    // The default is bdb (requires db4 handler which is unavailable on most
-    // modern Linux distributions). Use 'lmdb', 'sqlite' or 'xml' instead.
+    // The type of database may be lmdb, bdb, mysql, sqlite or xml.
+    // The default is lmdb (Lightning Memory-Mapped Database), which is
+    // available on all modern Linux distributions via php-dba.
+    // Use 'bdb' only on older systems with db4 handler available.
     'db_type' => '',
     // Default storage in main config is the root folder datafiles/.
     // It may be relative to the root.

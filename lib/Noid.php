@@ -99,7 +99,7 @@ class Noid
      *
      * @var string
      */
-    protected static $_dbType = 'bdb';
+    protected static $_dbType = 'lmdb';
 
     /**
      * Map of noid paths to settings for dbopen/dbclose.
@@ -527,7 +527,7 @@ class Noid
      * @param string $dbType
      * @return array
      */
-    protected static function _buildSettings($dbdir, $dbType = 'bdb')
+    protected static function _buildSettings($dbdir, $dbType = 'lmdb')
     {
         $dbdir = ($dbdir === '.') ? getcwd() : $dbdir;
 

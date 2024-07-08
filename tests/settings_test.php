@@ -1,10 +1,10 @@
 <?php
 
 return array(
-    // The type of database may be bdb, lmdb, mysql, sqlite or xml.
-    // Set to empty string '' to use 'bdb' (requires BerkeleyDB extension).
-    // Use 'lmdb' for LMDB (Debian's recommended BerkeleyDB replacement).
+    // The type of database may be lmdb, bdb, mysql, sqlite or xml.
+    // Set to empty string '' to use 'lmdb' (the new default).
     // Use 'sqlite' or 'xml' for portable testing without external dependencies.
+    // Use 'bdb' only on older systems with db4 handler available.
     'db_type' => 'sqlite',
     // Default storage in mainconfig is the root folder datafiles/.
     // It may be relative to the root.

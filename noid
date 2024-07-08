@@ -340,13 +340,13 @@ if(!class_exists('NoidApp')){
             $this->settings = include $this->settings_file;
 
             // get the option "-t/--type" (database type)
-            // default - bdb (BerkeleyDB)
+            // default - lmdb (Lightning Memory-Mapped Database)
             $db_type_option = isset($options['type']) ? $options['type'] : null;
             if (empty($db_type_option)) {
                 $db_type_option = $this->settings['db_type'];
             }
             if (empty($db_type_option)) {
-                $db_type_option = 'bdb';
+                $db_type_option = 'lmdb';
             } else if (!in_array(strtolower($db_type_option), array_keys(Globals::DB_TYPES))) {
                 print 'error: invalid DbType (database type).' . PHP_EOL;
                 $this->usage(1, 1, 'intro');
@@ -1169,8 +1169,8 @@ environment variable, or the param set in file "config/settings.php".
 When the path is a config file, its params will be used. The default config
 file is "config/settings.php" in other cases.
 
-DbType defaults to "bdb" (means Berkeley DB) if not found from -t/--type or
-the param set in config/settings.php.
+DbType defaults to "lmdb" (Lightning Memory-Mapped Database) if not found from
+-t/--type or the param set in config/settings.php.
 
 For more information, try "perldoc noid" or "noid help Command".
 

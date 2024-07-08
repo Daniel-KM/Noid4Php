@@ -68,9 +68,9 @@ class NoidTestCase extends TestCase
         $this->settings_file = __DIR__ . DIRECTORY_SEPARATOR . $this->settings_file;
         $this->settings = include $this->settings_file;
 
-        // Use db_type from settings, default to 'bdb' if empty.
+        // Use db_type from settings, default to 'lmdb' if empty.
         if (empty($this->settings['db_type'])) {
-            $this->settings['db_type'] = 'bdb';
+            $this->settings['db_type'] = 'lmdb';
         }
         $db_type = $this->settings['db_type'];
 
