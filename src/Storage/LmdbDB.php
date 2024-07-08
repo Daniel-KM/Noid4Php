@@ -120,7 +120,8 @@ class LmdbDB implements DatabaseInterface
             return;
         }
 
-        dba_sync($this->handle);
+        // Suppress warning if database was opened read-only.
+        @dba_sync($this->handle);
         dba_close($this->handle);
         $this->handle = null;
     }
