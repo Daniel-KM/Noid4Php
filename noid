@@ -1394,8 +1394,17 @@ EOD;
                 $user .= '@' . $host;
             }
 
-            // Look up by REAL_USER_ID first.
-            $username = get_current_user();
+            // Look up by running process user first.
+            $username = '';
+            if (function_exists('posix_getuid') && function_exists('posix_getpwuid')) {
+                // Use posix_getuid() to get the actual running user's uid.
+                $userInfo = posix_getpwuid(posix_getuid());
+                $username = $userInfo ? $userInfo['name'] : '';
+            }
+            if (empty($username)) {
+                // Fallback to get_current_user() (returns script file owner).
+                $username = get_current_user();
+            }
             if(empty($username)){
                 return '';
             }
