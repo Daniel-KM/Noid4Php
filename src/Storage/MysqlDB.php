@@ -1,10 +1,11 @@
 <?php
 /**
- * Database Wrapper/Connector class, wrapping Mysql.
- * Noid class's db-related functions(open/close/read/write/...) will
- * be replaced with the functions of this class.
+ * Database Wrapper/Connector class, wrapping MySQLi.
  *
- * @warning: we use the <string>base64-encoding</strong> here, because the keys and values may contain the special chars which is not allowed in SQL queries.
+ * @deprecated Use PdoDb instead. This class requires the mysqli extension which
+ *             is less commonly available than PDO. PdoDb provides the same
+ *             functionality using PDO with support for MySQL, PostgreSQL, and SQLite.
+ * @see PdoDb
  */
 
 namespace Noid\Storage;

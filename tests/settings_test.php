@@ -19,18 +19,25 @@ return array(
             'db_name' => 'test_noid',
         ),
         'mysql' => array(
-            // This dir is used for logs.
+            // Deprecated: use 'pdo' with 'driver' => 'mysql' instead.
             'data_dir' => __DIR__ . DIRECTORY_SEPARATOR . 'datafiles_test',
-            // To set null allows to use default config of the server, except
-            // the database name (mysqli config).
-            // The default database name is "NOID", set in DabaseInterface.
-            // Don't overwrite production database!
             'host' => 'localhost',
             'user' => 'test_noid',
             'password' => 'test_noid',
             'db_name' => 'test_noid',
             'port' => 3306,
             'socket' => null,
+        ),
+        'pdo' => array(
+            // PDO storage backend - supports mysql, pgsql, sqlite drivers.
+            'driver' => 'mysql',
+            'data_dir' => __DIR__ . DIRECTORY_SEPARATOR . 'datafiles_test',
+            'host' => 'localhost',
+            'port' => 3306,
+            'user' => 'test_noid',
+            'password' => 'test_noid',
+            'db_name' => 'test_noid',
+            'charset' => 'utf8mb4',
         ),
         'sqlite' => array(
             'data_dir' => __DIR__ . DIRECTORY_SEPARATOR . 'datafiles_test',

@@ -32,6 +32,7 @@ class Globals
         'bdb' => \Noid\Storage\BerkeleyDB::class,
         'lmdb' => \Noid\Storage\LmdbDB::class,
         'mysql' => \Noid\Storage\MysqlDB::class,
+        'pdo' => \Noid\Storage\PdoDb::class,
         'sqlite' => \Noid\Storage\SqliteDB::class,
         'xml' => \Noid\Storage\XmlDB::class,
     );
