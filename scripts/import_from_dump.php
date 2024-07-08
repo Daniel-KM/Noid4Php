@@ -92,6 +92,63 @@ function checkKeySize(array $data): array
 }
 
 /**
+ * Create or update log files in the NOID directory.
+ *
+ * @param string $noidDir Path to the NOID directory
+ * @param string $format Target format (e.g., 'lmdb')
+ * @param string $sourceFile Source file used for import
+ */
+function createLogFiles(string $noidDir, string $format, string $sourceFile): void
+{
+    $noidDir = rtrim($noidDir, '/');
+    $date = date('Y-m-d H:i:s');
+    $version = class_exists('\Noid\Lib\Globals') ? \Noid\Lib\Globals::VERSION : 'unknown';
+
+    // Main transaction log
+    $logFile = "$noidDir/log";
+    $logEntry = "$date Imported from $sourceFile by Noid4Php $version.\n";
+    file_put_contents($logFile, $logEntry, FILE_APPEND);
+    chmod($logFile, 0666);
+
+    // Database engine log (loglmdb, logbdb, etc.)
+    $dbLogFile = "$noidDir/log$format";
+    if (!file_exists($dbLogFile)) {
+        file_put_contents($dbLogFile, '');
+        chmod($dbLogFile, 0666);
+    }
+}
+
+/**
+ * Update the README file in the NOID directory with conversion info.
+ *
+ * @param string $noidDir Path to the NOID directory
+ * @param string $format Target format (e.g., 'lmdb')
+ * @param string $sourceFile Source file used for import
+ */
+function updateReadme(string $noidDir, string $format, string $sourceFile): void
+{
+    $readmePath = rtrim($noidDir, '/') . '/README';
+    $date = date('Y-m-d H:i:s');
+    // Get version from Globals if available
+    $version = class_exists('\Noid\Lib\Globals') ? \Noid\Lib\Globals::VERSION : 'unknown';
+    $line1 = "Converted to $format on $date by Noid4Php $version.";
+    $line2 = "Source: $sourceFile. Original noid.bdb kept as backup.";
+
+    if (file_exists($readmePath)) {
+        $content = file_get_contents($readmePath);
+        $lines = explode("\n", $content);
+        // Insert conversion note as second and third lines
+        array_splice($lines, 1, 0, [$line1, $line2]);
+        $newContent = implode("\n", $lines);
+    } else {
+        // Create new README with conversion note
+        $newContent = "NOID database directory\n$line1\n$line2\n";
+    }
+
+    file_put_contents($readmePath, $newContent);
+}
+
+/**
  * Check system requirements and display helpful messages.
  *
  * @param bool $verbose Show detailed information
@@ -792,6 +849,12 @@ function main(array $argv): int
         fwrite(STDERR, "Warning: Record count mismatch!\n");
         return 1;
     }
+
+    // Update README and create log files
+    $noidDir = dirname($lmdbPath);
+    updateReadme($noidDir, 'lmdb', basename($dumpFile));
+    createLogFiles($noidDir, 'lmdb', basename($dumpFile));
+    echo "Updated README and log files\n";
 
     echo "\nMigration completed successfully!\n";
     echo "\nNext steps:\n";
