@@ -13,28 +13,47 @@
             "email": "jak@ucop.edu"
         }
     ],
-    "require": {
-        "php": ">=7.1"
-    },
-    "minimum-stability": "stable",
     "keywords": [
         "Noid4Php",
         "identifier",
         "utility",
         "nice opaque identifier",
-        "php",
-        "perl",
-        "phpunit",
+        "persistent identifier",
         "noid",
         "tool"
     ],
     "homepage": "https://gitlab.com/Daniel-KM/Noid4Php",
+    "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
             "Noid\\": "src"
         }
     },
+    "autoload-dev": {
+        "classmap": [
+            "tests/"
+        ]
+    },
+    "require": {
+        "php": ">=7.1"
+    },
+    "suggest": {
+        "ext-dba": "Required for LMDB (default) or BerkeleyDB storage backend",
+        "ext-pdo": "Required for PDO storage backend (MySQL, PostgreSQL, SQLite)",
+        "ext-pdo_mysql": "Required for PDO MySQL/MariaDB support",
+        "ext-pdo_pgsql": "Required for PDO PostgreSQL support",
+        "ext-pdo_sqlite": "Required for PDO SQLite support",
+        "ext-mysqli": "Deprecated: use ext-pdo_mysql instead",
+        "ext-sqlite3": "Required for SQLite3 storage backend (alternative to PDO)",
+        "ext-simplexml": "Required for XML storage backend"
+    },
     "require-dev": {
-        "phpunit/phpunit": "^7"
+        "ext-dba": "*",
+        "ext-json": "*",
+        "ext-libxml": "*",
+        "ext-posix": "*",
+        "ext-simplexml": "*",
+        "ext-sqlite3": "*",
+        "phpunit/phpunit": "^9"
     }
 }
