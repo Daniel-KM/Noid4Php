@@ -1,5 +1,8 @@
 <?php
 
+// Use system temp directory for test data
+$tempDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'noid_test';
+
 return array(
     // The type of database may be lmdb, bdb, mysql, sqlite or xml.
     // Set to empty string '' to use 'lmdb' (the new default).
@@ -11,16 +14,16 @@ return array(
     // Don't overwrite production dir!
     'storage' => array(
         'bdb' => array(
-            'data_dir' => __DIR__ . DIRECTORY_SEPARATOR . 'datafiles_test',
+            'data_dir' => $tempDir,
             'db_name' => 'test_noid',
         ),
         'lmdb' => array(
-            'data_dir' => __DIR__ . DIRECTORY_SEPARATOR . 'datafiles_test',
+            'data_dir' => $tempDir,
             'db_name' => 'test_noid',
         ),
         'mysql' => array(
             // Deprecated: use 'pdo' with 'driver' => 'mysql' instead.
-            'data_dir' => __DIR__ . DIRECTORY_SEPARATOR . 'datafiles_test',
+            'data_dir' => $tempDir,
             'host' => 'localhost',
             'user' => 'test_noid',
             'password' => 'test_noid',
@@ -31,7 +34,7 @@ return array(
         'pdo' => array(
             // PDO storage backend - supports mysql, pgsql, sqlite drivers.
             'driver' => 'mysql',
-            'data_dir' => __DIR__ . DIRECTORY_SEPARATOR . 'datafiles_test',
+            'data_dir' => $tempDir,
             'host' => 'localhost',
             'port' => 3306,
             'user' => 'test_noid',
@@ -40,11 +43,11 @@ return array(
             'charset' => 'utf8mb4',
         ),
         'sqlite' => array(
-            'data_dir' => __DIR__ . DIRECTORY_SEPARATOR . 'datafiles_test',
+            'data_dir' => $tempDir,
             'db_name' => 'test_noid',
         ),
         'xml' => array(
-            'data_dir' => __DIR__ . DIRECTORY_SEPARATOR . 'datafiles_test',
+            'data_dir' => $tempDir,
             'db_name' => 'test_noid',
         ),
     ),
