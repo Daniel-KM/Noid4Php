@@ -8,7 +8,7 @@ return array(
     // Set to empty string '' to use 'lmdb' (the new default).
     // Use 'sqlite' or 'xml' for portable testing without external dependencies.
     // Use 'bdb' only on older systems with db4 handler available.
-    'db_type' => 'sqlite',
+    'db_type' => 'lmdb',
     // Default storage in mainconfig is the root folder datafiles/.
     // It may be relative to the root.
     // Don't overwrite production dir!
