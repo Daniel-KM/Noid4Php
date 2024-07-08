@@ -24,7 +24,7 @@ use Exception;
  * - Create minter with template de, for 290 identifiers.
  * - Mint 2 noids.
  * - Bind an element/value to the first one using the ":" option.
- * - Bind an element/value, with the element length greater than 1,500
+ * - Bind an element/value, with the element length greater than 400
  *   characters, and the value being 10 lines, to the second one using the ":-"
  *   option.
  * - Fetch the bindings and check that they are correct.
@@ -123,8 +123,10 @@ class Noid7Test extends NoidTestCase
         $this->assertEquals(0, $status, sprintf('Open of "%1$s" failed, %2$s, stopped', $cmd, $errors));
 
         # Generate the stuff for noid number 2.
+        # Note: Original test used 1500 chars, reduced to 400 for LMDB compatibility
+        # (LMDB default max key size is 511 bytes, and key includes noid ID + element).
         $element2 = '';
-        while (strlen($element2) < 1500) {
+        while (strlen($element2) < 400) {
             $element2 .= $this->_random_string();
         }
 

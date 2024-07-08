@@ -20,6 +20,7 @@ class TemplateLongTest extends NoidTestCase
     const dbtype = 'lmdb';
 
     /**
+     * @group long
      * @throws Exception
      */
     public function testLong()
