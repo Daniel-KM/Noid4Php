@@ -55,6 +55,43 @@ foreach ($autoloadPaths as $autoloadPath) {
 use Exception;
 
 /**
+ * LMDB default maximum key size in bytes.
+ * This is a compile-time constant in LMDB (MDB_MAXKEYSIZE = 511 by default).
+ */
+const LMDB_MAX_KEY_SIZE = 511;
+
+/**
+ * Check for keys that exceed LMDB's maximum key size.
+ *
+ * @param array $data Key-value pairs to check
+ * @return array ['ok' => bool, 'oversized_keys' => array of key names, 'max_found' => int]
+ */
+function checkKeySize(array $data): array
+{
+    $oversizedKeys = [];
+    $maxFound = 0;
+
+    foreach ($data as $key => $value) {
+        $keyLen = strlen($key);
+        if ($keyLen > $maxFound) {
+            $maxFound = $keyLen;
+        }
+        if ($keyLen > LMDB_MAX_KEY_SIZE) {
+            $oversizedKeys[] = [
+                'key' => strlen($key) > 80 ? substr($key, 0, 77) . '...' : $key,
+                'length' => $keyLen,
+            ];
+        }
+    }
+
+    return [
+        'ok' => empty($oversizedKeys),
+        'oversized_keys' => $oversizedKeys,
+        'max_found' => $maxFound,
+    ];
+}
+
+/**
  * Check system requirements and display helpful messages.
  *
  * @param bool $verbose Show detailed information
@@ -665,6 +702,33 @@ function main(array $argv): int
 
     $recordCount = count($data);
     echo "Found $recordCount records\n";
+
+    // Check for oversized keys that exceed LMDB's limit
+    $keyCheck = checkKeySize($data);
+    if ($verbose) {
+        echo "Maximum key size found: {$keyCheck['max_found']} bytes (LMDB limit: " . LMDB_MAX_KEY_SIZE . ")\n";
+    }
+
+    if (!$keyCheck['ok']) {
+        $oversizedCount = count($keyCheck['oversized_keys']);
+        fwrite(STDERR, "\nError: Found $oversizedCount key(s) exceeding LMDB's maximum key size (" . LMDB_MAX_KEY_SIZE . " bytes).\n\n");
+        fwrite(STDERR, "Oversized keys:\n");
+        foreach (array_slice($keyCheck['oversized_keys'], 0, 10) as $item) {
+            fwrite(STDERR, "  - {$item['key']} ({$item['length']} bytes)\n");
+        }
+        if ($oversizedCount > 10) {
+            fwrite(STDERR, "  ... and " . ($oversizedCount - 10) . " more\n");
+        }
+        fwrite(STDERR, "\nLMDB cannot store keys larger than " . LMDB_MAX_KEY_SIZE . " bytes.\n");
+        fwrite(STDERR, "Use a different storage backend instead:\n");
+        fwrite(STDERR, "  - sqlite: No practical key size limit\n");
+        fwrite(STDERR, "  - xml: No practical key size limit\n");
+        fwrite(STDERR, "  - mysql/pdo: Depends on configuration, typically larger limits\n");
+        fwrite(STDERR, "\nTo import into SQLite instead, use the noid tool:\n");
+        fwrite(STDERR, "  1. First create an LMDB database without the oversized keys, or\n");
+        fwrite(STDERR, "  2. Use 'noid -t sqlite dbcreate' and import via custom script\n\n");
+        return 1;
+    }
 
     if ($verbose) {
         echo "\nFirst 10 keys:\n";
