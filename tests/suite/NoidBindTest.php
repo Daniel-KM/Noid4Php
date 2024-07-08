@@ -18,7 +18,7 @@ use Noid\Storage\DatabaseInterface;
  */
 class NoidBindTest extends NoidTestCase
 {
-    const dbtype = 'bdb';
+    const dbtype = 'lmdb';
 
     /**
      * Bind tests -- short

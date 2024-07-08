@@ -37,7 +37,7 @@ use Exception;
  */
 class Noid4Test extends NoidTestCase
 {
-    const dbtype = 'bdb';
+    const dbtype = 'lmdb';
 
     /**
      * @throws Exception
@@ -61,17 +61,17 @@ class Noid4Test extends NoidTestCase
         # echo 'NOID is a directory';
 
         # Check for the presence of the "README" file, then "log" file, then the
-        # "logbdb" file within "NOID".
+        # "loglmdb" file within "NOID".
         $this->assertFileExists($this->noid_dir . 'README');
         # echo 'NOID/README was created';
         $this->assertFileExists($this->noid_dir . 'log');
         # echo 'NOID/log was created';
-        $this->assertFileExists($this->noid_dir . 'logbdb');
-        # echo 'NOID/logbdb was created';
+        $this->assertFileExists($this->noid_dir . 'loglmdb');
+        # echo 'NOID/loglmdb was created';
 
         # Check for the presence of the BerkeleyDB file within "NOID".
-        $this->assertFileExists($this->noid_dir . 'noid.bdb', 'Minter initialization failed, stopped');
-        # echo 'NOID/noid.bdb was created';
+        $this->assertFileExists($this->noid_dir . 'noid.lmdb', 'Minter initialization failed, stopped');
+        # echo 'NOID/noid.lmdb was created';
 
         # Mint 10.
         $cmd = "{$noid_cmd} mint 10 > /dev/null";

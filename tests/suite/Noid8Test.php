@@ -35,7 +35,7 @@ use Exception;
  */
 class Noid8Test extends NoidTestCase
 {
-    const dbtype = 'bdb';
+    const dbtype = 'lmdb';
 
     /**
      * @throws Exception
