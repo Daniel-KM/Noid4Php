@@ -168,6 +168,11 @@ class LmdbDB implements DatabaseInterface
             return false;
         }
 
+        // LMDB throws a warning if the key doesn't exist, so check first.
+        if (!dba_exists($key, $this->handle)) {
+            return false;
+        }
+
         return dba_delete($key, $this->handle);
     }
 
