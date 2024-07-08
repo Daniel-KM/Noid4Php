@@ -157,9 +157,37 @@ class NoidTestCase extends TestCase
                 fclose($pipe);
             }
             $status = proc_close($proc);
+
+            // Filter out PHP warnings from output (e.g., Imagick version mismatch).
+            $output = $this->_filterPhpWarnings($output);
         } else {
             throw new Exception("Failed to execute command: $cmd.");
         }
+    }
+
+    /**
+     * Filter PHP extension version warnings from command output.
+     *
+     * Only filters specific known PHP extension warnings (like Imagick version mismatch)
+     * that are unrelated to the actual test functionality.
+     *
+     * @param string $output
+     * @return string
+     */
+    protected function _filterPhpWarnings($output)
+    {
+        $lines = explode(PHP_EOL, $output);
+        $filtered = array_filter($lines, function ($line) {
+            // Filter Imagick version mismatch warning
+            if (strpos($line, 'Warning: Version warning: Imagick was compiled against') !== false) {
+                return false;
+            }
+            return true;
+        });
+        // Re-index and join, then trim leading/trailing whitespace
+        $result = implode(PHP_EOL, $filtered);
+        // Remove leading empty lines that may result from filtering
+        return ltrim($result, PHP_EOL);
     }
 
     /**

@@ -33,12 +33,13 @@ return array(
         ),
         'pdo' => array(
             // PDO storage backend - supports mysql, pgsql, sqlite drivers.
-            'driver' => 'mysql',
+            // Use sqlite for testing as it requires no external server.
+            'driver' => 'sqlite',
             'data_dir' => $tempDir,
-            'host' => 'localhost',
-            'port' => 3306,
-            'user' => 'test_noid',
-            'password' => 'test_noid',
+            'host' => null,
+            'port' => null,
+            'user' => null,
+            'password' => null,
             'db_name' => 'test_noid',
             'charset' => 'utf8mb4',
         ),
