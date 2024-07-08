@@ -32,6 +32,8 @@ class DbMigrationTest extends NoidTestCase
 
     /**
      * Test that LMDB handler is available.
+     *
+     * @coversNothing
      */
     public function testLmdbHandlerAvailable()
     {
@@ -47,6 +49,8 @@ class DbMigrationTest extends NoidTestCase
 
     /**
      * Test LMDB is the new default database type.
+     *
+     * @coversNothing
      */
     public function testLmdbIsDefault()
     {
@@ -62,6 +66,7 @@ class DbMigrationTest extends NoidTestCase
     /**
      * Test conversion from LMDB to other formats.
      *
+     * @coversNothing
      * @throws \Exception
      */
     public function testDatabaseConvertingLmdb()
@@ -82,6 +87,7 @@ class DbMigrationTest extends NoidTestCase
     /**
      * Test conversion to LMDB from other formats.
      *
+     * @coversNothing
      * @throws \Exception
      */
     public function testDatabaseConvertingToLmdb()
@@ -101,6 +107,8 @@ class DbMigrationTest extends NoidTestCase
 
     /**
      * Test that migration script exists and is executable.
+     *
+     * @coversNothing
      */
     public function testMigrationScriptExists()
     {
@@ -113,6 +121,8 @@ class DbMigrationTest extends NoidTestCase
 
     /**
      * Test migration script --check option.
+     *
+     * @coversNothing
      */
     public function testMigrationScriptCheck()
     {
@@ -125,6 +135,8 @@ class DbMigrationTest extends NoidTestCase
 
     /**
      * Test migration script --help option.
+     *
+     * @coversNothing
      */
     public function testMigrationScriptHelp()
     {
@@ -138,6 +150,8 @@ class DbMigrationTest extends NoidTestCase
 
     /**
      * Test parsing of db_dump format.
+     *
+     * @coversNothing
      */
     public function testParseDumpFormat()
     {
@@ -178,6 +192,8 @@ DUMP;
 
     /**
      * Test parsing of JSON format.
+     *
+     * @coversNothing
      */
     public function testParseJsonFormat()
     {
@@ -209,6 +225,8 @@ DUMP;
 
     /**
      * Test full migration from JSON to LMDB.
+     *
+     * @coversNothing
      */
     public function testFullMigrationJsonToLmdb()
     {
@@ -306,6 +324,8 @@ DUMP;
 
     /**
      * Test that db_dump format with escaped characters is parsed correctly.
+     *
+     * @coversNothing
      */
     public function testParseDumpWithEscapedCharacters()
     {

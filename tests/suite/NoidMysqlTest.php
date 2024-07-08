@@ -9,6 +9,10 @@ namespace NoidTest;
 
 use Exception;
 
+/**
+ * @covers \Noid\Lib\Db
+ * @covers \Noid\Storage\MysqlDB
+ */
 class NoidMysqlTest extends NoidTestCase
 {
     const dbtype = 'mysql';

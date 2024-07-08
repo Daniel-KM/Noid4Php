@@ -19,6 +19,8 @@ use Noid\Storage\DatabaseInterface;
  * Note on Perl script.
  * Before `make install' is performed this script should be runnable with
  * `make test'. After `make install' it should work as `perl dbcreate.t'
+ *
+ * @covers \Noid\Lib\Db
  */
 class NoidDbCreateTest extends NoidTestCase
 {

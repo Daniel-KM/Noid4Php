@@ -126,6 +126,9 @@ class NoidTestCase extends TestCase
     {
     }
 
+    /**
+     * @coversNothing
+     */
     public function testReady()
     {
         // TODO Add a test for readiness.

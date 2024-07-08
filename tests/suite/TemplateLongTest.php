@@ -14,6 +14,8 @@ use Noid\Storage\DatabaseInterface;
 /**
  * Tests for Noid: create a template with 3721 noids, and mint them all, until a
  * duplicate is found (none!).
+ *
+ * @covers \Noid\Lib\Db
  */
 class TemplateLongTest extends NoidTestCase
 {

@@ -9,6 +9,10 @@ namespace NoidTest;
 
 use Exception;
 
+/**
+ * @covers \Noid\Lib\Db
+ * @covers \Noid\Storage\SqliteDB
+ */
 class NoidSqliteTest extends NoidTestCase
 {
     const dbtype = 'sqlite';

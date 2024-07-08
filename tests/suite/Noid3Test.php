@@ -33,6 +33,8 @@ use Exception;
  * 07/19/2004 - MAR - Initial writing
  *
  * ------------------------------------
+ *
+ * @covers \Noid\Lib\Db
  */
 class Noid3Test extends NoidTestCase
 {

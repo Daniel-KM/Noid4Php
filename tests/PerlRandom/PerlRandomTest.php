@@ -13,10 +13,12 @@ use Noid\Lib\PerlRandom;
 /**
  * Tests for PerlRandom.
  *
- * WARNING: It’s normal that the test fails for testRand() and testStringRand():
+ * WARNING: It's normal that the test fails for testRand() and testStringRand():
  * perl and php are not compatible with seed above 8192 for float numbers. It
  * means you should not use such params when you need the same series for perl
  * and php.
+ *
+ * @covers \Noid\Lib\PerlRandom
  */
 class PerlRandomTest extends TestCase
 {

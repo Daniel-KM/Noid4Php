@@ -15,6 +15,9 @@ use Noid\Storage\DatabaseInterface;
 
 /**
  * Tests for Noid (Bind).
+ *
+ * @covers \Noid\Lib\Db
+ * @covers \Noid\Lib\Helper
  */
 class NoidBindTest extends NoidTestCase
 {
