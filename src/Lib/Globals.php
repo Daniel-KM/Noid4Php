@@ -30,6 +30,7 @@ class Globals
      */
     const DB_TYPES = array(
         'bdb' => \Noid\Storage\BerkeleyDB::class,
+        'lmdb' => \Noid\Storage\LmdbDB::class,
         'mysql' => \Noid\Storage\MysqlDB::class,
         'sqlite' => \Noid\Storage\SqliteDB::class,
         'xml' => \Noid\Storage\XmlDB::class,

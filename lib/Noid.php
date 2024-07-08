@@ -538,6 +538,10 @@ class Noid
                     'data_dir' => $dbdir,
                     'db_name' => 'NOID',
                 ),
+                'lmdb' => array(
+                    'data_dir' => $dbdir,
+                    'db_name' => 'NOID',
+                ),
                 'mysql' => array(
                     'data_dir' => $dbdir,
                     'host' => 'localhost',
