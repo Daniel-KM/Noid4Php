@@ -814,6 +814,12 @@ class Noid
             return null;
         }
 
+        // Check pre-generation pool first (fastest path)
+        $pregenId = self::_getFromPregenPool($noid, $contact);
+        if ($pregenId !== null) {
+            return $pregenId;
+        }
+
         # Check if the head of the queue is ripe.  See comments under queue()
         # for an explanation of how the queue works.
         #
@@ -2153,5 +2159,193 @@ class Noid
             }
         }
         return '';
+    }
+
+    /**
+     * Pre-generate identifiers into a pool for instant retrieval.
+     *
+     * This fills a pre-generation pool with ready-to-use identifiers.
+     * When mint() is called, it first checks this pool before generating
+     * new IDs, providing near-instant response times.
+     *
+     * Example usage:
+     * ```php
+     * // Pre-generate 100 IDs into the pool
+     * Noid::pregenerate($noid, 'contact@example.org', 100);
+     *
+     * // Later, mint() returns instantly from the pool
+     * $id = Noid::mint($noid, 'contact@example.org');
+     * ```
+     *
+     * @param string $noid    The noid/database path.
+     * @param string $contact The contact responsible for the identifiers.
+     * @param int    $count   Number of identifiers to pre-generate (max 10000).
+     *
+     * @return int Number of identifiers actually pre-generated.
+     * @throws Exception
+     */
+    public static function pregenerate($noid, $contact, $count)
+    {
+        self::init();
+
+        $db = Db::getDb($noid);
+        if (is_null($db)) {
+            return 0;
+        }
+
+        if (empty($contact)) {
+            Log::addmsg($noid, 'contact undefined');
+            return 0;
+        }
+
+        if ($count < 1) {
+            Log::addmsg($noid, 'error: pregenerate count must be at least 1');
+            return 0;
+        }
+
+        if ($count > 10000) {
+            Log::addmsg($noid, 'error: pregenerate count cannot exceed 10000');
+            return 0;
+        }
+
+        $template = Db::getCached('template');
+        if (!$template) {
+            Log::addmsg($noid, 'error: this minter does not generate identifiers.');
+            return 0;
+        }
+
+        // Get current pool index (where to add new IDs)
+        $poolIndex = (int) Db::$engine->get(Globals::_RR . "/pregen_tail");
+
+        // Pre-compute values for batch generation
+        $addcheckchar = Db::getCached('addcheckchar');
+        $repertoire = $addcheckchar
+            ? (Db::getCached('checkrepertoire') ?: Helper::getAlphabet($template))
+            : '';
+        $firstpart = Db::getCached('firstpart');
+        $longterm = Db::getCached('longterm');
+        $wrap = Db::getCached('wrap');
+
+        if (Db::getCached('generator_type') == 'random') {
+            self::$random_generator = Db::getCached('generator_random') ?: self::$random_generator;
+            // Initialize PerlRandom if needed
+            if (self::$random_generator == 'PerlRandom'
+                || self::$random_generator == 'Perl_Random'
+            ) {
+                self::$_perlRandom = PerlRandom::init();
+            }
+        }
+
+        $generated = 0;
+        $currdate = Helper::getTemper();
+
+        for ($i = 0; $i < $count; $i++) {
+            // Seed random generator with current counter value
+            srand((int) Db::$engine->get(Globals::_RR . "/oacounter"));
+
+            // Generate an ID using the internal generator
+            $id = Generator::_genid($noid);
+            if ($id === null) {
+                // Minter exhausted
+                break;
+            }
+
+            // Apply check character if needed
+            if ($addcheckchar) {
+                $id = $firstpart . Helper::checkchar($id, $repertoire);
+            } else {
+                $id = $firstpart . $id;
+            }
+
+            // Store in pre-generation pool
+            Db::_dblock();
+            Db::$engine->set(Globals::_RR . "/p/$poolIndex", $id);
+            Db::$engine->set(Globals::_RR . "/pregen_tail", $poolIndex + 1);
+            Db::$engine->set(Globals::_RR . "/pregenerated",
+                (int) Db::$engine->get(Globals::_RR . "/pregenerated") + 1);
+            Db::_dbunlock();
+
+            // Log the pre-generation
+            $circ_svec = 'p';  // 'p' for pre-generated
+            $circ_rec = "$circ_svec|$currdate|$contact|" . Db::$engine->get(Globals::_RR . "/oacounter");
+            Db::$engine->set("$id\t" . Globals::_RR . "/c", $circ_rec);
+
+            if ($longterm) {
+                Log::logmsg($noid, sprintf('pregen: %s', $id));
+            }
+
+            $poolIndex++;
+            $generated++;
+        }
+
+        return $generated;
+    }
+
+    /**
+     * Get the count of pre-generated identifiers in the pool.
+     *
+     * @param string $noid The noid/database path.
+     *
+     * @return int Number of pre-generated IDs available.
+     * @throws Exception
+     */
+    public static function getPregenCount($noid)
+    {
+        self::init();
+
+        $db = Db::getDb($noid);
+        if (is_null($db)) {
+            return 0;
+        }
+
+        return (int) Db::$engine->get(Globals::_RR . "/pregenerated");
+    }
+
+    /**
+     * Get an identifier from the pre-generation pool.
+     *
+     * @param string $noid    The noid/database path.
+     * @param string $contact The contact for logging.
+     *
+     * @return string|null The identifier, or null if pool is empty.
+     * @throws Exception
+     */
+    protected static function _getFromPregenPool($noid, $contact)
+    {
+        $pregenCount = (int) Db::$engine->get(Globals::_RR . "/pregenerated");
+        if ($pregenCount <= 0) {
+            return null;
+        }
+
+        $poolHead = (int) Db::$engine->get(Globals::_RR . "/pregen_head");
+        $id = Db::$engine->get(Globals::_RR . "/p/$poolHead");
+
+        if ($id === false || $id === null) {
+            return null;
+        }
+
+        Db::_dblock();
+
+        // Remove from pool
+        Db::$engine->delete(Globals::_RR . "/p/$poolHead");
+        Db::$engine->set(Globals::_RR . "/pregen_head", $poolHead + 1);
+        Db::$engine->set(Globals::_RR . "/pregenerated", $pregenCount - 1);
+
+        Db::_dbunlock();
+
+        // Update circulation record from 'p' (pre-generated) to 'i' (issued)
+        $currdate = Helper::getTemper();
+        $circ_rec = Db::$engine->get("$id\t" . Globals::_RR . "/c");
+        if ($circ_rec && substr($circ_rec, 0, 1) === 'p') {
+            // Replace 'p' with 'i' for issued
+            $circ_rec = 'i' . substr($circ_rec, 1);
+            Db::$engine->set("$id\t" . Globals::_RR . "/c", $circ_rec);
+        }
+
+        if (Db::getCached('longterm')) {
+            Log::logmsg($noid, sprintf('m: (from pregen pool) %s', $id));
+        }
+
+        return $id;
     }
 }
