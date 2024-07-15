@@ -38,6 +38,7 @@
         "php": ">=7.1"
     },
     "suggest": {
+        "ext-bcmath": "Optional for drand48 generator float operations (not used for minting)",
         "ext-dba": "Required for LMDB (default) or BerkeleyDB storage backend",
         "ext-pdo": "Required for PDO storage backend (MySQL, PostgreSQL, SQLite)",
         "ext-pdo_mysql": "Required for PDO MySQL/MariaDB support",
