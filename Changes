@@ -1,5 +1,12 @@
 Revision history for noid script and Noid module.
 
+1.4.0-0.424-php	Batch management and performance
+	Default generator renamed as drand48.
+	Added option to specify the generator.
+	Added caches and arguments for performance.
+	Added methods to mint, bind and fetch multiple keys.
+	Improved PerlRandom with native 64 bits computation.
+
 1.3.0-0.424-php	Compatibility with new linux distributions
 	Replaced bdb with lmdb.
 	Replaced mysql with pdo.

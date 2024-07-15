@@ -1,7 +1,7 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         Noid
-version:      1.3.0-0.424-php
+version:      1.4.0-0.424-php
 version_from: VERSION
 installdirs:  site
 requires:
