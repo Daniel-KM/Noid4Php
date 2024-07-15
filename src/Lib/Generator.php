@@ -164,37 +164,21 @@ class Generator
             return null;
         }
 
-        switch (Noid::$random_generator) {    # pick a specific counter name
-        case 'Perl_Random':
-            // Kept for compatibility with old config.
-        case 'PerlRandom':
-        default:
-            Noid::$_perlRandom->srand($seed);
-            $randn = Noid::$_perlRandom->int_rand($len);
-            break;
-
-        case 'perl rand()':
-            $cmd = 'perl -e "srand(' . $seed . '); print int(rand(' . $len . '));"';
-            Helper::executeCommand($cmd, $status, $output, $errors);
-            if ($status != 0) {
-                Db::_dbunlock();
-                Log::addmsg($noid, sprintf(
-                    'error: perl rand() is not available: %s.',
-                    $errors
-                ));
-                return null;
-            }
-            $randn = $output;
-            break;
-
-        case 'php mt_rand()':
+        switch (Noid::$random_generator) {
+        case 'php rand()':     // Legacy (same as mt_rand in PHP 7.1+)
+        case 'php mt_rand()':  // Legacy
+        case 'mt_rand':
             mt_srand($seed);
             $randn = mt_rand(0, $len - 1);
             break;
 
-        case 'php rand()':
-            srand($seed);
-            $randn = rand(0, $len - 1);
+        case 'PerlRandom':   // Legacy
+        case 'Perl_Random':  // Legacy
+        case 'perl rand()':  // Legacy
+        case 'drand48':
+        default:
+            Noid::$_perlRandom->srand($seed);
+            $randn = Noid::$_perlRandom->int_rand($len);
             break;
         }
 

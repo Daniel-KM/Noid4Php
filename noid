@@ -107,7 +107,7 @@ if(!class_exists('NoidApp')){
             'l:' => 'locktest:', // flag
             'f:' => 'fdbdir:', // filesystem directory name
             't:' => 'type:', // db type - bdb, mysql, xml, json…
-            'g:' => 'generator:', // random generator - PerlRandom, php mt_rand(), etc.
+            'g:' => 'generator:', // random generator - drand48, mt_rand
             'v' => 'version', // flag
             'h' => 'help', // flag
         );
@@ -420,7 +420,7 @@ if(!class_exists('NoidApp')){
             $this->settings['storage'][$db_type_option]['data_dir'] = $this->data_dir;
 
             // Handle generator option (-g/--generator) for random ID generation.
-            // Valid: 'PerlRandom' (default), 'php mt_rand()' (fast), 'php rand()', 'perl rand()'.
+            // Valid: 'drand48' (default, Perl-compatible), 'mt_rand'.
             if (!empty($options['generator'])) {
                 $this->settings['generator'] = $options['generator'];
             }
@@ -1194,10 +1194,8 @@ DbType defaults to "lmdb" (Lightning Memory-Mapped Database) if not found from
 -t/--type or the param set in config/settings.php.
 
 Generator controls the random number generator for ID generation. Options:
-  - "PerlRandom" (default): Perl-compatible, for importing existing Perl databases
-  - "php mt_rand()": Fast native PHP (recommended for new databases)
-  - "php rand()": Native PHP rand()
-  - "perl rand()": Calls Perl (requires Perl installed)
+  - "drand48" (default): Perl-compatible drand48 LCG algorithm
+  - "mt_rand": Mersenne Twister, 7x faster, better distribution, not Perl standard
 
 For more information, try "perldoc noid" or "noid help Command".
 

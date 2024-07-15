@@ -369,10 +369,9 @@ class Db
         self::$engine->set(Globals::_RR . "/genonly", $genonly);
         if ($gen_type == 'random') {
             // Allow configuring the random generator via settings.
-            // Valid values: 'PerlRandom' (default, Perl-compatible), 'php mt_rand()' (fast),
-            // 'php rand()', 'perl rand()' (requires Perl).
+            // Valid values: 'mt_rand' (default, Mersenne Twister), 'drand48' (Perl-compatible).
             if (!empty($settings['generator'])) {
-                $validGenerators = ['PerlRandom', 'Perl_Random', 'php mt_rand()', 'php rand()', 'perl rand()'];
+                $validGenerators = ['mt_rand', 'drand48'];
                 if (in_array($settings['generator'], $validGenerators)) {
                     Noid::$random_generator = $settings['generator'];
                 } else {
