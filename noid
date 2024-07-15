@@ -929,7 +929,7 @@ if(!class_exists('NoidApp')){
                     'The peppermint command is not implemented yet.' . PHP_EOL);
                 return 0;
             }
-            if(is_null($n) || !is_numeric($n)){
+            if(is_null($n) || !is_numeric($n) || $n < 1){
                 fwrite($this->stderr, sprintf(
                     'Argument error: expected positive integer, got %s',
                     is_null($n) ? 'nothing' : $n
@@ -943,7 +943,10 @@ if(!class_exists('NoidApp')){
                 print Log::errmsg($noid);
                 return 0;
             }
-            while($n--){
+
+            // Use mintMultiple for batch minting (more efficient for n > 1)
+            $n = (int)$n;
+            if($n === 1){
                 $id = Noid::mint($noid, $this->contact, $pepper);
                 if(is_null($id)){
                     fwrite($this->stderr, Log::errmsg($noid));
@@ -952,8 +955,19 @@ if(!class_exists('NoidApp')){
                 }
                 print "id: $id" . PHP_EOL;
             }
+            else{
+                $ids = Noid::mintMultiple($noid, $this->contact, $n);
+                if(empty($ids)){
+                    fwrite($this->stderr, Log::errmsg($noid));
+                    Db::dbclose($noid);
+                    return 0;
+                }
+                foreach($ids as $id){
+                    print "id: $id" . PHP_EOL;
+                }
+            }
+
             Db::dbclose($noid);
-            print PHP_EOL;
             return 1;
         }
 
