@@ -22,7 +22,7 @@ use Noid\Lib\PerlRandom;
  */
 class PerlRandomTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         // Check if perl is available.
         $cmd = 'perl -v';
