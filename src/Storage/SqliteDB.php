@@ -118,6 +118,16 @@ class SqliteDB implements DatabaseInterface
     }
 
     /**
+     * Check if the database connection is currently open.
+     *
+     * @return bool TRUE if connection is open, FALSE otherwise.
+     */
+    public function isOpen()
+    {
+        return $this->handle instanceof SQLite3;
+    }
+
+    /**
      * @param string $key
      *
      * @return string|FALSE

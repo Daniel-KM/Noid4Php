@@ -121,4 +121,11 @@ interface DatabaseInterface
      * @throws Exception
      */
     public function get_range($pattern, $limit = 0);
+
+    /**
+     * Check if the database connection is currently open.
+     *
+     * @return bool TRUE if connection is open, FALSE otherwise.
+     */
+    public function isOpen();
 }

@@ -242,6 +242,16 @@ class PdoDb implements DatabaseInterface
     }
 
     /**
+     * Check if the database connection is currently open.
+     *
+     * @return bool TRUE if connection is open, FALSE otherwise.
+     */
+    public function isOpen()
+    {
+        return $this->handle instanceof PDO;
+    }
+
+    /**
      * Get value by key.
      *
      * @param string $key

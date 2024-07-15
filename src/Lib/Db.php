@@ -65,6 +65,30 @@ class Db
     ];
 
     /**
+     * Whether persistent connection mode is enabled.
+     * When enabled, dbclose() will not actually close the connection,
+     * and dbopen() will reuse an existing connection if available.
+     *
+     * @var bool
+     */
+    protected static $_persistent = false;
+
+    /**
+     * The settings used for the last opened connection.
+     * Used to verify connection compatibility when reusing.
+     *
+     * @var array|null
+     */
+    protected static $_lastSettings = null;
+
+    /**
+     * The noid path from the last opened connection.
+     *
+     * @var string|null
+     */
+    protected static $_lastNoid = null;
+
+    /**
      * Get a cached value or fetch from database.
      *
      * @param string $key The key name (without the :/:noid/ prefix)
@@ -101,6 +125,92 @@ class Db
     protected static function _clearCache()
     {
         self::$_cache = [];
+    }
+
+    /**
+     * Enable persistent connection mode.
+     *
+     * When persistent mode is enabled:
+     * - dbclose() will not actually close the connection
+     * - dbopen() will reuse an existing connection if available
+     *
+     * This improves performance for applications making many consecutive
+     * mint/bind operations by avoiding repeated connection overhead.
+     *
+     * Example usage:
+     * ```php
+     * Db::dbpersist(true);
+     * $noid = Db::dbopen($settings);
+     *
+     * // Multiple operations reuse the same connection
+     * for ($i = 0; $i < 1000; $i++) {
+     *     $id = Noid::mint($noid, 'contact');
+     *     Db::dbclose($noid); // Does not actually close
+     *     $noid = Db::dbopen($settings); // Reuses existing connection
+     * }
+     *
+     * // When done, disable persistent mode and close
+     * Db::dbunpersist();
+     * ```
+     *
+     * @param bool $enable TRUE to enable, FALSE to disable (default: TRUE)
+     */
+    public static function dbpersist($enable = true)
+    {
+        self::$_persistent = (bool) $enable;
+    }
+
+    /**
+     * Disable persistent connection mode and close any open connection.
+     *
+     * This is a convenience method equivalent to:
+     * ```php
+     * Db::dbpersist(false);
+     * Db::dbclose($noid);
+     * ```
+     *
+     * @param string|null $noid Optional noid to close. If null, closes the last opened noid.
+     * @throws Exception
+     */
+    public static function dbunpersist($noid = null)
+    {
+        self::$_persistent = false;
+        $noidToClose = $noid ?? self::$_lastNoid;
+        if ($noidToClose) {
+            self::dbclose($noidToClose);
+        }
+        self::$_lastSettings = null;
+        self::$_lastNoid = null;
+    }
+
+    /**
+     * Check if persistent connection mode is enabled.
+     *
+     * @return bool TRUE if persistent mode is enabled.
+     */
+    public static function isPersistent()
+    {
+        return self::$_persistent;
+    }
+
+    /**
+     * Check if a database connection is currently open.
+     *
+     * @return bool TRUE if connected, FALSE otherwise.
+     */
+    public static function isConnected()
+    {
+        return self::$engine && self::$engine->isOpen();
+    }
+
+    /**
+     * Get the currently open noid path, if any.
+     *
+     * @return string|null The noid path or null if not connected.
+     */
+    public static function getCurrentNoid()
+    {
+        return self::isConnected() ? self::$_lastNoid : null;
     }
 
     /**
@@ -463,11 +573,23 @@ NAAN:      $naan
             ? $settings['storage'][self::$db_type]['db_name']
             : DatabaseInterface::DATABASE_NAME;
 
+        // Persistent connection: reuse existing connection if available.
+        // Only reuse for non-create operations with matching settings.
+        if (self::$_persistent
+            && $flags !== DatabaseInterface::DB_CREATE
+            && self::isConnected()
+            && self::$_lastNoid === $data_dir
+            && self::$_lastSettings === $settings
+        ) {
+            // Connection already open with same settings - reuse it.
+            return self::$_lastNoid;
+        }
+
         $envhome = $data_dir . DIRECTORY_SEPARATOR . $db_name . DIRECTORY_SEPARATOR;
         if (!is_dir($envhome) && !mkdir($envhome, 0755, true)) {
             $error = error_get_last();
             throw new Exception(sprintf(
-                'error: couldn’t create database directory %1$s: %2$s',
+                'error: could not create database directory %1$s: %2$s',
                 $envhome, isset($error) ? $error['message'] : '[no message]'
             ));
         }
@@ -521,18 +643,31 @@ NAAN:      $naan
         // Populate cache with frequently accessed values for performance.
         self::_populateCache();
 
+        // Store connection info for persistent mode.
+        self::$_lastSettings = $settings;
+        self::$_lastNoid = $noid;
+
         return $noid;
     }
 
     /**
      * Close database.
      *
+     * In persistent mode, this method does nothing unless force is true.
+     * Use dbunpersist() to disable persistent mode and close the connection.
+     *
      * @param string $noid
+     * @param bool $force Force close even in persistent mode (default: false)
      *
      * @throws Exception
      */
-    public static function dbclose($noid)
+    public static function dbclose($noid, $force = false)
     {
+        // In persistent mode, skip closing unless forced.
+        if (self::$_persistent && !$force) {
+            return;
+        }
+
         $db = self::getDb($noid);
         if (is_null($db)) {
             return;
@@ -545,7 +680,15 @@ NAAN:      $naan
         if (!empty(Globals::$open_tab['log'][$noid])) {
             fclose(Globals::$open_tab['log'][$noid]);
         }
+        unset(Globals::$open_tab['database'][$noid]);
+        unset(Globals::$open_tab['log'][$noid]);
         self::$engine->close();
+
+        // Clear persistent state if this was the persistent connection.
+        if (self::$_lastNoid === $noid) {
+            self::$_lastNoid = null;
+            self::$_lastSettings = null;
+        }
         /*
         // Let go of lock.
         close NOIDLOCK;
