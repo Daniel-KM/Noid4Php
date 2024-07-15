@@ -216,9 +216,12 @@ class Noid
         # Check circulation status.  Error if term is "long" and the id
         # hasn't been issued unless a hold was placed on it.
         #
+        # Cache circ/hold keys for this id
+        $circKey = "$id\t" . Globals::_RR . "/c";
+        $holdKey = "$id\t" . Globals::_RR . "/h";
         # If no circ record and no hold…
-        $ret_val = Db::$engine->get("$id\t" . Globals::_RR . "/c");
-        if (empty($ret_val) && !Db::$engine->exists("$id\t" . Globals::_RR . "/h")) {
+        $ret_val = Db::$engine->get($circKey);
+        if (empty($ret_val) && !Db::$engine->exists($holdKey)) {
             if (Db::getCached('longterm')) {
                 Log::addmsg($noid, sprintf(
                     'error: %s: "long" term disallows binding an unissued identifier unless a hold is first placed on it.',
@@ -334,6 +337,225 @@ class Noid
             . "Element: $elem" . PHP_EOL
             . "Bind:    $how" . PHP_EOL
             . "Status:  " . ($hold == -1 ? Log::errmsg($noid) : 'ok, ' . $statmsg) . PHP_EOL;
+    }
+
+    /**
+     * Bind multiple elements in a single operation with one lock cycle.
+     *
+     * More efficient than calling bind() multiple times when binding
+     * several elements, as it acquires the lock only once.
+     *
+     * @param string $noid     Database handle
+     * @param string $contact  Contact information
+     * @param string $validate Validation mode ('-' to skip)
+     * @param array  $bindings Array of bindings, each with keys:
+     *                         'how', 'id', 'elem', 'value'
+     *
+     * @return array Array of results (ANVL messages or null for each binding)
+     * @throws Exception
+     */
+    public static function bindMultiple($noid, $contact, $validate, array $bindings)
+    {
+        if (empty($bindings)) {
+            return [];
+        }
+
+        // Limit batch size
+        if (count($bindings) > 10000) {
+            Log::addmsg($noid, 'error: batch size cannot exceed 10000 bindings');
+            return [];
+        }
+
+        // Db::$db_type should be set with dbopen(), dbcreate() or dbimport().
+        self::init();
+
+        $db = Db::getDb($noid);
+        if (is_null($db)) {
+            return [];
+        }
+
+        // Pre-validate all bindings before acquiring lock
+        $genonly = Db::getCached('genonly');
+        $longterm = Db::getCached('longterm');
+        $validatedBindings = [];
+
+        foreach ($bindings as $i => $binding) {
+            $how = $binding['how'] ?? '';
+            $id = $binding['id'] ?? '';
+            $elem = $binding['elem'] ?? '';
+            $value = $binding['value'] ?? '';
+
+            // Validate identifier if necessary
+            if ($genonly && $validate && !self::validate($noid, '-', $id)) {
+                $validatedBindings[$i] = ['error' => true, 'result' => null];
+                continue;
+            }
+
+            if (strlen($id) == 0) {
+                Log::addmsg($noid, 'error: bind needs an identifier specified.');
+                $validatedBindings[$i] = ['error' => true, 'result' => null];
+                continue;
+            }
+
+            if (empty($elem)) {
+                Log::addmsg($noid, sprintf('error: "bind %s" requires an element name.', $how));
+                $validatedBindings[$i] = ['error' => true, 'result' => null];
+                continue;
+            }
+
+            if (!in_array($how, Globals::$valid_hows)) {
+                Log::addmsg($noid, sprintf('error: bind how? What does %s mean?', $how));
+                $validatedBindings[$i] = ['error' => true, 'result' => null];
+                continue;
+            }
+
+            if ($how === 'peppermint') {
+                Log::addmsg($noid, 'error: bind "peppermint" not implemented.');
+                $validatedBindings[$i] = ['error' => true, 'result' => null];
+                continue;
+            }
+
+            if (($how === 'delete' || $how === 'purge') && !empty($value)) {
+                Log::addmsg($noid, sprintf('error: why does "bind %1$s" have a supplied value (%2$s)?', $how, $value));
+                $validatedBindings[$i] = ['error' => true, 'result' => null];
+                continue;
+            }
+
+            if (!in_array($how, ['delete', 'purge']) && empty($value)) {
+                Log::addmsg($noid, sprintf('error: "bind %1$s %2$s" requires a value to bind.', $how, $elem));
+                $validatedBindings[$i] = ['error' => true, 'result' => null];
+                continue;
+            }
+
+            // Transform :idmap/ identifiers
+            $oid = $id;
+            $oelem = $elem;
+            $hold = 0;
+            if (substr($id, 0, 1) === ':') {
+                if (!preg_match('|^:idmap/(.+)|', $id, $matches)) {
+                    Log::addmsg($noid, sprintf('error: %s: id cannot begin with ":" unless of the form ":idmap/Idpattern".', $oid));
+                    $validatedBindings[$i] = ['error' => true, 'result' => null];
+                    continue;
+                }
+                $id = Globals::_RR . "/idmap/$oelem";
+                $elem = $matches[1];
+                if ($longterm) {
+                    $hold = 1;
+                }
+            }
+
+            $validatedBindings[$i] = [
+                'error' => false,
+                'how' => $how,
+                'id' => $id,
+                'elem' => $elem,
+                'value' => ($how === 'delete' || $how === 'purge') ? '' : $value,
+                'oid' => $oid,
+                'oelem' => $oelem,
+                'hold' => $hold,
+            ];
+        }
+
+        // Now acquire lock once and process all valid bindings
+        Db::_dblock();
+
+        $results = [];
+        foreach ($validatedBindings as $i => $binding) {
+            if ($binding['error']) {
+                $results[$i] = null;
+                continue;
+            }
+
+            $how = $binding['how'];
+            $id = $binding['id'];
+            $elem = $binding['elem'];
+            $value = $binding['value'];
+            $oid = $binding['oid'];
+            $oelem = $binding['oelem'];
+            $hold = $binding['hold'];
+
+            $elemKey = "$id\t$elem";
+            $currentValue = Db::$engine->get($elemKey);
+
+            // Check circulation status for longterm
+            $circKey = "$id\t" . Globals::_RR . "/c";
+            $holdKey = "$id\t" . Globals::_RR . "/h";
+            if (empty(Db::$engine->get($circKey)) && !Db::$engine->exists($holdKey)) {
+                if ($longterm) {
+                    Log::addmsg($noid, sprintf('error: %s: "long" term disallows binding an unissued identifier unless a hold is first placed on it.', $oid));
+                    $results[$i] = null;
+                    continue;
+                }
+                Log::logmsg($noid, sprintf('warning: %s: binding an unissued identifier that has no hold placed on it.', $oid));
+            }
+
+            // Handle mint operation
+            if ($how === 'mint') {
+                if ($id !== 'new') {
+                    Log::addmsg($noid, 'error: bind "mint" requires id to be given as "new".');
+                    $results[$i] = null;
+                    continue;
+                }
+                // Note: For batch, mint inside lock is less efficient but maintains atomicity
+                Db::_dbunlock();
+                $id = $oid = self::mint($noid, $contact, 0);
+                Db::_dblock();
+                if (!$id) {
+                    $results[$i] = null;
+                    continue;
+                }
+                $elemKey = "$id\t$elem";
+                $currentValue = Db::$engine->get($elemKey);
+            }
+
+            // Check bound/unbound state
+            if (empty($currentValue)) {
+                if (in_array($how, ['replace', 'append', 'prepend', 'delete'])) {
+                    Log::addmsg($noid, sprintf('error: for "bind %1$s", "%2$s %3$s" must already be bound.', $how, $oid, $oelem));
+                    $results[$i] = null;
+                    continue;
+                }
+                Db::$engine->set($elemKey, '');
+                $currentValue = '';
+            } else {
+                if (in_array($how, ['new', 'mint', 'peppermint'])) {
+                    Log::addmsg($noid, sprintf('error: for "bind %1$s", "%2$s %3$s" cannot already be bound.', $how, $oid, $oelem));
+                    $results[$i] = null;
+                    continue;
+                }
+            }
+
+            $oldlen = strlen($currentValue);
+            $newlen = strlen($value);
+            $statmsg = sprintf('%s bytes written', $newlen);
+
+            if ($how === 'delete' || $how === 'purge') {
+                Db::$engine->delete($elemKey);
+                $statmsg = "$oldlen bytes removed";
+            } elseif ($how === 'add' || $how === 'append') {
+                Db::$engine->set($elemKey, $currentValue . $value);
+                $statmsg .= " to the end of $oldlen bytes";
+            } elseif ($how === 'insert' || $how === 'prepend') {
+                Db::$engine->set($elemKey, $value . $currentValue);
+                $statmsg .= " to the beginning of $oldlen bytes";
+            } else {
+                Db::$engine->set($elemKey, $value);
+                $statmsg .= ", replacing $oldlen bytes";
+            }
+
+            if ($hold && Db::$engine->exists($elemKey) && !self::hold_set($noid, $id)) {
+                $hold = -1;
+            }
+
+            $results[$i] = "Id:      $id" . PHP_EOL
+                . "Element: $elem" . PHP_EOL
+                . "Bind:    $how" . PHP_EOL
+                . "Status:  " . ($hold == -1 ? Log::errmsg($noid) : 'ok, ' . $statmsg) . PHP_EOL;
+        }
+
+        Db::_dbunlock();
+
+        return $results;
     }
 
     /**
