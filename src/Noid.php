@@ -168,7 +168,7 @@ class Noid
         #     (for errors more than for security)
         # yyy should this genonly setting be so capable of contradicting
         #     the $validate arg?
-        if (Db::$engine->get(Globals::_RR . "/genonly")
+        if (Db::getCached('genonly')
             && $validate
             && !self::validate($noid, '-', $id)
         ) {
@@ -1142,7 +1142,7 @@ class Noid
 
             if ($id === null) {
                 // Check if minter is exhausted vs temporary error
-                $total = Db::$engine->get(Globals::_RR . "/total");
+                $total = Db::getCached('total');
                 $oacounter = Db::$engine->get(Globals::_RR . "/oacounter");
                 if ($total != Globals::NOLIMIT && $oacounter >= $total) {
                     Log::addmsg($noid, sprintf(
@@ -1462,7 +1462,7 @@ class Noid
         }
 
         $iderrors = array();
-        if (Db::$engine->get(Globals::_RR . "/genonly")) {
+        if (Db::getCached('genonly')) {
             $iderrors = self::validate($noid, '-', $ids);
             if (array_filter($iderrors, function ($v) {
                 return stripos($v, 'error:') !== 0;
@@ -1478,8 +1478,8 @@ class Noid
             return array();
         }
 
-        $firstpart = Db::$engine->get(Globals::_RR . "/firstpart");
-        $padwidth = Db::$engine->get(Globals::_RR . "/padwidth");
+        $firstpart = Db::getCached('firstpart');
+        $padwidth = Db::getCached('padwidth');
         $currdate = Helper::getTemper();
         $retvals = array();
         $idval = null;
@@ -1557,8 +1557,8 @@ class Noid
             Db::_dblock();
 
             Db::$engine->set(Globals::_RR . "/queued", Db::$engine->get(Globals::_RR . "/queued") + 1);
-            if (Db::$engine->get(Globals::_RR . "/total") != Globals::NOLIMIT   # if total is non-zero
-                && Db::$engine->get(Globals::_RR . "/queued") > Db::$engine->get(Globals::_RR . "/oatop")
+            if (Db::getCached('total') != Globals::NOLIMIT   # if total is non-zero
+                && Db::$engine->get(Globals::_RR . "/queued") > Db::getCached('oatop')
             ) {
                 Db::_dbunlock();
 
@@ -1820,7 +1820,7 @@ class Noid
         $release = $on_off === 'release';
         # yyy what is sensible thing to do if no ids are present?
         $iderrors = array();
-        if (Db::$engine->get(Globals::_RR . "/genonly")) {
+        if (Db::getCached('genonly')) {
             $iderrors = self::validate($noid, '-', $ids);
             if (array_filter($iderrors, function ($v) {
                 return stripos($v, 'error:') !== 0;
@@ -1896,8 +1896,8 @@ class Noid
 
         Db::$engine->set("$id\t" . Globals::_RR . "/h", 1);        # value doesn't matter
         Db::$engine->set(Globals::_RR . "/held", Db::$engine->get(Globals::_RR . "/held") + 1);
-        if (Db::$engine->get(Globals::_RR . "/total") != Globals::NOLIMIT   # ie, if total is non-zero
-            && Db::$engine->get(Globals::_RR . "/held") > Db::$engine->get(Globals::_RR . "/oatop")
+        if (Db::getCached('total') != Globals::NOLIMIT   # ie, if total is non-zero
+            && Db::$engine->get(Globals::_RR . "/held") > Db::getCached('oatop')
         ) {
             $m = sprintf(
                 'error: hold count (%1$s) exceeding total possible on id %2$s',

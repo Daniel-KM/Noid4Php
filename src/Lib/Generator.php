@@ -93,6 +93,14 @@ class Generator
         #   siclist (sub) inactive counters list
         #   c$n/value   subcounter name's ($scn) value
 
+        // Cache static values for performance.
+        $oatop = Db::getCached('oatop');
+        $longterm = Db::getCached('longterm');
+        $wrap = Db::getCached('wrap');
+        $generator_type = Db::getCached('generator_type');
+        $mask = Db::getCached('mask');
+        $percounter = Db::getCached('percounter');
+
         $oacounter = Db::$engine->get(Globals::_RR . "/oacounter");
 
         // Internally, _genid() is used only by mint() and seeded just before
@@ -101,17 +109,17 @@ class Generator
 
         # yyy what are we going to do with counters for held? queued?
 
-        if (Db::$engine->get(Globals::_RR."/oatop") != Globals::NOLIMIT && $oacounter >= Db::$engine->get(Globals::_RR."/oatop")) {
+        if ($oatop != Globals::NOLIMIT && $oacounter >= $oatop) {
             # Critical test of whether we're willing to re-use identifiers
             # by re-setting (wrapping) the counter to zero.  To be extra
             # careful we check both the longterm and wrap settings, even
             # though, in theory, wrap won't be set if longterm is set.
             #
-            if (Db::$engine->get(Globals::_RR."/longterm") || !Db::$engine->get(Globals::_RR."/wrap")) {
+            if ($longterm || !$wrap) {
                 Db::_dbunlock();
                 $m = sprintf(
                     'error: identifiers exhausted (stopped at %1$s).',
-                    Db::$engine->get(Globals::_RR."/oatop")
+                    $oatop
                 );
                 Log::addmsg($noid, $m);
                 Log::logmsg($noid, $m);
@@ -122,7 +130,7 @@ class Generator
                 '%s: Resetting counter to zero; previously issued identifiers will be re-issued',
                 Helper::getTemper()
             ));
-            if (Db::$engine->get(Globals::_RR."/generator_type") === 'sequential') {
+            if ($generator_type === 'sequential') {
                 Db::$engine->set(Globals::_RR."/oacounter", 0);
             } else {
                 Db::_init_counters($noid);   # yyy calls dblock -- problem?
@@ -133,9 +141,9 @@ class Generator
 
         # Deal with the easy sequential generator case and exit early.
         #
-        if (Db::$engine->get(Globals::_RR."/generator_type") === 'sequential') {
-            $id = self::n2xdig(Db::$engine->get(Globals::_RR."/oacounter"), Db::$engine->get(Globals::_RR."/mask"));
-            Db::$engine->set(Globals::_RR."/oacounter", Db::$engine->get(Globals::_RR."/oacounter") + 1);   # incr to reflect new total
+        if ($generator_type === 'sequential') {
+            $id = self::n2xdig($oacounter, $mask);
+            Db::$engine->set(Globals::_RR."/oacounter", $oacounter + 1);   # incr to reflect new total
             Db::_dbunlock();
             return $id;
         }
@@ -216,8 +224,8 @@ class Generator
 
         # $sctr holds counter value, $n holds ordinal of the counter itself
         $id = self::n2xdig(
-            $sctr + ($n * Db::$engine->get(Globals::_RR."/percounter")),
-            Db::$engine->get(Globals::_RR . "/mask"));
+            $sctr + ($n * $percounter),
+            $mask);
         Db::_dbunlock();
         return $id;
     }
