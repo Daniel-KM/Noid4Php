@@ -482,7 +482,9 @@ class Noid
         # at the head of the queue.  If all goes well and we found something
         # to mint from the queue, the last line in the loop exits the routine.
         # If we drop out of the loop, it's because the queue wasn't ripe.
-        $values = Db::$engine->get_range($first);
+        # Performance: Check queued counter first to avoid expensive scan if queue is empty.
+        $queuedCount = (int) Db::$engine->get(Globals::_RR . "/queued");
+        $values = $queuedCount > 0 ? Db::$engine->get_range($first) : [];
         foreach ($values as $key => $value) {
             $id = &$value;
             # The cursor, key and value are now set at the first item
