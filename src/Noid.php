@@ -656,6 +656,127 @@ class Noid
     }
 
     /**
+     * Fetch elements for multiple identifiers in a single operation.
+     *
+     * More efficient than calling fetch() multiple times when fetching
+     * data for several identifiers.
+     *
+     * @param string $noid     Database handle
+     * @param int    $verbose  1 if we want labels, 0 if we don't
+     * @param array  $requests Array of requests, each with keys:
+     *                         'id' (required), 'elems' (optional array)
+     *
+     * @return array Array of results (string or null for each request)
+     * @throws Exception
+     */
+    public static function fetchMultiple($noid, $verbose, array $requests)
+    {
+        if (empty($requests)) {
+            return [];
+        }
+
+        // Limit batch size
+        if (count($requests) > 10000) {
+            Log::addmsg($noid, 'error: batch size cannot exceed 10000 requests');
+            return [];
+        }
+
+        // Db::$db_type should be set with dbopen(), dbcreate() or dbimport().
+        self::init();
+
+        $db = Db::getDb($noid);
+        if (is_null($db)) {
+            return [];
+        }
+
+        $results = [];
+
+        foreach ($requests as $i => $request) {
+            $id = $request['id'] ?? '';
+            $elems = $request['elems'] ?? [];
+
+            if (strlen($id) == 0) {
+                Log::addmsg($noid, sprintf(
+                    'error: %s requires that an identifier be specified.',
+                    $verbose ? 'fetch' : 'get'
+                ));
+                $results[$i] = null;
+                continue;
+            }
+
+            if (!is_array($elems)) {
+                $elems = strlen($elems) == 0 ? [] : [$elems];
+            }
+
+            // Cache keys for this id
+            $holdKey = "$id\t" . Globals::_RR . "/h";
+            $circKey = "$id\t" . Globals::_RR . "/c";
+
+            $hdr = '';
+            $retval = '';
+            if ($verbose) {
+                $hdr = "id:    $id"
+                    . (Db::$engine->exists($holdKey) ? ' hold ' : '') . PHP_EOL
+                    . (self::validate($noid, '-', $id) ? '' : Log::errmsg($noid) . PHP_EOL)
+                    . 'Circ:  ' . (Db::$engine->get($circKey) ?: 'uncirculated') . PHP_EOL;
+            }
+
+            if (empty($elems)) {
+                // No elements specified, fetch all
+                $first = "$id\t";
+                $values = Db::$engine->get_range($first);
+                if ($values) {
+                    foreach ($values as $key => $value) {
+                        $skip = preg_match('|^' . preg_quote("$first" . Globals::_RR . "/", '|') . '|', $key);
+                        if (!$skip) {
+                            if ($verbose) {
+                                $retval .= (preg_match('/^[^\t]*\t(.*)/', $key, $matches) ? $matches[1] : $key) . ': ';
+                            }
+                            $retval .= $value . PHP_EOL;
+                        }
+                    }
+                }
+
+                if (empty($retval)) {
+                    Log::addmsg($noid, sprintf(
+                        '%1$snote: no elements bound under %2$s.',
+                        $hdr, $id
+                    ));
+                    $results[$i] = null;
+                    continue;
+                }
+                $results[$i] = $hdr . $retval;
+            } else {
+                // Fetch specific elements
+                $idmapped = null;
+                foreach ($elems as $elem) {
+                    $elemKey = "$id\t$elem";
+                    $elemValue = Db::$engine->get($elemKey);
+                    if ($elemValue) {
+                        if ($verbose) {
+                            $retval .= "$elem: ";
+                        }
+                        $retval .= $elemValue . PHP_EOL;
+                    } else {
+                        $idmapped = self::_id2elemval($noid, $verbose, $id, $elem);
+                        if ($verbose) {
+                            $retval .= $idmapped
+                                ? $idmapped . PHP_EOL . 'note: previous result produced by :idmap'
+                                : sprintf('error: "%1$s %2$s" is not bound.', $id, $elem);
+                            $retval .= PHP_EOL;
+                        } else {
+                            $retval .= $idmapped . PHP_EOL;
+                        }
+                    }
+                }
+                $results[$i] = $hdr . $retval;
+            }
+        }
+
+        return $results;
+    }
+
+    /**
      * Mint one or more identifiers.
      *
      * This routine produces a new identifier by taking a previously recycled
