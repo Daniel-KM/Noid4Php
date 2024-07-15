@@ -57,8 +57,9 @@ class Generator
             }
             $remainder = $num % $div;
             $num = intval($num / $div);
-            $s = substr($alphabet, $remainder, 1) . $s;
+            $s .= $alphabet[$remainder];  // Append instead of prepend (O(1) vs O(n))
         }
+        $s = strrev($s);  // Single reverse at end (O(n) total vs O(n²))
         if (substr($mask, -1) === 'k') {       # if it ends in a check character
             $s .= '+';      # represent it with plus in new id
         }
@@ -203,20 +204,15 @@ class Generator
         $sctr = Db::$engine->get(Globals::_RR."/$sctrn/value"); # and get its value
         $sctr++;                # increment and
         Db::$engine->set(Globals::_RR."/$sctrn/value", $sctr);    # store new current value
-        Db::$engine->set(Globals::_RR."/oacounter", Db::$engine->get(Globals::_RR."/oacounter") + 1);       # incr overall counter - some
+        Db::$engine->set(Globals::_RR."/oacounter", $oacounter + 1);  # incr overall counter
         # redundancy for sanity's sake
 
         # deal with an exhausted subcounter
         if ($sctr >= Db::$engine->get(Globals::_RR."/$sctrn/top")) {
-            /** @var string $c */
-            $modsaclist = '';
-            # remove from active counters list
-            foreach ($saclist as $c) {     # drop $sctrn, but add it to
-                if ($c === $sctrn) {     # inactive subcounters
-                    continue;
-                }
-                $modsaclist .= $c . ' ';
-            }
+            # remove from active counters list using array_filter (O(n) vs O(n²))
+            $modsaclist = implode(' ', array_filter($saclist, function ($c) use ($sctrn) {
+                return $c !== $sctrn; # inactive subcounters
+            })) . ' ';
             Db::$engine->set(Globals::_RR."/saclist", $modsaclist);     # update saclist
             Db::$engine->set(Globals::_RR."/siclist", Db::$engine->get(Globals::_RR."/siclist") . ' ' . $sctrn);      # and siclist
             #print "===> Exhausted counter $sctrn\n";

@@ -591,6 +591,7 @@ NAAN:      $naan
             return self::$_lastNoid;
         }
 
+        # yyy to test: can we now open more than one noid at once?
         $envhome = $data_dir . DIRECTORY_SEPARATOR . $db_name . DIRECTORY_SEPARATOR;
         if (!is_dir($envhome) && !mkdir($envhome, 0755, true)) {
             $error = error_get_last();
@@ -607,15 +608,6 @@ NAAN:      $naan
             Log::addmsg(null, sprintf(
                 'Failed to open database in directory "%s".',
                 $data_dir
-            ));
-            return null;
-        }
-
-        # yyy to test: can we now open more than one noid at once?
-        if (!is_dir($envhome)) {
-            Log::addmsg(null, sprintf(
-                '%s not a directory',
-                $envhome
             ));
             return null;
         }

@@ -607,10 +607,11 @@ class Noid
 
         if (empty($elems)) {  # No elements were specified, so find them.
             $first = "$id\t";
+            $skipPrefix = $first . Globals::_RR . "/";  // Cache prefix outside loop
             $values = Db::$engine->get_range($first);
             if ($values) {
                 foreach ($values as $key => $value) {
-                    $skip = preg_match('|^' . preg_quote("$first" . Globals::_RR . "/", '|') . '|', $key);
+                    $skip = strpos($key, $skipPrefix) === 0;  // O(n) strpos vs regex compilation
                     if (!$skip) {
                         # if $verbose (ie, fetch), include label and
                         # remember to strip "id\t" from front of $key
@@ -726,10 +727,11 @@ class Noid
             if (empty($elems)) {
                 // No elements specified, fetch all
                 $first = "$id\t";
+                $skipPrefix = $first . Globals::_RR . "/";  // Cache prefix outside loop
                 $values = Db::$engine->get_range($first);
                 if ($values) {
                     foreach ($values as $key => $value) {
-                        $skip = preg_match('|^' . preg_quote("$first" . Globals::_RR . "/", '|') . '|', $key);
+                        $skip = strpos($key, $skipPrefix) === 0;  // O(n) strpos vs regex compilation
                         if (!$skip) {
                             if ($verbose) {
                                 $retval .= (preg_match('/^[^\t]*\t(.*)/', $key, $matches) ? $matches[1] : $key) . ': ';
@@ -860,9 +862,10 @@ class Noid
             # queue element.
             #
             Db::$engine->delete($key);
-            Db::$engine->set(Globals::_RR . "/queued", Db::$engine->get(Globals::_RR . "/queued") - 1);
-            if (Db::$engine->get(Globals::_RR . "/queued") < 0) {
-                $m = sprintf('error: queued count (%1$s) going negative on id %2$s', Db::$engine->get(Globals::_RR . "/queued"), $id);
+            $queuedCount = Db::$engine->get(Globals::_RR . "/queued") - 1;
+            Db::$engine->set(Globals::_RR . "/queued", $queuedCount);
+            if ($queuedCount < 0) {
+                $m = sprintf('error: queued count (%1$s) going negative on id %2$s', $queuedCount, $id);
                 Log::addmsg($noid, $m);
                 Log::logmsg($noid, $m);
                 return null;
@@ -1206,9 +1209,10 @@ class Noid
 
             // Queue item is ripe - process it
             Db::$engine->delete($key);
-            Db::$engine->set(Globals::_RR . "/queued", Db::$engine->get(Globals::_RR . "/queued") - 1);
-            if (Db::$engine->get(Globals::_RR . "/queued") < 0) {
-                $m = sprintf('error: queued count (%1$s) going negative on id %2$s', Db::$engine->get(Globals::_RR . "/queued"), $id);
+            $queuedCount = Db::$engine->get(Globals::_RR . "/queued") - 1;
+            Db::$engine->set(Globals::_RR . "/queued", $queuedCount);
+            if ($queuedCount < 0) {
+                $m = sprintf('error: queued count (%1$s) going negative on id %2$s', $queuedCount, $id);
                 Log::addmsg($noid, $m);
                 Log::logmsg($noid, $m);
                 return null;
@@ -1558,15 +1562,16 @@ class Noid
 
             Db::_dblock();
 
-            Db::$engine->set(Globals::_RR . "/queued", Db::$engine->get(Globals::_RR . "/queued") + 1);
+            $queuedCount = Db::$engine->get(Globals::_RR . "/queued") + 1;
+            Db::$engine->set(Globals::_RR . "/queued", $queuedCount);
             if (Db::getCached('total') != Globals::NOLIMIT   # if total is non-zero
-                && Db::$engine->get(Globals::_RR . "/queued") > Db::getCached('oatop')
+                && $queuedCount > Db::getCached('oatop')
             ) {
                 Db::_dbunlock();
 
                 $m = sprintf(
                     'error: queue count (%1$s) exceeding total possible on id %2$s.  Queue operation aborted.',
-                    Db::$engine->get(Globals::_RR . "/queued"), $id
+                    $queuedCount, $id
                 );
                 Log::logmsg($noid, $m);
                 $retvals[] = $m;
@@ -1652,7 +1657,7 @@ class Noid
 
         if (!strcmp($template, '-')) {
             # $retvals[] = sprintf('template: %s', Globals::$db_engine->get(Globals::_RR."/template")));
-            if (!Db::$engine->get(Globals::_RR . "/template")) {  # do blanket validation
+            if (!Db::getCached('template')) {  # do blanket validation
                 $nonulls = array_filter(preg_replace('/^(.)/', 'id: $1', $ids));
                 if (empty($nonulls)) {
                     return array();
@@ -1660,11 +1665,11 @@ class Noid
                 $retvals += $nonulls;
                 return $retvals;
             }
-            $prefix = Db::$engine->get(Globals::_RR . "/prefix");
-            $mask = Db::$engine->get(Globals::_RR . "/mask");
+            $prefix = Db::getCached('prefix');
+            $mask = Db::getCached('mask');
             // Validate with the saved repertoire, if any.
-            $repertoire = Db::$engine->get(Globals::_RR . "/addcheckchar")
-                ? (Db::$engine->get(Globals::_RR . "/checkrepertoire") ? : Helper::getAlphabet($template))
+            $repertoire = Db::getCached('addcheckchar')
+                ? (Db::getCached('checkrepertoire') ?: Helper::getAlphabet($template))
                 : '';
         } elseif (!Helper::parseTemplate($template, $prefix, $mask, $gen_type, $msg)) {
             Log::addmsg($noid, sprintf(
@@ -1729,17 +1734,19 @@ class Noid
             # Maskchar-by-Idchar checking.
             #
             $maskchars = str_split($mask);
-            $mode = array_shift($maskchars);       # toss 'r', 's', or 'z'
-            $suppl = $mode == 'z' ? $maskchars[0] : null;
+            $mode = $maskchars[0];       # 'r', 's', or 'z'
+            $suppl = $mode === 'z' ? $maskchars[1] : null;
+            $maskIndex = 1;  // Start after mode character
+            $maskLen = count($maskchars);
             $flagBreakContinue = false;
             foreach (str_split($varpart) as $c) {
                 // Avoid to str_split() an empty varpart.
                 if (strlen($c) == 0) {
                     break;
                 }
-                $m = array_shift($maskchars);
+                $m = $maskIndex < $maskLen ? $maskchars[$maskIndex++] : null;  // O(1) indexed access
                 if (is_null($m)) {
-                    if ($mode != 'z') {
+                    if ($mode !== 'z') {
                         $retvals[] = sprintf('iderr: %1$s longer than specified template (%2$s)', $id, $template);
                         $flagBreakContinue = true;
                         break;
@@ -1748,7 +1755,7 @@ class Noid
                 }
                 if (isset(Globals::$alphabets[$m]) && strpos(Globals::$alphabets[$m], $c) === false) {
                     $retvals[] = sprintf('iderr: %1$s char "%2$s" conflicts with template (%3$s) char "%4$s"%5$s',
-                        $id, $c, $template, $m, $m == 'e' ? ' (extended digit)' : ($m == 'd' ? ' (digit)' : ''));
+                        $id, $c, $template, $m, $m === 'e' ? ' (extended digit)' : ($m === 'd' ? ' (digit)' : ''));
                     $flagBreakContinue = true;
                     break;
                 }       # or $m === 'k', in which case skip
@@ -1757,8 +1764,8 @@ class Noid
                 continue;
             }
 
-            $m = array_shift($maskchars);
-            if (!is_null($m)) {
+            // Check if there are remaining mask characters (id shorter than template)
+            if ($maskIndex < $maskLen) {
                 $retvals[] = sprintf('iderr: %1$s shorter than specified template (%2$s)', $id, $template);
                 continue;
             }
@@ -2100,10 +2107,11 @@ class Noid
         #     future that could change.  in particular we don't bind (now)
         #     anything to just "$id" (without a tab after it)
         $first = "$id\t";
+        $skipPrefix = $first . Globals::_RR . "/";  // Cache prefix outside loop
         $values = Db::$engine->get_range($first);
         if ($values) {
             foreach ($values as $key => $value) {
-                $skip = preg_match('|^' . preg_quote("$first" . Globals::_RR . "/", '|') . '|', $key);
+                $skip = strpos($key, $skipPrefix) === 0;  // O(n) strpos vs regex compilation
                 if (!$skip && $verbose) {
                     # if $verbose (ie, fetch), include label and
                     # remember to strip "id\t" from front of $key
