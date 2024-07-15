@@ -434,6 +434,8 @@ class Noid
     }
 
     /**
+     * Mint one or more identifiers.
+     *
      * This routine produces a new identifier by taking a previously recycled
      * identifier from a queue (usually, a "used" identifier, but it might
      * have been pre-recycled) or by generating a brand new one.
@@ -441,13 +443,11 @@ class Noid
      * The $contact should be the initials or descriptive string to help
      * track who or what was happening at time of minting.
      *
-     * Returns null on error.
+     * @param string $noid    The database handle
+     * @param string $contact Contact info for tracking
+     * @param int    $pepper  Optional pepper value (unused, for compatibility)
      *
-     * @param string $noid
-     * @param string $contact
-     * @param int    $pepper
-     *
-     * @return string
+     * @return string|null Single identifier or null on error
      * @throws Exception
      */
     public static function mint($noid, $contact, $pepper = 0)
@@ -713,6 +713,264 @@ class Noid
         # it identifies is "in progress", as this gives way to begin tracking,
         # eg, back to the person responsible.
         #
+        return null;
+    }
+
+    /**
+     * Mint multiple identifiers in a single operation.
+     *
+     * More efficient than calling mint() multiple times when minting
+     * several identifiers, as it performs setup only once.
+     *
+     * @param string $noid    The database handle
+     * @param string $contact Contact info for tracking
+     * @param int    $count   Number of identifiers to mint (1-10000)
+     * @param int    $pepper  Optional pepper value (unused, for compatibility)
+     *
+     * @return array Array of minted identifiers. May be shorter than $count
+     *               if errors occur or minter is exhausted.
+     * @throws Exception
+     */
+    public static function mintMultiple($noid, $contact, $count, $pepper = 0)
+    {
+        // Validate count
+        $count = (int) $count;
+        if ($count < 1) {
+            Log::addmsg($noid, 'error: count must be at least 1');
+            return [];
+        }
+        if ($count > 10000) {
+            Log::addmsg($noid, 'error: count cannot exceed 10000 per batch');
+            return [];
+        }
+
+        // Db::$db_type should be set with dbopen(), dbcreate() or dbimport().
+        self::init();
+
+        $db = Db::getDb($noid);
+        if (is_null($db)) {
+            return [];
+        }
+
+        if (empty($contact)) {
+            Log::addmsg($noid, 'contact undefined');
+            return [];
+        }
+
+        $template = Db::getCached('template');
+        if (!$template) {
+            Log::addmsg($noid, 'error: this minter does not generate identifiers (it does accept user-defined identifier and element bindings).');
+            return [];
+        }
+
+        // Setup done once for entire batch
+        $currdate = Helper::getTemper();
+        $first = Globals::_RR . "/q/";
+
+        // Prepare generator settings once
+        if (Db::getCached('generator_type') == 'random') {
+            self::$random_generator = Db::getCached('generator_random') ?: self::$random_generator;
+            if (self::$random_generator == 'PerlRandom'
+                || self::$random_generator == 'Perl_Random'
+            ) {
+                self::$_perlRandom = PerlRandom::init();
+            }
+        }
+
+        $addcheckchar = Db::getCached('addcheckchar');
+        $repertoire = $addcheckchar
+            ? (Db::getCached('checkrepertoire') ?: Helper::getAlphabet($template))
+            : '';
+        $firstpart = Db::getCached('firstpart');
+        $longterm = Db::getCached('longterm');
+        $wrap = Db::getCached('wrap');
+
+        $minted = [];
+
+        for ($i = 0; $i < $count; $i++) {
+            $id = self::_mintOne($noid, $contact, $currdate, $first, $template,
+                $addcheckchar, $repertoire, $firstpart, $longterm, $wrap);
+
+            if ($id === null) {
+                // Check if minter is exhausted vs temporary error
+                $total = Db::$engine->get(Globals::_RR . "/total");
+                $oacounter = Db::$engine->get(Globals::_RR . "/oacounter");
+                if ($total != Globals::NOLIMIT && $oacounter >= $total) {
+                    Log::addmsg($noid, sprintf(
+                        'error: minter exhausted after %d identifiers (total: %s)',
+                        count($minted), $total
+                    ));
+                    break;
+                }
+                // For other errors, continue trying
+                continue;
+            }
+
+            $minted[] = $id;
+        }
+
+        return $minted;
+    }
+
+    /**
+     * Internal method to mint a single identifier with pre-computed values.
+     *
+     * @param string $noid
+     * @param string $contact
+     * @param string $currdate
+     * @param string $first
+     * @param string $template
+     * @param bool   $addcheckchar
+     * @param string $repertoire
+     * @param string $firstpart
+     * @param bool   $longterm
+     * @param bool   $wrap
+     *
+     * @return string|null
+     * @throws Exception
+     */
+    private static function _mintOne($noid, $contact, $currdate, $first, $template,
+        $addcheckchar, $repertoire, $firstpart, $longterm, $wrap)
+    {
+        // Check queue first (with counter optimization)
+        // Get ALL queue items and iterate with foreach/continue, like mint() does.
+        // Using get_range with limit=1 and recursion doesn't work reliably
+        // because database changes may not be visible in subsequent calls.
+        $queuedCount = (int) Db::$engine->get(Globals::_RR . "/queued");
+        $values = $queuedCount > 0 ? Db::$engine->get_range($first) : [];
+        foreach ($values as $key => $value) {
+            $id = &$value;
+            $qdate = preg_match('|' . preg_quote(Globals::_RR . "/q/", '|') . '(\d{14})|', $key, $matches) ? $matches[1] : null;
+
+            if (empty($qdate)) {
+                if (Db::$engine->get(Globals::_RR . "/fseqnum") > Globals::SEQNUM_MIN) {
+                    Db::$engine->set(Globals::_RR . "/fseqnum", Globals::SEQNUM_MIN);
+                }
+                break;
+            }
+
+            if ($currdate < $qdate) {
+                break;
+            }
+
+            // Queue item is ripe - process it
+            Db::$engine->delete($key);
+            Db::$engine->set(Globals::_RR . "/queued", Db::$engine->get(Globals::_RR . "/queued") - 1);
+            if (Db::$engine->get(Globals::_RR . "/queued") < 0) {
+                $m = sprintf('error: queued count (%1$s) going negative on id %2$s', Db::$engine->get(Globals::_RR . "/queued"), $id);
+                Log::addmsg($noid, $m);
+                Log::logmsg($noid, $m);
+                return null;
+            }
+
+            if (Db::$engine->exists("$id\t" . Globals::_RR . "/h")) {
+                if ($longterm) {
+                    Log::logmsg($noid, sprintf(
+                        'warning: id %s found in queue with a hold placed on it -- removed from queue.',
+                        $id
+                    ));
+                }
+                continue;
+            }
+
+            $circ_svec = self::_get_circ_svec($noid, $id);
+
+            if (substr($circ_svec, 0, 1) === 'i') {
+                Log::logmsg($noid, sprintf(
+                    'error: id %1$s appears to have been issued while still in the queue -- circ record is %2$s',
+                    $id, Db::$engine->get("$id\t" . Globals::_RR . "/c")
+                ));
+                continue;
+            }
+            if (substr($circ_svec, 0, 1) === 'u') {
+                Log::logmsg($noid, sprintf(
+                    'note: id %1$s, marked as unqueued, is now being removed/skipped in the queue -- circ record is %2$s',
+                    $id, Db::$engine->get("$id\t" . Globals::_RR . "/c")
+                ));
+                continue;
+            }
+            if (preg_match('/^([^q])/', $circ_svec, $matches)) {
+                Log::logmsg($noid, sprintf(
+                    'error: id %1$s found in queue has an unknown circ status (%2$s) -- circ record is %3$s',
+                    $id, $matches[1], Db::$engine->get("$id\t" . Globals::_RR . "/c")
+                ));
+                continue;
+            }
+
+            if ($circ_svec === '') {
+                if ($longterm) {
+                    Log::logmsg($noid, sprintf(
+                        'note: queued id %s coming out of queue on first minting (pre-cycled)',
+                        $id
+                    ));
+                }
+            }
+
+            return self::_set_circ_rec($noid, $id, 'i' . $circ_svec, $currdate, $contact);
+        }
+
+        // Generate new ID
+        $maxAttempts = 1000; // Prevent infinite loop
+        for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
+            srand((int) Db::$engine->get(Globals::_RR . "/oacounter"));
+
+            $id = Generator::_genid($noid);
+            if (is_null($id)) {
+                return null;
+            }
+
+            if ($firstpart) {
+                $id = $firstpart . $id;
+            }
+
+            if ($addcheckchar) {
+                $id = Helper::checkChar($id, $repertoire);
+            }
+
+            if (Db::$engine->exists("$id\t" . Globals::_RR . "/h")) {
+                continue;
+            }
+
+            $circ_svec = self::_get_circ_svec($noid, $id);
+
+            if (substr($circ_svec, 0, 1) === 'q') {
+                if ($longterm) {
+                    Log::logmsg($noid, sprintf(
+                        'note: will not issue genid()’d %1$s as its status is "q", circ_rec is %2$s',
+                        $id, Db::$engine->get("$id\t" . Globals::_RR . "/c")
+                    ));
+                }
+                continue;
+            }
+
+            if (substr($circ_svec, 0, 1) === 'i'
+                && ($longterm || !$wrap)
+            ) {
+                Log::logmsg($noid, sprintf(
+                    'error: id %1$s cannot be re-issued except by going through the queue, circ_rec %2$s',
+                    $id, Db::$engine->get("$id\t" . Globals::_RR . "/c")
+                ));
+                continue;
+            }
+            if (substr($circ_svec, 0, 1) === 'u') {
+                Log::logmsg($noid, sprintf(
+                    'note: generating id %1$s, currently marked as unqueued, circ record is %2$s',
+                    $id, Db::$engine->get("$id\t" . Globals::_RR . "/c")
+                ));
+                continue;
+            }
+            if (preg_match('/^([^iqu])/', $circ_svec, $matches)) {
+                Log::logmsg($noid, sprintf(
+                    'error: id %1$s has unknown circulation status (%2$s), circ_rec %3$s',
+                    $id, $matches[1], Db::$engine->get("$id\t" . Globals::_RR . "/c")
+                ));
+                continue;
+            }
+
+            return self::_set_circ_rec($noid, $id, 'i' . $circ_svec, $currdate, $contact);
+        }
+
+        Log::addmsg($noid, 'error: exceeded maximum attempts to generate valid identifier');
         return null;
     }
 
