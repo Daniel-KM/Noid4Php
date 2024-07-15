@@ -107,6 +107,7 @@ if(!class_exists('NoidApp')){
             'l:' => 'locktest:', // flag
             'f:' => 'fdbdir:', // filesystem directory name
             't:' => 'type:', // db type - bdb, mysql, xml, json…
+            'g:' => 'generator:', // random generator - PerlRandom, php mt_rand(), etc.
             'v' => 'version', // flag
             'h' => 'help', // flag
         );
@@ -417,6 +418,12 @@ if(!class_exists('NoidApp')){
             // Update the settings with real type and data dir.
             $this->settings['db_type'] = $db_type_option;
             $this->settings['storage'][$db_type_option]['data_dir'] = $this->data_dir;
+
+            // Handle generator option (-g/--generator) for random ID generation.
+            // Valid: 'PerlRandom' (default), 'php mt_rand()' (fast), 'php rand()', 'perl rand()'.
+            if (!empty($options['generator'])) {
+                $this->settings['generator'] = $options['generator'];
+            }
 
             // Bulk command mode is signified by a single final argument of "-".
             // If we're _not_ in bulk command mode, expect a single command
@@ -1165,7 +1172,7 @@ if(!class_exists('NoidApp')){
             // so we print "\n\n" at the end.
             if($blurb == 'intro'){
                 $msg = 'Usage:
-              noid [-f DbDirOrConfig] [-t DbType] [-v] [-h] Command Arguments';
+              noid [-f DbDirOrConfig] [-t DbType] [-g Generator] [-v] [-h] Command Arguments';
                 if($brief){
                     $msg .= '
               noid -h             (for help with a Command summary).';
@@ -1185,6 +1192,12 @@ file is "config/settings.php" in other cases.
 
 DbType defaults to "lmdb" (Lightning Memory-Mapped Database) if not found from
 -t/--type or the param set in config/settings.php.
+
+Generator controls the random number generator for ID generation. Options:
+  - "PerlRandom" (default): Perl-compatible, for importing existing Perl databases
+  - "php mt_rand()": Fast native PHP (recommended for new databases)
+  - "php rand()": Native PHP rand()
+  - "perl rand()": Calls Perl (requires Perl installed)
 
 For more information, try "perldoc noid" or "noid help Command".
 

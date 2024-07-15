@@ -368,6 +368,22 @@ class Db
         self::$engine->set(Globals::_RR . "/generator_type", $gen_type);
         self::$engine->set(Globals::_RR . "/genonly", $genonly);
         if ($gen_type == 'random') {
+            // Allow configuring the random generator via settings.
+            // Valid values: 'PerlRandom' (default, Perl-compatible), 'php mt_rand()' (fast),
+            // 'php rand()', 'perl rand()' (requires Perl).
+            if (!empty($settings['generator'])) {
+                $validGenerators = ['PerlRandom', 'Perl_Random', 'php mt_rand()', 'php rand()', 'perl rand()'];
+                if (in_array($settings['generator'], $validGenerators)) {
+                    Noid::$random_generator = $settings['generator'];
+                } else {
+                    Log::addmsg($noid, sprintf(
+                        'warning: invalid generator "%s", using default "%s". Valid: %s',
+                        $settings['generator'],
+                        Noid::$random_generator,
+                        implode(', ', $validGenerators)
+                    ));
+                }
+            }
             self::$engine->set(Globals::_RR . "/generator_random", Noid::$random_generator);
         }
 
