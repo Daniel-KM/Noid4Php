@@ -280,8 +280,9 @@ class Noid
         # If we get here, $value is defined and we can use with impunity.
 
         Db::_dblock();
-        $ret_val = Db::$engine->get("$id\t$elem");
-        if (empty($ret_val)) {      # currently unbound
+        $elemKey = "$id\t$elem";
+        $currentValue = Db::$engine->get($elemKey);
+        if (empty($currentValue)) {      # currently unbound
             if (in_array($how, array('replace', 'append', 'prepend', 'delete'))) {
                 Log::addmsg($noid, sprintf(
                     'error: for "bind %1$s", "%2$s %3$s" must already be bound.',
@@ -290,7 +291,8 @@ class Noid
                 Db::_dbunlock();
                 return null;
             }
-            Db::$engine->set("$id\t$elem", '');  # can concatenate with impunity
+            Db::$engine->set($elemKey, '');  # can concatenate with impunity
+            $currentValue = '';
         } else {                      # currently bound
             if (in_array($how, array('new', 'mint', 'peppermint'))) {
                 Log::addmsg($noid, sprintf(
@@ -303,27 +305,27 @@ class Noid
         }
         # We don't care about bound/unbound for:  set, add, insert, purge
 
-        $oldlen = strlen(Db::$engine->get("$id\t$elem"));
+        $oldlen = strlen($currentValue);
         $newlen = strlen($value);
         $statmsg = sprintf('%s bytes written', $newlen);
 
         if ($how === 'delete' || $how === 'purge') {
-            Db::$engine->delete("$id\t$elem");
+            Db::$engine->delete($elemKey);
             $statmsg = "$oldlen bytes removed";
         } elseif ($how === 'add' || $how === 'append') {
-            Db::$engine->set("$id\t$elem", Db::$engine->get("$id\t$elem") . $value);
+            Db::$engine->set($elemKey, $currentValue . $value);
             $statmsg .= " to the end of $oldlen bytes";
         } elseif ($how === 'insert' || $how === 'prepend') {
-            Db::$engine->set("$id\t$elem", $value . Db::$engine->get("$id\t$elem"));
+            Db::$engine->set($elemKey, $value . $currentValue);
             $statmsg .= " to the beginning of $oldlen bytes";
         }
         // Else $how is "replace" or "set".
         else {
-            Db::$engine->set("$id\t$elem", $value);
+            Db::$engine->set($elemKey, $value);
             $statmsg .= ", replacing $oldlen bytes";
         }
 
-        if ($hold && Db::$engine->exists("$id\t$elem") && !self::hold_set($noid, $id)) {
+        if ($hold && Db::$engine->exists($elemKey) && !self::hold_set($noid, $id)) {
             $hold = -1; # don't just bail out -- we need to unlock
         }
 
