@@ -207,7 +207,7 @@ class Noid
             }
             $id = Globals::_RR . "/idmap/$oelem";
             $elem = $matches[1];
-            if (Db::$engine->get(Globals::_RR . "/longterm")) {
+            if (Db::getCached('longterm')) {
                 $hold = 1;
             }
         }
@@ -219,7 +219,7 @@ class Noid
         # If no circ record and no hold…
         $ret_val = Db::$engine->get("$id\t" . Globals::_RR . "/c");
         if (empty($ret_val) && !Db::$engine->exists("$id\t" . Globals::_RR . "/h")) {
-            if (Db::$engine->get(Globals::_RR . "/longterm")) {
+            if (Db::getCached('longterm')) {
                 Log::addmsg($noid, sprintf(
                     'error: %s: "long" term disallows binding an unissued identifier unless a hold is first placed on it.',
                     $oid
@@ -465,7 +465,7 @@ class Noid
             return null;
         }
 
-        $template = Db::$engine->get(Globals::_RR . "/template");
+        $template = Db::getCached('template');
         if (!$template) {
             Log::addmsg($noid, 'error: this minter does not generate identifiers (it does accept user-defined identifier and element bindings).');
             return null;
@@ -522,7 +522,7 @@ class Noid
             # remove it from the queue and check the queue again.
             #
             if (Db::$engine->exists("$id\t" . Globals::_RR . "/h")) {     # if there's a hold
-                if (Db::$engine->get(Globals::_RR . "/longterm")) {
+                if (Db::getCached('longterm')) {
                     Log::logmsg($noid, sprintf(
                         'warning: id %s found in queue with a hold placed on it -- removed from queue.',
                         $id
@@ -561,7 +561,7 @@ class Noid
             # would normally be minted.  Log if term is "long".
             #
             if ($circ_svec === '') {
-                if (Db::$engine->get(Globals::_RR . "/longterm")) {
+                if (Db::getCached('longterm')) {
                     Log::logmsg($noid, sprintf(
                         'note: queued id %s coming out of queue on first minting (pre-cycled)',
                         $id
@@ -580,8 +580,8 @@ class Noid
         #
 
         // Prepare the id generator for PerlRandom: keep the specified one.
-        if (Db::$engine->get(Globals::_RR . "/generator_type") == 'random') {
-            self::$random_generator = Db::$engine->get(Globals::_RR . "/generator_random") ? : self::$random_generator;
+        if (Db::getCached('generator_type') == 'random') {
+            self::$random_generator = Db::getCached('generator_random') ?: self::$random_generator;
             if (self::$random_generator == 'PerlRandom'
                 // Kept for compatibility with old config.
                 || self::$random_generator == 'Perl_Random'
@@ -590,8 +590,9 @@ class Noid
             }
         }
 
-        $repertoire = Db::$engine->get(Globals::_RR . "/addcheckchar")
-            ? (Db::$engine->get(Globals::_RR . "/checkrepertoire") ? : Helper::getAlphabet($template))
+        $addcheckchar = Db::getCached('addcheckchar');
+        $repertoire = $addcheckchar
+            ? (Db::getCached('checkrepertoire') ?: Helper::getAlphabet($template))
             : '';
 
         # As above, the following is not a proper loop.  Normally it should
@@ -621,13 +622,14 @@ class Noid
 
             # Prepend NAAN and separator if there is a NAAN.
             #
-            if (Db::$engine->get(Globals::_RR . "/firstpart")) {
-                $id = Db::$engine->get(Globals::_RR . "/firstpart") . $id;
+            $firstpart = Db::getCached('firstpart');
+            if ($firstpart) {
+                $id = $firstpart . $id;
             }
 
             # Add check character if called for.
             #
-            if (Db::$engine->get(Globals::_RR . "/addcheckchar")) {
+            if ($addcheckchar) {
                 $id = Helper::checkChar($id, $repertoire);
             }
 
@@ -656,7 +658,7 @@ class Noid
             # term is "long", log that we skipped this one.
             #
             if (substr($circ_svec, 0, 1) === 'q') {
-                if (Db::$engine->get(Globals::_RR . "/longterm")) {
+                if (Db::getCached('longterm')) {
                     Log::logmsg($noid, sprintf(
                         'note: will not issue genid()’d %1$s as its status is "q", circ_rec is %2$s',
                         $id, Db::$engine->get("$id\t" . Globals::_RR . "/c")
@@ -672,7 +674,7 @@ class Noid
             # and (b) it was placed in the queue (thus marked with 'q').
             #
             if (substr($circ_svec, 0, 1) === 'i'
-                && (Db::$engine->get(Globals::_RR . "/longterm") || !Db::$engine->get(Globals::_RR . "/wrap"))
+                && (Db::getCached('longterm') || !Db::getCached('wrap'))
             ) {
                 Log::logmsg($noid, sprintf(
                     'error: id %1$s cannot be re-issued except by going through the queue, circ_rec %2$s',
@@ -923,14 +925,14 @@ class Noid
             # If we get here and we're deleting, circ_svec must be 'q'.
 
             if ($circ_svec === '') {
-                if (Db::$engine->get(Globals::_RR . "/longterm")) {
+                if (Db::getCached('longterm')) {
                     Log::logmsg($noid, sprintf(
                         'note: id %s being queued before first minting (to be pre-cycled)',
                         $id
                     ));
                 }
             } elseif (substr($circ_svec, 0, 1) === 'i') {
-                if (Db::$engine->get(Globals::_RR . "/longterm")) {
+                if (Db::getCached('longterm')) {
                     Log::logmsg($noid, sprintf(
                         'note: longterm id %s being queued for re-issue',
                         $id
@@ -965,7 +967,7 @@ class Noid
 
             Db::_dbunlock();
 
-            if (Db::$engine->get(Globals::_RR . "/longterm")) {
+            if (Db::getCached('longterm')) {
                 Log::logmsg($noid, sprintf(
                     'id: %1$s added to queue under %2$s',
                     Db::$engine->get(Globals::_RR . "/q/$qdate/$fixsqn/$paddedid"), Globals::_RR . "/q/$qdate/$seqnum/$paddedid"
@@ -1231,13 +1233,13 @@ class Noid
         $n = 0;
         foreach ($ids as $id) {
             if ($release) {     # no hold means key doesn't exist
-                if (Db::$engine->get(Globals::_RR . "/longterm")) {
+                if (Db::getCached('longterm')) {
                     Log::logmsg($noid, sprintf('%1$s %2$s: releasing hold', Helper::getTemper(), $id));
                 }
                 Db::_dblock();
                 $status = self::hold_release($noid, $id);
             } else {          # "hold" means key exists
-                if (Db::$engine->get(Globals::_RR . "/longterm")) {
+                if (Db::getCached('longterm')) {
                     Log::logmsg($noid, sprintf('%1$s %2$s: placing hold', Helper::getTemper(), $id));
                 }
                 Db::_dblock();
@@ -1438,7 +1440,7 @@ class Noid
         if (strpos($circ_svec, 'i') === 0) {
             self::_clear_bindings($noid, $id, 0);
             Db::$engine->delete("$id\t" . Globals::_RR . "/p");
-            if (Db::$engine->get(Globals::_RR . "/longterm")) {
+            if (Db::getCached('longterm')) {
                 $status = Noid::hold_set($noid, $id);
             }
         }
@@ -1449,7 +1451,7 @@ class Noid
         # This next logmsg should account for the bulk of the log when
         # longterm identifiers are in effect.
         #
-        if (Db::$engine->get(Globals::_RR . "/longterm")) {
+        if (Db::getCached('longterm')) {
             Log::logmsg($noid, sprintf('m: %1$s%2$s', $circ_rec, $status ? '' : ' -- hold failed'));
         }
 

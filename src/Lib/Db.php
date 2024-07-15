@@ -36,6 +36,74 @@ class Db
     protected static $_db_lock = 'd';
 
     /**
+     * Cache for frequently accessed database values that don't change.
+     * Populated on dbopen(), cleared on dbclose().
+     *
+     * @var array
+     */
+    protected static $_cache = [];
+
+    /**
+     * Keys to cache on dbopen() - these values don't change after dbcreate().
+     *
+     * @var array
+     */
+    protected static $_cacheKeys = [
+        'template',
+        'prefix',
+        'mask',
+        'firstpart',
+        'addcheckchar',
+        'checkrepertoire',
+        'longterm',
+        'wrap',
+        'generator_type',
+        'generator_random',
+        'naa',
+        'naan',
+        'subnaa',
+    ];
+
+    /**
+     * Get a cached value or fetch from database.
+     *
+     * @param string $key The key name (without the :/:noid/ prefix)
+     * @return mixed
+     */
+    public static function getCached($key)
+    {
+        if (isset(self::$_cache[$key])) {
+            return self::$_cache[$key];
+        }
+        // Fallback to database if not cached
+        $value = self::$engine->get(Globals::_RR . "/$key");
+        self::$_cache[$key] = $value;
+        return $value;
+    }
+
+    /**
+     * Populate cache with frequently accessed values.
+     */
+    protected static function _populateCache()
+    {
+        self::$_cache = [];
+        if (!self::$engine) {
+            return;
+        }
+        foreach (self::$_cacheKeys as $key) {
+            self::$_cache[$key] = self::$engine->get(Globals::_RR . "/$key");
+        }
+    }
+
+    /**
+     * Clear the cache.
+     */
+    protected static function _clearCache()
+    {
+        self::$_cache = [];
+    }
+
+    /**
      * Returns a short printable message on success, null on error.
      *
      * @param array $settings Checked full settings.
@@ -450,6 +518,9 @@ NAAN:      $naan
             sleep(self::$locktest);
         }
 
+        // Populate cache with frequently accessed values for performance.
+        self::_populateCache();
+
         return $noid;
     }
 
@@ -466,6 +537,9 @@ NAAN:      $naan
         if (is_null($db)) {
             return;
         }
+
+        // Clear cache on close.
+        self::_clearCache();
 
         unset(Globals::$open_tab['msg'][$noid]);
         if (!empty(Globals::$open_tab['log'][$noid])) {
