@@ -238,11 +238,12 @@ class MysqlDB implements DatabaseInterface
      * Workaround to get an array of all keys matching a simple pattern.
      *
      * @param string $pattern The pattern of the keys to retrieve (no regex).
+     * @param int    $limit   Maximum number of results (0 = unlimited).
      *
      * @return array Ordered associative array of matching keys and values.
      * @throws Exception
      */
-    public function get_range($pattern)
+    public function get_range($pattern, $limit = 0)
     {
         if (is_null($pattern) || !($this->handle instanceof mysqli)) {
             return null;
@@ -254,7 +255,11 @@ class MysqlDB implements DatabaseInterface
         $patternLike = "$patternEscaped%";
 
         // @internal Ordered by default with Berkeley database.
-        $stmt = $this->handle->prepare(sprintf('SELECT `k`, `v` FROM `%s` WHERE `k` LIKE ? ORDER BY `id`', DatabaseInterface::TABLE_NAME));
+        $sql = sprintf('SELECT `k`, `v` FROM `%s` WHERE `k` LIKE ? ORDER BY `id`', DatabaseInterface::TABLE_NAME);
+        if ($limit > 0) {
+            $sql .= ' LIMIT ' . (int) $limit;
+        }
+        $stmt = $this->handle->prepare($sql);
         $stmt->bind_param('s', $patternLike);
         $stmt->execute();
         $result = $stmt->get_result();

@@ -262,11 +262,12 @@ class XmlDB implements DatabaseInterface
      * Workaround to get an array of all keys matching a simple pattern.
      *
      * @param string $pattern The pattern of the keys to retrieve (no regex).
+     * @param int    $limit   Maximum number of results (0 = unlimited).
      *
      * @return array Ordered associative array of matching keys and values.
      * @throws Exception
      */
-    public function get_range($pattern)
+    public function get_range($pattern, $limit = 0)
     {
         if (is_null($pattern) || !is_object($this->handle)) {
             return null;
@@ -274,6 +275,7 @@ class XmlDB implements DatabaseInterface
 
         // a variable to be returned.
         $results = array();
+        $count = 0;
 
         // Find all records where key starts with the pattern (prefix matching).
         // Use starts-with() to match BerkeleyDB behavior.
@@ -285,6 +287,10 @@ class XmlDB implements DatabaseInterface
                 $key = (string) $item['k'];
                 $value = (string) $item;
                 $results[$key] = $value;
+                $count++;
+                if ($limit > 0 && $count >= $limit) {
+                    break;
+                }
             }
         }
 

@@ -114,10 +114,11 @@ interface DatabaseInterface
     /**
      * Get an array of values containing the pattern(no regexp).
      *
-     * @param string          $pattern
+     * @param string   $pattern The prefix pattern to match.
+     * @param int      $limit   Maximum number of results (0 = unlimited).
      *
      * @return array
      * @throws Exception
      */
-    public function get_range($pattern);
+    public function get_range($pattern, $limit = 0);
 }

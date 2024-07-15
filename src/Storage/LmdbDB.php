@@ -199,23 +199,29 @@ class LmdbDB implements DatabaseInterface
      * This workaround may be slow on big bases and may need a lot of memory.
      *
      * @param string $pattern The pattern of the keys to retrieve (no regex).
+     * @param int    $limit   Maximum number of results (0 = unlimited).
      *
      * @return array Ordered associative array of matching keys and values.
      * @throws Exception
      */
-    public function get_range($pattern)
+    public function get_range($pattern, $limit = 0)
     {
         if (is_null($pattern) || !is_resource($this->handle)) {
             return null;
         }
         $results = array();
         $key = dba_firstkey($this->handle);
+        $count = 0;
 
         // Normalize and manage empty pattern.
         $pattern = (string) $pattern;
         if (strlen($pattern) == 0) {
             while ($key !== false) {
                 $results[$key] = dba_fetch($key, $this->handle);
+                $count++;
+                if ($limit > 0 && $count >= $limit) {
+                    break;
+                }
                 $key = dba_nextkey($this->handle);
             }
         }
@@ -224,6 +230,10 @@ class LmdbDB implements DatabaseInterface
             while ($key !== false) {
                 if (strpos($key, $pattern) === 0) {
                     $results[$key] = dba_fetch($key, $this->handle);
+                    $count++;
+                    if ($limit > 0 && $count >= $limit) {
+                        break;
+                    }
                 }
                 $key = dba_nextkey($this->handle);
             }

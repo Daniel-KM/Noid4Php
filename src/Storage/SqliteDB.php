@@ -203,11 +203,12 @@ class SqliteDB implements DatabaseInterface
      * Workaround to get an array of all keys matching a simple pattern.
      *
      * @param string $pattern The pattern of the keys to retrieve (no regex).
+     * @param int    $limit   Maximum number of results (0 = unlimited).
      *
      * @return array Ordered associative array of matching keys and values.
      * @throws Exception
      */
-    public function get_range($pattern)
+    public function get_range($pattern, $limit = 0)
     {
         if (is_null($pattern) || is_null($this->handle) || !($this->handle instanceof SQLite3)) {
             return null;
@@ -219,7 +220,11 @@ class SqliteDB implements DatabaseInterface
         $patternLike = "$patternEscaped%";
 
         // @internal Ordered by default with Berkeley database.
-        $stmt = $this->handle->prepare(sprintf('SELECT `k`, `v` FROM `%s` WHERE `k` LIKE :pattern ESCAPE \'\\\' ORDER BY `id`', DatabaseInterface::TABLE_NAME));
+        $sql = sprintf('SELECT `k`, `v` FROM `%s` WHERE `k` LIKE :pattern ESCAPE \'\\\'  ORDER BY `id`', DatabaseInterface::TABLE_NAME);
+        if ($limit > 0) {
+            $sql .= ' LIMIT ' . (int) $limit;
+        }
+        $stmt = $this->handle->prepare($sql);
         $stmt->bindParam(':pattern', $patternLike, SQLITE3_TEXT);
         $result = $stmt->execute();
 

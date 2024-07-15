@@ -330,9 +330,10 @@ class PdoDb implements DatabaseInterface
      * Get range of keys matching pattern.
      *
      * @param string $pattern Prefix pattern (not regex)
+     * @param int    $limit   Maximum number of results (0 = unlimited).
      * @return array|null
      */
-    public function get_range($pattern)
+    public function get_range($pattern, $limit = 0)
     {
         if (is_null($pattern) || !$this->handle) {
             return null;
@@ -344,7 +345,11 @@ class PdoDb implements DatabaseInterface
         $patternEscaped = str_replace(['%', '_'], ['\\%', '\\_'], $pattern);
         $patternLike = "{$patternEscaped}%";
 
-        $stmt = $this->handle->prepare("SELECT `k`, `v` FROM `{$tableName}` WHERE `k` LIKE ? ESCAPE '\\' ORDER BY `id`");
+        $sql = "SELECT `k`, `v` FROM `{$tableName}` WHERE `k` LIKE ? ESCAPE '\\' ORDER BY `id`";
+        if ($limit > 0) {
+            $sql .= ' LIMIT ' . (int) $limit;
+        }
+        $stmt = $this->handle->prepare($sql);
         $stmt->execute([$patternLike]);
 
         $results = [];
