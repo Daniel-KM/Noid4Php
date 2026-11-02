@@ -120,14 +120,8 @@ class Noid
      */
     public static function init()
     {
-        // Make sure that this function is called only one time.
-        static $init = false;
-        if ($init) {
-            return;
-        }
-        $init = true;
-
-        // create database interface according to database option. added by Daniel Berthereau, 2019-07-29 00:00
+        // Create the engine only once, but retry if a previous attempt failed,
+        // for example when the required extension is missing.
         if (is_null(Db::$engine)) {
             $db_class = Globals::DB_TYPES[Db::$db_type];
             Db::$engine = new $db_class();
