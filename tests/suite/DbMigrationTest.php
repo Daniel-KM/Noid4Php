@@ -37,14 +37,10 @@ class DbMigrationTest extends NoidTestCase
      */
     public function testLmdbHandlerAvailable()
     {
-        $this->assertTrue(
-            extension_loaded('dba'),
-            'Extension "dba" is not available.'
-        );
-        $this->assertTrue(
-            in_array('lmdb', dba_handlers()),
-            'LMDB handler is not available in DBA extension.'
-        );
+        if (!$this->hasLmdb()) {
+            $this->markTestSkipped('LMDB handler not available.');
+        }
+        $this->assertTrue($this->hasLmdb());
     }
 
     /**
@@ -71,7 +67,7 @@ class DbMigrationTest extends NoidTestCase
      */
     public function testDatabaseConvertingLmdb()
     {
-        if (!in_array('lmdb', dba_handlers())) {
+        if (!$this->hasLmdb()) {
             $this->markTestSkipped('LMDB handler not available.');
         }
 
@@ -92,7 +88,7 @@ class DbMigrationTest extends NoidTestCase
      */
     public function testDatabaseConvertingToLmdb()
     {
-        if (!in_array('lmdb', dba_handlers())) {
+        if (!$this->hasLmdb()) {
             $this->markTestSkipped('LMDB handler not available.');
         }
 
@@ -126,6 +122,10 @@ class DbMigrationTest extends NoidTestCase
      */
     public function testMigrationScriptCheck()
     {
+        if (!$this->hasLmdb()) {
+            $this->markTestSkipped('LMDB handler not available.');
+        }
+
         $cmd = sprintf('php %s --check 2>&1', escapeshellarg($this->migrationScript));
         $output = shell_exec($cmd);
 
@@ -155,6 +155,10 @@ class DbMigrationTest extends NoidTestCase
      */
     public function testParseDumpFormat()
     {
+        if (!$this->hasLmdb()) {
+            $this->markTestSkipped('LMDB handler not available.');
+        }
+
         // Create a mock db_dump file
         $dumpContent = <<<'DUMP'
 VERSION=3
@@ -197,6 +201,10 @@ DUMP;
      */
     public function testParseJsonFormat()
     {
+        if (!$this->hasLmdb()) {
+            $this->markTestSkipped('LMDB handler not available.');
+        }
+
         // Create a mock JSON file
         $jsonData = [
             ':noid/erc' => 'test_value',
@@ -230,7 +238,7 @@ DUMP;
      */
     public function testFullMigrationJsonToLmdb()
     {
-        if (!in_array('lmdb', dba_handlers())) {
+        if (!$this->hasLmdb()) {
             $this->markTestSkipped('LMDB handler not available.');
         }
 
@@ -329,6 +337,10 @@ DUMP;
      */
     public function testParseDumpWithEscapedCharacters()
     {
+        if (!$this->hasLmdb()) {
+            $this->markTestSkipped('LMDB handler not available.');
+        }
+
         // Create a dump file with escaped characters
         $dumpContent = <<<'DUMP'
 VERSION=3

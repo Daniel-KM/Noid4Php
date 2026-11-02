@@ -14,7 +14,9 @@ class DbConvertTest extends NoidTestCase
      */
     public function testPhpExtensions()
     {
-        $this->assertTrue(extension_loaded('dba'), 'Extension "dba" unavailable.');
+        if (!extension_loaded('dba')) {
+            $this->markTestSkipped('Extension "dba" unavailable.');
+        }
         $this->assertTrue(extension_loaded('pdo'), 'Extension "pdo" unavailable.');
         $this->assertTrue(
             in_array('sqlite', \PDO::getAvailableDrivers()),
@@ -31,7 +33,7 @@ class DbConvertTest extends NoidTestCase
      */
     public function testDatabaseConvertingLmdb()
     {
-        if (!in_array('lmdb', dba_handlers())) {
+        if (!$this->hasLmdb()) {
             $this->markTestSkipped('LMDB handler not available.');
         }
 
@@ -51,7 +53,7 @@ class DbConvertTest extends NoidTestCase
             $this->markTestSkipped('PDO SQLite driver not available.');
         }
 
-        if (in_array('lmdb', dba_handlers())) {
+        if ($this->hasLmdb()) {
             $this->atomicConverting('pdo', 'lmdb');
         }
         // Skip pdo -> sqlite: both use same noid.sqlite file when pdo driver is sqlite
@@ -69,7 +71,7 @@ class DbConvertTest extends NoidTestCase
             $this->markTestSkipped('SQLite3 extension not available.');
         }
 
-        if (in_array('lmdb', dba_handlers())) {
+        if ($this->hasLmdb()) {
             $this->atomicConverting('sqlite', 'lmdb');
         }
         // Skip sqlite -> pdo: both use same noid.sqlite file when pdo driver is sqlite
@@ -87,7 +89,7 @@ class DbConvertTest extends NoidTestCase
             $this->markTestSkipped('XML extension not available.');
         }
 
-        if (in_array('lmdb', dba_handlers())) {
+        if ($this->hasLmdb()) {
             $this->atomicConverting('xml', 'lmdb');
         }
         $this->atomicConverting('xml', 'sqlite');

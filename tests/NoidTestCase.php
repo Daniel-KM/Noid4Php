@@ -74,6 +74,10 @@ class NoidTestCase extends TestCase
         }
         $db_type = $this->settings['db_type'];
 
+        if (defined('static::dbtype') && static::dbtype === 'lmdb' && !$this->hasLmdb()) {
+            $this->markTestSkipped('LMDB handler not available.');
+        }
+
         $this->data_dir = $this->settings['storage'][$db_type]['data_dir'];
         if (!$this->data_dir) {
             throw new Exception('A directory where to store databases is required.');
@@ -294,5 +298,13 @@ class NoidTestCase extends TestCase
         $erc = file_get_contents($this->noid_dir . 'README');
         return $erc;
         #return `./noid dbcreate $template short 2>&1`;
+    }
+
+    /**
+     * Check if the dba extension is loaded with the lmdb handler.
+     */
+    protected function hasLmdb(): bool
+    {
+        return extension_loaded('dba') && in_array('lmdb', dba_handlers());
     }
 }

@@ -24,6 +24,8 @@ use Noid\Storage\DatabaseInterface;
  */
 class NoidDbCreateTest extends NoidTestCase
 {
+    const dbtype = 'lmdb';
+
     /**
      * Size tests
      * @throws Exception
