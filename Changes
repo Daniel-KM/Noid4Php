@@ -1,5 +1,10 @@
 Revision history for noid script and Noid module.
 
+1.4.1-0.424-php	Fixes
+	Fixed generator of a new database that depended on the process.
+	Fixed engine initialization when a storage extension is missing.
+	Skipped tests requiring lmdb when the dba extension is unavailable.
+
 1.4.0-0.424-php	Batch management and performance
 	Default generator renamed as drand48.
 	Added option to specify the generator.
