@@ -107,10 +107,10 @@ class XmlDB implements DatabaseInterface
     /**
      * Open database/file/other storage.
      *
-     * @param array $settings Set all settings, in particular for import.
-     * @param string $mode
+     * @param array  $settings Set all settings, in particular for import.
+     * @param string $mode     DB_CREATE, DB_WRITE, or DB_RDONLY.
      *
-     * @return resource|object|FALSE
+     * @return SimpleXMLElement|FALSE The handle on success, FALSE on failure.
      * @throws Exception
      */
     public function open($settings, $mode)

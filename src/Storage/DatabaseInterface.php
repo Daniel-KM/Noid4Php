@@ -40,10 +40,14 @@ interface DatabaseInterface
     /**
      * Open database/file/other storage.
      *
-     * @param array $settings Set all settings, in particular for import.
-     * @param string $mode
+     * Note: Use isOpen() to reliably check if the database is open after
+     * calling this method. Some implementations may return objects that
+     * evaluate to false in boolean context (e.g., empty SimpleXMLElement).
      *
-     * @return resource|object|FALSE
+     * @param array  $settings Set all settings, in particular for import.
+     * @param string $mode     DB_CREATE, DB_WRITE, or DB_RDONLY.
+     *
+     * @return resource|object|bool|FALSE Returns truthy on success, FALSE on failure.
      * @throws Exception
      */
     public function open($settings, $mode);
