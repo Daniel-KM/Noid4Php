@@ -75,6 +75,16 @@ use Noid\Lib\PerlRandom;
 class Noid
 {
     /**
+     * Generator of a database without generator, in particular an old one.
+     *
+     * The generator of a database should not depend on the previous operations
+     * of the process, so it is not the current value of $random_generator.
+     *
+     * @var string
+     */
+    const DEFAULT_RANDOM_GENERATOR = 'drand48';
+
+    /**
      * For full compatibility with the perl script, the sequence must use the
      * same pseudo-random generator. The perl script uses int(rand()), that is
      * platform dependent. So, to make the sequence of a random-based template
@@ -92,7 +102,7 @@ class Noid
      * @var string Can be "drand48" (default, Perl-compatible), or "mt_rand"
      * (fast Mersenne Twister).
      */
-    public static $random_generator = 'drand48';
+    public static $random_generator = self::DEFAULT_RANDOM_GENERATOR;
 
     /**
      * Contains the randomizer when the id generator is "drand48".
@@ -928,7 +938,7 @@ class Noid
 
         // Prepare the id generator for drand48: keep the specified one.
         if (Db::getCached('generator_type') == 'random') {
-            self::$random_generator = Db::getCached('generator_random') ?: self::$random_generator;
+            self::$random_generator = Db::getCached('generator_random') ?: self::DEFAULT_RANDOM_GENERATOR;
             if (self::$random_generator == 'drand48'
                 // Kept for compatibility with old config.
                 || self::$random_generator == 'PerlRandom'
@@ -1118,7 +1128,7 @@ class Noid
 
         // Prepare generator settings once
         if (Db::getCached('generator_type') == 'random') {
-            self::$random_generator = Db::getCached('generator_random') ?: self::$random_generator;
+            self::$random_generator = Db::getCached('generator_random') ?: self::DEFAULT_RANDOM_GENERATOR;
             if (self::$random_generator == 'drand48'
                 || self::$random_generator == 'PerlRandom'
                 || self::$random_generator == 'Perl_Random'
@@ -2234,7 +2244,7 @@ class Noid
         $wrap = Db::getCached('wrap');
 
         if (Db::getCached('generator_type') == 'random') {
-            self::$random_generator = Db::getCached('generator_random') ?: self::$random_generator;
+            self::$random_generator = Db::getCached('generator_random') ?: self::DEFAULT_RANDOM_GENERATOR;
             // Initialize drand48 generator if needed
             if (self::$random_generator == 'drand48'
                 || self::$random_generator == 'PerlRandom'

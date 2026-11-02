@@ -369,21 +369,26 @@ class Db
         self::$engine->set(Globals::_RR . "/genonly", $genonly);
         if ($gen_type == 'random') {
             // Allow configuring the random generator via settings.
-            // Valid values: 'mt_rand' (default, Mersenne Twister), 'drand48' (Perl-compatible).
+            // Valid values:
+            // - 'drand48' (default, Perl-compatible),
+            // - 'mt_rand' (Mersenne Twister, quicker and larger).
+            // The default doesn't depend on previous operations of the process.
+            $generator = Noid::DEFAULT_RANDOM_GENERATOR;
             if (!empty($settings['generator'])) {
                 $validGenerators = ['mt_rand', 'drand48'];
                 if (in_array($settings['generator'], $validGenerators)) {
-                    Noid::$random_generator = $settings['generator'];
+                    $generator = $settings['generator'];
                 } else {
                     Log::addmsg($noid, sprintf(
                         'warning: invalid generator "%s", using default "%s". Valid: %s',
                         $settings['generator'],
-                        Noid::$random_generator,
+                        $generator,
                         implode(', ', $validGenerators)
                     ));
                 }
             }
-            self::$engine->set(Globals::_RR . "/generator_random", Noid::$random_generator);
+            Noid::$random_generator = $generator;
+            self::$engine->set(Globals::_RR . "/generator_random", $generator);
         }
 
         self::$engine->set(Globals::_RR . "/total", $total);
