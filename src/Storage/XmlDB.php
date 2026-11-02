@@ -334,7 +334,6 @@ class XmlDB implements DatabaseInterface
         // 2. get data from source database.
         $imported_data = $src_db->get_range('');
         if (count($imported_data) == 0) {
-            print "(no data) ";
             return false;
         }
 
