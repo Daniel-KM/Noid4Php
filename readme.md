@@ -12,7 +12,7 @@ for example the University of California, the Internet Archive, or the
 Bibliothèque nationale de France.
 
 The main goal of this version is for web services, that can create and manage
-standard noids without any dependancy. All commands and functions can be used
+standard noids without any dependency. All commands and functions can be used
 as in the Perl version, via the command line or via the web.
 
 It is used in [Omeka] and [Omeka S], an open source CMS designed to expose
@@ -139,9 +139,9 @@ Configuration
 
 When creating a database, two main choices should be done, because they cannot
 be changed later: the format of the identifiers (see below [random noids](#random-noids)),
-and, if the the noids are random and not simply sequential, the
-[random generator](#random-generator-selection). The choice of storage is less
-important, because it can be changed, but it should be explained too.
+and, if the noids are random and not simply sequential, the [random generator](#random-generator-selection).
+The choice of storage is less important, because it can be changed, but it
+should be explained too.
 
 ### Format of noids
 
@@ -209,7 +209,7 @@ script.
 
 When creating a new database, you can select a format based on a random number.
 If this is the case, you have the choice between two random number generators
-for ID generation. The generator cannot be change later. This affects
+for ID generation. The generator cannot be changed later. This affects
 performance and Perl compatibility:
 
 
@@ -265,7 +265,7 @@ algorithm), are the same for integers at least until 32 bits (perl limit,
 namely more than 4 000 000 000 identifiers).
 
 **For float numbers, the output is different after the 8192nd value**, so keep
-the same language or use marsenne.
+the same language or use mt_rand (Mersenne Twister).
 
 Anyway, it is recommended to use php 7.1 or higher, since previous versions of
 php are no more supported.
@@ -278,14 +278,14 @@ php.
 
 #### Backends
 
-| Backend  | Extension | Notes                                      |
-|----------|-----------|--------------------------------------------|
-| **lmdb** | dba+lmdb  | Default. Fast, reliable. Debian 10+, RHEL. |
-| xml      | xml       | Human-readable, good for backup/export.    |
-| pdo      | pdo       | For existing SQL (any) infrastructure.     |
-| mysql    | mysqli    | For existing MySQL/MariaDB DB (deprecated).|
-| sqlite   | sqlite3   | Portable, single file.                     |
-| bdb      | dba+db4   | Legacy. Deprecated on modern Linux.        |
+| Backend  | Extension | Notes                                       |
+|----------|-----------|---------------------------------------------|
+| **lmdb** | dba+lmdb  | Default. Fast, reliable. Debian 10+, RHEL.  |
+| xml      | xml       | Human-readable, good for backup/export.     |
+| pdo      | pdo       | For existing SQL (any) infrastructure.      |
+| mysql    | mysqli    | For existing MySQL/MariaDB DB (deprecated). |
+| sqlite   | sqlite3   | Portable, single file.                      |
+| bdb      | dba+db4   | Legacy. Deprecated on modern Linux.         |
 
 See [Performance](#performance) for benchmarks and optimization tips.
 
@@ -370,25 +370,25 @@ foreach ($results as $i => $result) {
 
 **API Methods:**
 
-| Method                                                               | Returns        |
-|----------------------------------------------------------------------|----------------|
-| `Noid::bind($noid, $contact, $validate, $how, $id, $elem, $value)`   | `string\|null` |
-| `Noid::bindMultiple($noid, $contact, $validate, $bindings)`          | `array`        |
+| Method (`Noid::`)                                            | Returns   |
+|--------------------------------------------------------------|-----------|
+| `bind($noid, $contact, $validate, $how, $id, $elem, $value)` | `?string` |
+| `bindMultiple($noid, $contact, $validate, $bindings)`        | `array`   |
 
 **Bind operations (`$how` parameter):**
 
-| Operation | Description                                    |
-|-----------|------------------------------------------------|
-| `set`     | Set element value (creates or replaces)        |
-| `new`     | Create new element (fails if already exists)   |
-| `replace` | Replace existing element (fails if not exists) |
-| `append`  | Append value to end of existing element        |
-| `prepend` | Prepend value to beginning of existing element |
-| `add`     | Alias for `append`                             |
-| `insert`  | Alias for `prepend`                            |
-| `delete`  | Delete element (value must be empty)           |
-| `purge`   | Alias for `delete`                             |
-| `mint`    | Mint new ID and bind element (id must be 'new')|
+| Operation | Description                                     |
+|-----------|-------------------------------------------------|
+| `set`     | Set element value (creates or replaces)         |
+| `new`     | Create new element (fails if already exists)    |
+| `replace` | Replace existing element (fails if not exists)  |
+| `append`  | Append value to end of existing element         |
+| `prepend` | Prepend value to beginning of existing element  |
+| `add`     | Alias for `append`                              |
+| `insert`  | Alias for `prepend`                             |
+| `delete`  | Delete element (value must be empty)            |
+| `purge`   | Alias for `delete`                              |
+| `mint`    | Mint new ID and bind element (id must be 'new') |
 
 ### Fetching Elements from Identifiers
 
@@ -432,10 +432,10 @@ foreach ($results as $i => $result) {
 
 **API Methods:**
 
-| Method                                            | Returns        |
-|---------------------------------------------------|----------------|
-| `Noid::fetch($noid, $verbose, $id, ...$elems)`    | `string\|null` |
-| `Noid::fetchMultiple($noid, $verbose, $requests)` | `array`        |
+| Method (`Noid::`)                           | Returns   |
+|---------------------------------------------|-----------|
+| `fetch($noid, $verbose, $id, ...$elems)`    | `?string` |
+| `fetchMultiple($noid, $verbose, $requests)` | `array`   |
 
 
 Migration from BerkeleyDB
@@ -862,7 +862,7 @@ To do
 -----
 
 - [x] Optimize structure and process, but keep inputs, calls, and outputs.
-- [ ] Seperate creation of noids and management of bindings.
+- [ ] Separate creation of noids and management of bindings.
 - [x] Use other standard or flat db engines (mysql and simple file).
 - [ ] See other todo in the perl or php scripts.
 - [ ] Normalize classes (no false, but null, args, return types, etc.)
