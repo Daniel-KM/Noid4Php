@@ -1,5 +1,9 @@
 Revision history for noid script and Noid module.
 
+1.4.3-0.424-php	Fixes for databases lmdb and bdb
+	Fixed wrong report when import of a database bdb fails on write.
+	Increased default limit of lmdb database to 1 GB.
+
 1.4.2-0.424-php	Fixes for databases and php 8.4
 	Fixed the databases lmdb and bdb with php >= 8.4.
 	Fixed escape of like patterns in PdoDb for mysql.
