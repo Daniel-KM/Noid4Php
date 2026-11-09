@@ -282,7 +282,7 @@ php.
 |----------|-----------|---------------------------------------------|
 | **lmdb** | dba+lmdb  | Default. Fast, reliable. Debian 10+, RHEL.  |
 | xml      | xml       | Human-readable, good for backup/export.     |
-| pdo      | pdo       | For existing SQL (any) infrastructure.      |
+| pdo      | pdo       | For existing MySQL/MariaDB or SQLite.       |
 | mysql    | mysqli    | For existing MySQL/MariaDB DB (deprecated). |
 | sqlite   | sqlite3   | Portable, single file.                      |
 | bdb      | dba+db4   | Legacy. Deprecated on modern Linux.         |
@@ -501,12 +501,12 @@ Verify available handlers on your system with:
 3. **SQLite**: Portable, no external dependencies, works on all platforms.
    Set `'db_type' => 'sqlite'` in your settings.
 
-4. **PDO (MySQL, PostgreSQL, SQLite)**: Unified SQL backend using PDO
-   extension. More portable than mysqli, supports multiple database engines.
+4. **PDO (MySQL, SQLite)**: Unified SQL backend using PDO extension. More
+   portable than mysqli.
    Set `'db_type' => 'pdo'` and configure the `driver` option in your settings:
    ```php
    'pdo' => [
-       'driver' => 'mysql',  // or 'pgsql', 'sqlite'
+       'driver' => 'mysql',  // or 'sqlite'
        'data_dir' => '/path/to/data',
        'host' => 'localhost',
        'user' => 'noid',
@@ -514,6 +514,9 @@ Verify available handlers on your system with:
        'db_name' => 'noid',
    ],
    ```
+   **Warning:** The driver `pgsql` is not supported yet: the queries use
+   backticks to quote identifiers, that PostgreSQL rejects. Only the drivers
+   `mysql` and `sqlite` are tested.
 
 5. **MySQL/MariaDB (deprecated)**: Legacy backend using mysqli extension.
    Use PDO instead (`'db_type' => 'pdo'` with `'driver' => 'mysql'`).
