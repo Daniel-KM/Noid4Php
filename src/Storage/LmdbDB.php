@@ -116,7 +116,7 @@ class LmdbDB implements DatabaseInterface
      */
     public function close()
     {
-        if (!is_resource($this->handle)) {
+        if (!$this->isHandle()) {
             return;
         }
 
@@ -127,13 +127,23 @@ class LmdbDB implements DatabaseInterface
     }
 
     /**
+     * Check the handle of the database.
+     *
+     * Since php 8.4, the extension dba returns an object instead of a resource.
+     */
+    protected function isHandle(): bool
+    {
+        return $this->handle instanceof \Dba\Connection || is_resource($this->handle);
+    }
+
+    /**
      * Check if the database connection is currently open.
      *
      * @return bool TRUE if connection is open, FALSE otherwise.
      */
     public function isOpen()
     {
-        return is_resource($this->handle);
+        return $this->isHandle();
     }
 
     /**
@@ -144,7 +154,7 @@ class LmdbDB implements DatabaseInterface
      */
     public function get($key)
     {
-        if (!is_resource($this->handle)) {
+        if (!$this->isHandle()) {
             return false;
         }
 
@@ -160,7 +170,7 @@ class LmdbDB implements DatabaseInterface
      */
     public function set($key, $value)
     {
-        if (!is_resource($this->handle)) {
+        if (!$this->isHandle()) {
             return false;
         }
 
@@ -175,7 +185,7 @@ class LmdbDB implements DatabaseInterface
      */
     public function delete($key)
     {
-        if (!is_resource($this->handle)) {
+        if (!$this->isHandle()) {
             return false;
         }
 
@@ -195,7 +205,7 @@ class LmdbDB implements DatabaseInterface
      */
     public function exists($key)
     {
-        if (!is_resource($this->handle)) {
+        if (!$this->isHandle()) {
             return false;
         }
 
@@ -216,7 +226,7 @@ class LmdbDB implements DatabaseInterface
      */
     public function get_range($pattern, $limit = 0)
     {
-        if ($pattern === null || !is_resource($this->handle)) {
+        if ($pattern === null || !$this->isHandle()) {
             return null;
         }
         $results = array();
@@ -268,7 +278,7 @@ class LmdbDB implements DatabaseInterface
      */
     public function import($src_db)
     {
-        if ($src_db === null || $this->handle === null || !is_resource($this->handle)) {
+        if ($src_db === null || !$this->isHandle()) {
             return false;
         }
 
