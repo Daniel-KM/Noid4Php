@@ -11,6 +11,7 @@
 namespace Noid\Storage;
 
 use Exception;
+use Noid\Lib\Helper;
 
 class LmdbDB implements DatabaseInterface
 {
@@ -119,18 +120,31 @@ class LmdbDB implements DatabaseInterface
 
             // Create a log file from scratch and make it writable.
             $logfile = $path . DIRECTORY_SEPARATOR . 'loglmdb';
-            if (file_put_contents($logfile, '') === false || !chmod($logfile, 0666)) {
+            if (!Helper::writeSharedFile($logfile)) {
+                return false;
+            }
+        }
+
+        // Even a read writes the lock file, created in the directory if
+        // missing, so a database that cannot be written cannot be opened. It is
+        // checked first, since an error handler may log the warning even with
+        // "@".
+        $lock_file = $file_path . '-lock';
+        foreach ([$file_path, $lock_file] as $file) {
+            if (file_exists($file) ? !is_writable($file) : !is_writable($path)) {
                 return false;
             }
         }
 
         $this->readOnly = strpos(strtolower($mode), DatabaseInterface::DB_RDONLY) === 0;
 
+        // The files are writable by the group, so the web server and the jobs
+        // can share the database.
         if (PHP_VERSION_ID >= 80200) {
             $map_size = isset($storage['map_size']) ? (int) $storage['map_size'] : self::MAP_SIZE;
-            $this->handle = dba_open($file_path, $mode, 'lmdb', 0644, $map_size);
+            $this->handle = dba_open($file_path, $mode, 'lmdb', 0664, $map_size);
         } else {
-            $this->handle = dba_open($file_path, $mode, 'lmdb');
+            $this->handle = dba_open($file_path, $mode, 'lmdb', 0664);
         }
 
         return $this->handle;

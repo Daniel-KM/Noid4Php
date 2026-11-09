@@ -323,9 +323,9 @@ class Db
         # Create a log file from scratch and make them writable
         $db_path = $data_dir . DIRECTORY_SEPARATOR . $db_name;
 
-        if (!file_put_contents("$db_path/log", ' ') || !chmod("$db_path/log", 0666)) {
+        if (!Helper::writeSharedFile("$db_path/log", ' ')) {
             Log::addmsg(null, sprintf(
-                'Couldn’t chmod log file: %s/log',
+                'Couldn’t write log file: %s/log',
                 $db_path
             ));
             return null;
@@ -613,7 +613,7 @@ NAAN:      $naan
 
         # yyy to test: can we now open more than one noid at once?
         $envhome = $data_dir . DIRECTORY_SEPARATOR . $db_name . DIRECTORY_SEPARATOR;
-        if (!is_dir($envhome) && !mkdir($envhome, 0755, true)) {
+        if (!is_dir($envhome) && !mkdir($envhome, 0775, true)) {
             $error = error_get_last();
             throw new Exception(sprintf(
                 'error: could not create database directory %1$s: %2$s',
@@ -641,9 +641,10 @@ NAAN:      $naan
 
         # If it exists and is writable, use log file to inscribe the errors.
         $logfile = $envhome . 'log';
-        $logfhandle = fopen($logfile, 'a');
+        $logfhandle = (file_exists($logfile) ? is_writable($logfile) : is_writable($envhome))
+            ? fopen($logfile, 'a')
+            : false;
         $log_opened = $logfhandle !== false;
-        # yyy should we complain if can't open log file?
 
         $noid = $data_dir;
 

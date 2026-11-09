@@ -8,6 +8,7 @@
 namespace Noid\Storage;
 
 use Exception;
+use Noid\Lib\Helper;
 
 class BerkeleyDB implements DatabaseInterface
 {
@@ -133,16 +134,24 @@ class BerkeleyDB implements DatabaseInterface
 
             # Create a logbdb file from scratch and make them writable
             $logbdb = $path . DIRECTORY_SEPARATOR . 'logbdb';
-            if (file_put_contents($logbdb, '') === false || !chmod($logbdb, 0666)) {
-                // Log::addmsg(null, sprintf('Couldn’t chmod logbdb file: %s', $logbdb));
+            if (!Helper::writeSharedFile($logbdb)) {
                 return false;
             }
-            if (is_writable($logbdb)) {
-                $GLOBALS['envargs']['-ErrFile'] = $logbdb;
-            }
+            $GLOBALS['envargs']['-ErrFile'] = $logbdb;
         }
 
-        $this->handle = dba_open($file_path, $mode, 'db4');
+        // A database that cannot be written is checked first, since an error
+        // handler may log the warning of dba even with "@".
+        if (file_exists($file_path)
+            ? !is_readable($file_path) || ($mode[0] !== DatabaseInterface::DB_RDONLY && !is_writable($file_path))
+            : !is_writable($path)
+        ) {
+            return false;
+        }
+
+        // The file is writable by the group, so the web server and the jobs can
+        // share the database.
+        $this->handle = dba_open($file_path, $mode, 'db4', 0664);
 
         return $this->handle;
     }

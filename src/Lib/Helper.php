@@ -322,4 +322,30 @@ class Helper
             ));
         }
     }
+
+    /**
+     * Write a file writable by the group, like the files of the database.
+     *
+     * The permissions are changed only by the owner: a file created by another
+     * user of the group is kept as it is. No warning is emitted on failure,
+     * since an error handler may log it even with "@".
+     *
+     * @param string $file
+     * @param string $content
+     *
+     * @return bool
+     */
+    public static function writeSharedFile($file, $content = '')
+    {
+        if (file_exists($file) ? !is_writable($file) : !is_writable(dirname($file))) {
+            return false;
+        }
+        if (file_put_contents($file, $content) === false) {
+            return false;
+        }
+        if (function_exists('posix_geteuid') && fileowner($file) !== posix_geteuid()) {
+            return true;
+        }
+        return chmod($file, 0664);
+    }
 }
