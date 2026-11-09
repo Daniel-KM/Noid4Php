@@ -22,6 +22,19 @@ class LmdbDB implements DatabaseInterface
     const FILE_EXT = 'lmdb';
 
     /**
+     * Default maximum size of the database, in bytes.
+     *
+     * The default map size of the extension dba is 1 MB, so a database is full
+     * with about 7000 keys, that is less than 2000 identifiers. The map size is
+     * an address space, not a disk space, so a big size does not use disk.
+     * It can be set with the key "map_size" of the settings of the storage. It
+     * is managed since php 8.2.
+     *
+     * @const int MAP_SIZE
+     */
+    const MAP_SIZE = 1073741824;
+
+    /**
      * @var resource $handle
      */
     private $handle;
@@ -106,7 +119,12 @@ class LmdbDB implements DatabaseInterface
             }
         }
 
-        $this->handle = dba_open($file_path, $mode, 'lmdb');
+        if (PHP_VERSION_ID >= 80200) {
+            $map_size = isset($storage['map_size']) ? (int) $storage['map_size'] : self::MAP_SIZE;
+            $this->handle = dba_open($file_path, $mode, 'lmdb', 0644, $map_size);
+        } else {
+            $this->handle = dba_open($file_path, $mode, 'lmdb');
+        }
 
         return $this->handle;
     }
@@ -296,9 +314,12 @@ class LmdbDB implements DatabaseInterface
 
         // 3. write 'em all into this database.
         // The database is empty and the input is an associative array, so no
-        // need to check via $this->set().
+        // need to check via $this->set(). A write fails in particular when the
+        // database is full, and the import should not be reported as done.
         foreach ($imported_data as $key => $value) {
-            dba_replace($key, (string) $value, $this->handle);
+            if (!@dba_replace((string) $key, (string) $value, $this->handle)) {
+                return false;
+            }
         }
 
         return true;
