@@ -226,7 +226,7 @@ class SqliteDB implements DatabaseInterface
 
         // Use prefix matching (pattern%) to match BerkeleyDB behavior.
         // Escape special LIKE characters in the pattern.
-        $patternEscaped = str_replace(array('%', '_'), array('\\%', '\\_'), $pattern);
+        $patternEscaped = strtr($pattern, array('%' => '\\%', '_' => '\\_'));
         $patternLike = "$patternEscaped%";
 
         // @internal Ordered by default with Berkeley database.

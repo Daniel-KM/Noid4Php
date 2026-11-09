@@ -352,7 +352,7 @@ class PdoDb implements DatabaseInterface
         $tableName = DatabaseInterface::TABLE_NAME;
 
         // Escape special LIKE characters
-        $patternEscaped = str_replace(['%', '_'], ['\\%', '\\_'], $pattern);
+        $patternEscaped = strtr($pattern, array('%' => '\\%', '_' => '\\_'));
         $patternLike = "{$patternEscaped}%";
 
         $sql = "SELECT `k`, `v` FROM `{$tableName}` WHERE `k` LIKE ? ESCAPE '\\' ORDER BY `id`";
