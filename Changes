@@ -1,5 +1,10 @@
 Revision history for noid script and Noid module.
 
+1.4.2-0.424-php	Fixes for databases and php 8.4
+	Fixed the databases lmdb and bdb with php >= 8.4.
+	Fixed escape of like patterns in PdoDb for mysql.
+	Escaped backslash in patterns "like" of get_range().
+
 1.4.1-0.424-php	Fixes
 	Fixed generator of a new database that depended on the process.
 	Fixed engine initialization when a storage extension is missing.
