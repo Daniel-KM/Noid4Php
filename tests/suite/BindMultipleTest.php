@@ -299,7 +299,7 @@ class BindMultipleTest extends NoidTestCase
      */
     private function _removeDatabase()
     {
-        if (is_dir($this->noid_dir)) {
+        if ($this->noid_dir && is_dir($this->noid_dir)) {
             $this->_rmdir($this->noid_dir);
         }
     }

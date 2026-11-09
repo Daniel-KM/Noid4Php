@@ -77,6 +77,9 @@ class NoidTestCase extends TestCase
         if (defined('static::dbtype') && static::dbtype === 'lmdb' && !$this->hasLmdb()) {
             $this->markTestSkipped('LMDB handler not available.');
         }
+        if (defined('static::dbtype') && static::dbtype === 'mysql' && !$this->hasMysql()) {
+            $this->markTestSkipped('MySQL server not available.');
+        }
 
         $this->data_dir = $this->settings['storage'][$db_type]['data_dir'];
         if (!$this->data_dir) {
@@ -306,5 +309,26 @@ class NoidTestCase extends TestCase
     protected function hasLmdb(): bool
     {
         return extension_loaded('dba') && in_array('lmdb', dba_handlers());
+    }
+
+    /**
+     * Check if the mysql server of the test settings is reachable.
+     */
+    protected function hasMysql(): bool
+    {
+        if (!extension_loaded('mysqli')) {
+            return false;
+        }
+        $storage = $this->settings['storage']['mysql'];
+        try {
+            $mysqli = @new \mysqli($storage['host'], $storage['user'], $storage['password'], '', $storage['port']);
+        } catch (\mysqli_sql_exception $e) {
+            return false;
+        }
+        if ($mysqli->connect_errno) {
+            return false;
+        }
+        $mysqli->close();
+        return true;
     }
 }

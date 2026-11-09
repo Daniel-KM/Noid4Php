@@ -24,22 +24,25 @@ return array(
         'mysql' => array(
             // Deprecated: use 'pdo' with 'driver' => 'mysql' instead.
             'data_dir' => $tempDir,
-            'host' => 'localhost',
-            'user' => 'test_noid',
-            'password' => 'test_noid',
+            // Server may be set with env vars NOID_TEST_DB_HOST, etc.
+            'host' => getenv('NOID_TEST_DB_HOST') ?: 'localhost',
+            'user' => getenv('NOID_TEST_DB_USER') ?: 'test_noid',
+            'password' => getenv('NOID_TEST_DB_PASSWORD') ?: 'test_noid',
             'db_name' => 'test_noid',
-            'port' => 3306,
+            'port' => (int) (getenv('NOID_TEST_DB_PORT') ?: 3306),
             'socket' => null,
         ),
         'pdo' => array(
             // PDO storage backend - supports mysql, pgsql, sqlite drivers.
-            // Use sqlite for testing as it requires no external server.
-            'driver' => 'sqlite',
+            // Use sqlite for testing as it requires no external server, or
+            // set env var NOID_TEST_PDO_DRIVER to "mysql" to use the server
+            // of the mysql backend.
+            'driver' => getenv('NOID_TEST_PDO_DRIVER') ?: 'sqlite',
             'data_dir' => $tempDir,
-            'host' => null,
-            'port' => null,
-            'user' => null,
-            'password' => null,
+            'host' => getenv('NOID_TEST_DB_HOST') ?: 'localhost',
+            'port' => (int) (getenv('NOID_TEST_DB_PORT') ?: 3306),
+            'user' => getenv('NOID_TEST_DB_USER') ?: 'test_noid',
+            'password' => getenv('NOID_TEST_DB_PASSWORD') ?: 'test_noid',
             'db_name' => 'test_noid',
             'charset' => 'utf8mb4',
         ),

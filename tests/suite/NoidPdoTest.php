@@ -57,7 +57,7 @@ class NoidPdoTest extends NoidTestCase
         $this->assertFileExists($this->noid_dir . 'log');
 
         # Check for the presence of the database file within "NOID".
-        $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'Minter initialization failed, stopped');
+        $this->assertPdoDatabaseExists();
 
         # Mint all but the last two of 290.
         $cmd = "{$noid_cmd} mint 288";
@@ -185,7 +185,7 @@ class NoidPdoTest extends NoidTestCase
         $this->assertTrue(is_dir($this->noid_dir), 'NOID is not a directory, stopped');
         $this->assertFileExists($this->noid_dir . 'README');
         $this->assertFileExists($this->noid_dir . 'log');
-        $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'Minter initialization failed, stopped');
+        $this->assertPdoDatabaseExists();
 
         # Try to queue one.
         $cmd = "{$noid_cmd} queue now 13030/tst27h >/dev/null";
@@ -236,7 +236,7 @@ class NoidPdoTest extends NoidTestCase
         $this->assertTrue(is_dir($this->noid_dir), 'NOID is not a directory, stopped');
         $this->assertFileExists($this->noid_dir . 'README');
         $this->assertFileExists($this->noid_dir . 'log');
-        $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'Minter initialization failed, stopped');
+        $this->assertPdoDatabaseExists();
 
         # Hold first and second identifiers.
         $cmd = "{$noid_cmd} hold set 13030/tst31q 13030/tst30f > /dev/null";
@@ -276,7 +276,7 @@ class NoidPdoTest extends NoidTestCase
         $this->assertTrue(is_dir($this->noid_dir), 'NOID is not a directory, stopped');
         $this->assertFileExists($this->noid_dir . 'README');
         $this->assertFileExists($this->noid_dir . 'log');
-        $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'Minter initialization failed, stopped');
+        $this->assertPdoDatabaseExists();
 
         # Mint 10.
         $cmd = "{$noid_cmd} mint 10 > /dev/null";
@@ -348,7 +348,7 @@ class NoidPdoTest extends NoidTestCase
         $this->assertTrue(is_dir($this->noid_dir), 'NOID is not a directory, stopped');
         $this->assertFileExists($this->noid_dir . 'README');
         $this->assertFileExists($this->noid_dir . 'log');
-        $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'Minter initialization failed, stopped');
+        $this->assertPdoDatabaseExists();
 
         # Try binding the 3rd identifier to be minted.
         $cmd = "{$noid_cmd} bind set 13030/tst594 element value 2>&1";
@@ -363,5 +363,15 @@ class NoidPdoTest extends NoidTestCase
 
         $msg = 'error: 13030/tst594: "long" term disallows binding an unissued identifier unless a hold is first placed on it.';
         $this->assertEquals($msg, $noid_output[0]);
+    }
+
+    /**
+     * Check the database file when the pdo driver is sqlite.
+     */
+    protected function assertPdoDatabaseExists(): void
+    {
+        if ($this->settings['storage']['pdo']['driver'] === 'sqlite') {
+            $this->assertFileExists($this->noid_dir . 'noid.sqlite', 'Minter initialization failed, stopped');
+        }
     }
 }
