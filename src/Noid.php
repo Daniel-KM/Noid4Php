@@ -105,6 +105,13 @@ class Noid
     public static $random_generator = self::DEFAULT_RANDOM_GENERATOR;
 
     /**
+     * Type of the database for which the current engine was created.
+     *
+     * @var string|null
+     */
+    protected static $engine_type;
+
+    /**
      * Contains the randomizer when the id generator is "drand48".
      *
      * @var PerlRandom $_perlRandom
@@ -131,11 +138,15 @@ class Noid
     public static function init()
     {
         // Create the engine only once, but retry if a previous attempt failed,
-        // for example when the required extension is missing.
+        // for example when the required extension is missing, and create it
+        // again when another type of database is used in the same process.
+        // The engine is not checked by class, so it can be replaced, for
+        // example by an engine in memory.
         // Added by Daniel Berthereau, 2019-07-29 00:00
-        if (Db::$engine === null) {
+        if (Db::$engine === null || self::$engine_type !== Db::$db_type) {
             $db_class = Globals::DB_TYPES[Db::$db_type];
             Db::$engine = new $db_class();
+            self::$engine_type = Db::$db_type;
         }
         // function _dba_fetch_range() went as named "get_range()" to DatabaseInterface(BerkeleyDB and MysqlDB)
     }
