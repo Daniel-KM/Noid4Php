@@ -1,5 +1,9 @@
 Revision history for noid script and Noid module.
 
+1.4.5-0.424-php	Simplified permissions for groups.
+	Fixed warning on close of a read-only lmdb database.
+	Made databases lmdb and bdb writeable by group.
+
 1.4.4-0.424-php	Improvments of import
 	Imported a pdo database in a single transaction.
 

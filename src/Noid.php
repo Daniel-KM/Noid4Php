@@ -10,7 +10,7 @@
  * @link http://search.cpan.org/~jak/Noid/
  * @link https://github.com/Daniel-KM/Noid4Php
  * @package Noid
- * @version 1.4.4-0.424-php
+ * @version 1.4.5-0.424-php
  */
 
 /**

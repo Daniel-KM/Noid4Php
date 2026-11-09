@@ -4,7 +4,7 @@ namespace Noid\Lib;
 
 class Globals
 {
-    const VERSION = '1.4.4-0.424-php';
+    const VERSION = '1.4.5-0.424-php';
 
     const NOLIMIT = -1;
     const SEQNUM_MIN = 1;
