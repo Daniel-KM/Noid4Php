@@ -261,7 +261,7 @@ class MysqlDB implements DatabaseInterface
 
         // Use prefix matching (pattern%) to match BerkeleyDB behavior.
         // Escape special LIKE characters in the pattern.
-        $patternEscaped = strtr($pattern, array('%' => '\\%', '_' => '\\_'));
+        $patternEscaped = strtr($pattern, array('\\' => '\\\\', '%' => '\\%', '_' => '\\_'));
         $patternLike = "$patternEscaped%";
 
         // @internal Ordered by default with Berkeley database.
