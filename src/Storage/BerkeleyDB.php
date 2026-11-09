@@ -329,7 +329,11 @@ class BerkeleyDB implements DatabaseInterface
         // The database is empty and the input is an associative array, so no
         // need to check via $this->set().
         foreach ($imported_data as $key => $value) {
-            dba_replace($key, (string) $value, $this->handle);
+            // A write fails in particular when the disk is full, and the
+            // import should not be reported as done.
+            if (!@dba_replace((string) $key, (string) $value, $this->handle)) {
+                return false;
+            }
         }
 
         return true;
