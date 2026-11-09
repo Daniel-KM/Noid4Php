@@ -81,7 +81,7 @@ class Generator
     public static function _genid($noid)
     {
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return null;
         }
 

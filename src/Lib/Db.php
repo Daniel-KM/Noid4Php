@@ -246,7 +246,7 @@ class Db
         $gen_type = null;
         $msg = null;
         $genonly = null;
-        if (is_null($template)) {
+        if ($template === null) {
             $genonly = 0;
             $template = '.zd';
         } else {
@@ -332,7 +332,7 @@ class Db
         }
 
         $db = self::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return null;
         }
 
@@ -687,7 +687,7 @@ NAAN:      $naan
         }
 
         $db = self::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return;
         }
 
@@ -782,7 +782,7 @@ NAAN:      $naan
         Noid::init();
 
         $db = self::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return 0;
         }
 
@@ -807,7 +807,7 @@ NAAN:      $naan
 
         print 'Admin Values:' . PHP_EOL;
         $values = self::$engine->get_range(Globals::_RR . "/");
-        if (is_null($values)) {
+        if ($values === null) {
             Log::addmsg($noid, sprintf(
                 'No values returned by the database.'
             ));
@@ -909,7 +909,7 @@ NAAN:      $naan
     public static function _init_counters($noid)
     {
         $db = self::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return;
         }
 
@@ -969,12 +969,12 @@ NAAN:      $naan
     public static function sample($noid, $num = null)
     {
         $db = self::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return null;
         }
 
         $upper = null;
-        if (is_null($num)) {
+        if ($num === null) {
             $upper = self::$engine->get(Globals::_RR . "/total");
             if ($upper == Globals::NOLIMIT) {
                 $upper = 100000;
@@ -1008,7 +1008,7 @@ NAAN:      $naan
         Noid::init();
 
         $db = self::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return 0;
         }
 

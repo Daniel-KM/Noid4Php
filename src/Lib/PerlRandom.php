@@ -104,7 +104,7 @@ class PerlRandom
      */
     public static function init()
     {
-        if (is_null(self::$_instance)) {
+        if (self::$_instance === null) {
             self::$_instance = new PerlRandom();
         }
         return self::$_instance;
@@ -120,7 +120,7 @@ class PerlRandom
     public function srand48($seed = null)
     {
         // True pseudo-random initialization.
-        if (is_null($seed)) {
+        if ($seed === null) {
             $this->_random_state_48 = $this->_random48();
         }
         // Initialize with the specified seed.
@@ -162,7 +162,7 @@ class PerlRandom
     public function rand48()
     {
         // Initialize the random state if this is the first use.
-        if (is_null($this->_random_state_48)) {
+        if ($this->_random_state_48 === null) {
             $this->srand48();
         }
 

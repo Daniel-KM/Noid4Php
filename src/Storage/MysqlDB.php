@@ -81,13 +81,13 @@ class MysqlDB implements DatabaseInterface
      */
     public function open($settings, $mode)
     {
-        if (is_null($this->handle)) {
+        if ($this->handle === null) {
             $this->settings = $settings;
             $this->connect();
         }
 
         // Early return in case of an issue during connection.
-        if (is_null($this->handle)) {
+        if ($this->handle === null) {
             return false;
         }
 
@@ -255,7 +255,7 @@ class MysqlDB implements DatabaseInterface
      */
     public function get_range($pattern, $limit = 0)
     {
-        if (is_null($pattern) || !($this->handle instanceof mysqli)) {
+        if ($pattern === null || !($this->handle instanceof mysqli)) {
             return null;
         }
 
@@ -298,7 +298,7 @@ class MysqlDB implements DatabaseInterface
      */
     public function import($src_db)
     {
-        if (is_null($src_db) || is_null($this->handle) || !($this->handle instanceof mysqli)) {
+        if ($src_db === null || $this->handle === null || !($this->handle instanceof mysqli)) {
             return false;
         }
 

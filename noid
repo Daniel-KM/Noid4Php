@@ -525,7 +525,7 @@ if(!class_exists('NoidApp')){
                 return 0;
             }
             $report = NULL;
-            if(is_null($elem)){
+            if($elem === null){
                 $elem = '';
             }
             if($elem === ':'){    // expect name/value pairs up to blank line
@@ -573,7 +573,7 @@ if(!class_exists('NoidApp')){
                     }
                     $report = Noid::bind($noid, $this->contact, $validate,
                         $how, $id, $elem, $value);
-                    if(is_null($report)){
+                    if($report === null){
                         fwrite($this->stderr, $report . PHP_EOL);
                         $this->usage(1, 1, 'bind');
                         // yyy how/who should log failures in "hard" case
@@ -585,7 +585,7 @@ if(!class_exists('NoidApp')){
                 }
                 // yyy summarize for log $total and $bound
                 Db::dbclose($noid);
-                return is_null($report) ? 1 : 0;
+                return $report === null ? 1 : 0;
             }
             else if($elem == ':-'){        // expect name/value to be rest of file
                 if(strlen($value)){
@@ -802,7 +802,7 @@ if(!class_exists('NoidApp')){
                 return 0;
             }
             $fetched = Noid::fetch($noid, $verbose, $id, $elems);
-            if(is_null($fetched)){
+            if($fetched === null){
                 fwrite($this->stderr, Log::errmsg($noid));
             }
             else{
@@ -831,7 +831,7 @@ if(!class_exists('NoidApp')){
                 return 0;
             }
             $note = Log::get_note($noid, $key);
-            if(is_null($note)){
+            if($note === null){
                 fwrite($this->stderr, Log::errmsg($noid));
             }
             else{
@@ -936,10 +936,10 @@ if(!class_exists('NoidApp')){
                     'The peppermint command is not implemented yet.' . PHP_EOL);
                 return 0;
             }
-            if(is_null($n) || !is_numeric($n) || $n < 1){
+            if($n === null || !is_numeric($n) || $n < 1){
                 fwrite($this->stderr, sprintf(
                     'Argument error: expected positive integer, got %s',
-                    is_null($n) ? 'nothing' : $n
+                    $n === null ? 'nothing' : $n
                 ) . PHP_EOL);
                 $this->usage(1, 1, 'mint');
                 return 0;
@@ -955,7 +955,7 @@ if(!class_exists('NoidApp')){
             $n = (int)$n;
             if($n === 1){
                 $id = Noid::mint($noid, $this->contact, $pepper);
-                if(is_null($id)){
+                if($id === null){
                     fwrite($this->stderr, Log::errmsg($noid));
                     Db::dbclose($noid);
                     return 0;
@@ -1110,7 +1110,7 @@ if(!class_exists('NoidApp')){
         {
             $info = &$this->_info;
 
-            if(is_null($in_error)){
+            if($in_error === null){
                 $in_error = 1; // default is to treat as error
             }
             if($in_error){
@@ -1119,7 +1119,7 @@ if(!class_exists('NoidApp')){
             // where to send output
             $out = $in_error ? $this->stderr : STDOUT;
             // default is to be brief
-            if(is_null($brief)){
+            if($brief === null){
                 $brief = 1;
             }
             $topic = $topic ? : 'intro';

@@ -247,7 +247,7 @@ class BerkeleyDB implements DatabaseInterface
      */
     public function get_range($pattern, $limit = 0)
     {
-        if (is_null($pattern) || !is_resource($this->handle)) {
+        if ($pattern === null || !is_resource($this->handle)) {
             return null;
         }
         $results = array();
@@ -299,7 +299,7 @@ class BerkeleyDB implements DatabaseInterface
      */
     public function import($src_db)
     {
-        if (is_null($src_db) || is_null($this->handle) || !is_resource($this->handle)) {
+        if ($src_db === null || $this->handle === null || !is_resource($this->handle)) {
             return false;
         }
 

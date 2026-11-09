@@ -88,7 +88,7 @@ class Log
         Noid::init();
 
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return 0;
         }
 
@@ -121,7 +121,7 @@ class Log
         Noid::init();
 
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return null;
         }
 
@@ -144,7 +144,7 @@ class Log
         Noid::init();
 
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return null;
         }
 

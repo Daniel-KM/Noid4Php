@@ -279,7 +279,7 @@ class XmlDB implements DatabaseInterface
      */
     public function get_range($pattern, $limit = 0)
     {
-        if (is_null($pattern) || !is_object($this->handle)) {
+        if ($pattern === null || !is_object($this->handle)) {
             return null;
         }
 
@@ -324,7 +324,7 @@ class XmlDB implements DatabaseInterface
      */
     public function import($src_db)
     {
-        if (is_null($src_db) || is_null($this->handle) || !($this->handle instanceof SimpleXMLElement)) {
+        if ($src_db === null || $this->handle === null || !($this->handle instanceof SimpleXMLElement)) {
             return false;
         }
 

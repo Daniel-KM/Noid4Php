@@ -132,7 +132,8 @@ class Noid
     {
         // Create the engine only once, but retry if a previous attempt failed,
         // for example when the required extension is missing.
-        if (is_null(Db::$engine)) {
+        // Added by Daniel Berthereau, 2019-07-29 00:00
+        if (Db::$engine === null) {
             $db_class = Globals::DB_TYPES[Db::$db_type];
             Db::$engine = new $db_class();
         }
@@ -159,7 +160,7 @@ class Noid
         self::init();
 
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return null;
         }
 
@@ -375,7 +376,7 @@ class Noid
         self::init();
 
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return [];
         }
 
@@ -591,7 +592,7 @@ class Noid
         }
 
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return null;
         }
 
@@ -691,7 +692,7 @@ class Noid
         self::init();
 
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return [];
         }
 
@@ -806,7 +807,7 @@ class Noid
         self::init();
 
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return null;
         }
 
@@ -975,7 +976,7 @@ class Noid
             # will convert it to a check character.
             #
             $id = Generator::_genid($noid);
-            if (is_null($id)) {
+            if ($id === null) {
                 return null;
             }
 
@@ -1107,7 +1108,7 @@ class Noid
         self::init();
 
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return [];
         }
 
@@ -1277,7 +1278,7 @@ class Noid
             srand((int) Db::$engine->get(Globals::_RR . "/oacounter"));
 
             $id = Generator::_genid($noid);
-            if (is_null($id)) {
+            if ($id === null) {
                 return null;
             }
 
@@ -1399,7 +1400,7 @@ class Noid
         self::init();
 
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return null;
         }
 
@@ -1634,7 +1635,7 @@ class Noid
         self::init();
 
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return null;
         }
 
@@ -1688,13 +1689,13 @@ class Noid
 
         $m = preg_replace('/k$/', '', $mask);
         $should_have_checkchar = $m !== $mask;
-        if (is_null($repertoire)) {
+        if ($repertoire === null) {
             $repertoire = $should_have_checkchar ? Helper::getAlphabet($prefix . '.' . $mask) : '';
         }
 
         $naan = Db::$engine->get(Globals::_RR . "/naan");
         foreach ($ids as $id) {
-            if (is_null($id) || trim($id) == '') {
+            if ($id === null || trim($id) == '') {
                 $retvals[] = "iderr: can't validate an empty identifier";
                 continue;
             }
@@ -1752,7 +1753,7 @@ class Noid
                     break;
                 }
                 $m = $maskIndex < $maskLen ? $maskchars[$maskIndex++] : null;  // O(1) indexed access
-                if (is_null($m)) {
+                if ($m === null) {
                     if ($mode !== 'z') {
                         $retvals[] = sprintf('iderr: %1$s longer than specified template (%2$s)', $id, $template);
                         $flagBreakContinue = true;
@@ -1801,7 +1802,7 @@ class Noid
         self::init();
 
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return 0;
         }
 
@@ -1906,7 +1907,7 @@ class Noid
         self::init();
 
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return 0;
         }
 
@@ -1944,7 +1945,7 @@ class Noid
         self::init();
 
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return 0;
         }
 
@@ -1984,7 +1985,7 @@ class Noid
     protected static function _get_circ_svec($noid, $id)
     {
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return '';
         }
 
@@ -2042,7 +2043,7 @@ class Noid
     protected static function _set_circ_rec($noid, $id, $circ_svec, $date, $contact)
     {
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return null;
         }
 
@@ -2106,7 +2107,7 @@ class Noid
         $retvals = array();
 
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return null;
         }
 
@@ -2145,13 +2146,13 @@ class Noid
     protected static function _id2elemval($noid, $verbose, $id, $elem)
     {
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return '';
         }
 
         $first = Globals::_RR . "/idmap/$elem\t";
         $values = Db::$engine->get_range($first);
-        if (is_null($values)) {
+        if ($values === null) {
             return sprintf('error: id2elemval: access to database failed.');
         }
         if (empty($values)) {
@@ -2206,7 +2207,7 @@ class Noid
         self::init();
 
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return 0;
         }
 
@@ -2313,7 +2314,7 @@ class Noid
         self::init();
 
         $db = Db::getDb($noid);
-        if (is_null($db)) {
+        if ($db === null) {
             return 0;
         }
 

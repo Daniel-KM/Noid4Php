@@ -82,7 +82,7 @@ class SqliteDB implements DatabaseInterface
 
         $file_path = $path . DIRECTORY_SEPARATOR . DatabaseInterface::TABLE_NAME . '.' . self::FILE_EXT;
 
-        if (!is_null($this->handle) && $this->handle instanceof SQLite3) {
+        if ($this->handle !== null && $this->handle instanceof SQLite3) {
             $this->handle->close();
         }
 
@@ -109,7 +109,7 @@ class SqliteDB implements DatabaseInterface
      */
     public function close()
     {
-        if (is_null($this->handle) || !($this->handle instanceof SQLite3)) {
+        if ($this->handle === null || !($this->handle instanceof SQLite3)) {
             return;
         }
 
@@ -135,7 +135,7 @@ class SqliteDB implements DatabaseInterface
      */
     public function get($key)
     {
-        if (is_null($this->handle) || !($this->handle instanceof SQLite3)) {
+        if ($this->handle === null || !($this->handle instanceof SQLite3)) {
             return false;
         }
 
@@ -157,7 +157,7 @@ class SqliteDB implements DatabaseInterface
      */
     public function set($key, $value)
     {
-        if (is_null($this->handle) || !($this->handle instanceof SQLite3)) {
+        if ($this->handle === null || !($this->handle instanceof SQLite3)) {
             return false;
         }
 
@@ -177,7 +177,7 @@ class SqliteDB implements DatabaseInterface
      */
     public function delete($key)
     {
-        if (is_null($this->handle) || !($this->handle instanceof SQLite3)) {
+        if ($this->handle === null || !($this->handle instanceof SQLite3)) {
             return false;
         }
 
@@ -196,7 +196,7 @@ class SqliteDB implements DatabaseInterface
      */
     public function exists($key)
     {
-        if (is_null($this->handle) || !($this->handle instanceof SQLite3)) {
+        if ($this->handle === null || !($this->handle instanceof SQLite3)) {
             return false;
         }
 
@@ -220,7 +220,7 @@ class SqliteDB implements DatabaseInterface
      */
     public function get_range($pattern, $limit = 0)
     {
-        if (is_null($pattern) || is_null($this->handle) || !($this->handle instanceof SQLite3)) {
+        if ($pattern === null || $this->handle === null || !($this->handle instanceof SQLite3)) {
             return null;
         }
 
@@ -263,7 +263,7 @@ class SqliteDB implements DatabaseInterface
      */
     public function import($src_db)
     {
-        if (is_null($src_db) || is_null($this->handle) || !($this->handle instanceof SQLite3)) {
+        if ($src_db === null || $this->handle === null || !($this->handle instanceof SQLite3)) {
             return false;
         }
 

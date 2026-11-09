@@ -345,7 +345,7 @@ class PdoDb implements DatabaseInterface
      */
     public function get_range($pattern, $limit = 0)
     {
-        if (is_null($pattern) || !$this->handle) {
+        if ($pattern === null || !$this->handle) {
             return null;
         }
 
