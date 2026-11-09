@@ -45,6 +45,11 @@ class LmdbDB implements DatabaseInterface
     private $settings;
 
     /**
+     * @var bool
+     */
+    private $readOnly = false;
+
+    /**
      * LmdbDB constructor.
      * @throws Exception
      */
@@ -119,6 +124,8 @@ class LmdbDB implements DatabaseInterface
             }
         }
 
+        $this->readOnly = strpos(strtolower($mode), DatabaseInterface::DB_RDONLY) === 0;
+
         if (PHP_VERSION_ID >= 80200) {
             $map_size = isset($storage['map_size']) ? (int) $storage['map_size'] : self::MAP_SIZE;
             $this->handle = dba_open($file_path, $mode, 'lmdb', 0644, $map_size);
@@ -138,8 +145,11 @@ class LmdbDB implements DatabaseInterface
             return;
         }
 
-        // Suppress warning if database was opened read-only.
-        @dba_sync($this->handle);
+        // A sync of a read-only lmdb database fails with "Permission denied",
+        // even with "@", since an error handler may log it anyway.
+        if (!$this->readOnly) {
+            dba_sync($this->handle);
+        }
         dba_close($this->handle);
         $this->handle = null;
     }
