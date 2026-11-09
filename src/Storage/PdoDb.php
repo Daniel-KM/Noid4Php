@@ -351,11 +351,12 @@ class PdoDb implements DatabaseInterface
 
         $tableName = DatabaseInterface::TABLE_NAME;
 
-        // Escape special LIKE characters
-        $patternEscaped = strtr($pattern, array('\\' => '\\\\', '%' => '\\%', '_' => '\\_'));
+        // Escape special LIKE characters with "!", because the backslash is
+        // itself an escape character in mysql string literals.
+        $patternEscaped = strtr($pattern, array('!' => '!!', '%' => '!%', '_' => '!_'));
         $patternLike = "{$patternEscaped}%";
 
-        $sql = "SELECT `k`, `v` FROM `{$tableName}` WHERE `k` LIKE ? ESCAPE '\\' ORDER BY `id`";
+        $sql = "SELECT `k`, `v` FROM `{$tableName}` WHERE `k` LIKE ? ESCAPE '!' ORDER BY `id`";
         if ($limit > 0) {
             $sql .= ' LIMIT ' . (int) $limit;
         }
