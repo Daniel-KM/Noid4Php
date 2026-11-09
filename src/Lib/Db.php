@@ -307,8 +307,9 @@ class Db
         if (!$noid) {
             Log::addmsg(null, sprintf(
                 'error: a NOID database can not be created in: %1$s.' . PHP_EOL
-                . "\t" . 'To permit creation of a new minter, rename' . PHP_EOL
-                . "\t" . 'or remove the entire %2$s subdirectory.',
+                . "\t" . 'To permit creation of a new minter, check that the' . PHP_EOL
+                . "\t" . 'directory is writeable, or rename or remove the entire' . PHP_EOL
+                . "\t" . '%2$s subdirectory.',
                 $data_dir, dirname($data_dir)
             ));
             return null;
@@ -626,7 +627,7 @@ NAAN:      $naan
         $db = @self::$engine->open($settings, $mode);
         if ($db === false) {
             Log::addmsg(null, sprintf(
-                'Failed to open database in directory "%s".',
+                'Failed to open database in directory "%s": check that it exists and that its files can be read and written.',
                 $data_dir
             ));
             return null;
@@ -734,9 +735,10 @@ NAAN:      $naan
         self::$db_type = $settings['db_type'];
         Noid::init();
         if (!self::$engine->open($settings, DatabaseInterface::DB_WRITE)) {
-            throw new Exception(
-                'The destination database does not exist.'
-            );
+            throw new Exception(sprintf(
+                'The destination database does not exist or cannot be written in %s.',
+                $settings['storage'][self::$db_type]['data_dir'] ?? ''
+            ));
         }
 
         // initialize the source db
@@ -752,7 +754,7 @@ NAAN:      $naan
 
         if (!$src_engine->open($src_settings, DatabaseInterface::DB_RDONLY)) {
             throw new Exception(sprintf(
-                'The source database does not exist in %s.',
+                'The source database does not exist or cannot be read in %s.',
                 $src_settings['storage'][$src_type]['data_dir']
             ));
         }

@@ -100,7 +100,7 @@ class Log
                 . ($status ? '' : ' -- note failed'));
         }
         if (!$status) {
-            self::addmsg($noid, 'Db::$engine->set() error unknown.');
+            self::addmsg($noid, sprintf('error: the note "%s" cannot be written in the database.', $key));
             return 0;
         }
         return 1;
