@@ -385,9 +385,6 @@ class PdoDb implements DatabaseInterface
 
         $tableName = DatabaseInterface::TABLE_NAME;
 
-        // Clear existing data
-        $this->handle->exec("DELETE FROM `{$tableName}`");
-
         // Get source data
         $importedData = $src_db->get_range('');
         if (empty($importedData)) {
@@ -403,9 +400,19 @@ class PdoDb implements DatabaseInterface
             $sql = "INSERT INTO `{$tableName}` (`k`, `v`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `v` = VALUES(`v`)";
         }
 
-        $stmt = $this->handle->prepare($sql);
-        foreach ($importedData as $key => $value) {
-            $stmt->execute([$key, $value]);
+        // A single transaction avoids a sync of the disk for each row, and the
+        // existing data are kept when the import fails.
+        $this->handle->beginTransaction();
+        try {
+            $this->handle->exec("DELETE FROM `{$tableName}`");
+            $stmt = $this->handle->prepare($sql);
+            foreach ($importedData as $key => $value) {
+                $stmt->execute([$key, $value]);
+            }
+            $this->handle->commit();
+        } catch (PDOException $e) {
+            $this->handle->rollBack();
+            return false;
         }
 
         return true;
